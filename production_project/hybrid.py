@@ -224,12 +224,24 @@ class Hybrid:
         filled_D_grid = D_average/number_of_repeats
         filled_C_grid = C_average/number_of_repeats
 
-        combined_grid = np.zeros_like(filled_D_grid)
+        #combined_grid = np.zeros_like(filled_D_grid)
+
+        combined_grid = np.zeros_like(filled_C_grid)
+        
+        # for i in range(filled_D_grid.shape[1]):
+        #     approximate_cont_mass = self.approximate_mass_left_hand(filled_D_grid[:,i], filled_C_grid[:,i])
+        #     #print(f"Approximate mass = {approximate_cont_mass}")
+        #     combined_grid[:,i] = np.add(filled_D_grid[:,i], approximate_cont_mass)
 
         for i in range(filled_D_grid.shape[1]):
-            approximate_cont_mass = self.approximate_mass_left_hand(filled_D_grid[:,i], filled_C_grid[:,i])
-            #print(f"Approximate mass = {approximate_cont_mass}")
-            combined_grid[:,i] = np.add(filled_D_grid[:,i], approximate_cont_mass)
+
+            for j in range(filled_D_grid.shape[0]):
+                start_index = j*self.PDE_multiple
+                end_index = (j+1)*self.PDE_multiple
+
+                combined_grid[start_index:end_index,i] = filled_C_grid[start_index:end_index,i]+filled_D_grid[j,i]
+
+        
 
         print("Simulation completed")
         return filled_D_grid, filled_C_grid, combined_grid

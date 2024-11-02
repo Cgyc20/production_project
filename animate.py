@@ -24,7 +24,7 @@ print(f"shape of PDE_X: {PDE_X.shape}")
 print(f"shape of time_vector: {time_vector.shape}")
 print(f"shape of SSA_grid: {SSA_grid.shape}")
 
-analytic_sol = np.zeros_like(D_grid)
+analytic_sol = np.zeros_like(C_grid)
 production_rate = parameters["production_rate"]
 degredation_rate = parameters["degredation_rate"]
 print(parameters)
@@ -42,8 +42,8 @@ bar_SSA = ax.bar(bar_positions, D_grid[:, 0] / h, width=h, color='blue', align='
 
 # Initial plot for PDE data
 line_PDE, = ax.plot(PDE_X[:], C_grid[:, 0], label='PDE', color='red')
-line_combined, = ax.plot(SSA_X + h / 2, combined_grid[:, 0] / h, label='Combined', color='green')
-line_analytic, = ax.plot(SSA_X + h / 2, analytic_sol[:, 0], label='Analytic Solution', color='purple')
+line_combined, = ax.plot(PDE_X , combined_grid[:, 0] / h, label='Combined', color='green')
+line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic Solution', color='purple')
 line_pure_SSA, = ax.plot(SSA_X + h / 2, SSA_grid[:, 0], label='Pure SSA', color='orange')
 
 # Set titles and labels
