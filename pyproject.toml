@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "production-projection"
+name = "production-project"
 version = "0.1.0"
 description = ""
 authors = ["Cgyc20 <cgyc20@bath.ac.uk>"]
@@ -7,6 +7,9 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+numpy = "^2.1.2"
+matplotlib = "^3.9.2"
+tqdm = "^4.66.6"
 
 
 [build-system]
