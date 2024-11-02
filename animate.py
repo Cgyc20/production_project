@@ -42,7 +42,7 @@ bar_SSA = ax.bar(bar_positions, D_grid[:, 0] / h, width=h, color='blue', align='
 
 # Initial plot for PDE data
 line_PDE, = ax.plot(PDE_X[:], C_grid[:, 0], label='PDE', color='red')
-line_combined, = ax.plot(PDE_X , combined_grid[:, 0] / h, label='Combined', color='green')
+line_combined, = ax.plot(PDE_X , combined_grid[:, 0] , label='Combined', color='green')
 line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic Solution', color='purple')
 line_pure_SSA, = ax.plot(SSA_X + h / 2, SSA_grid[:, 0], label='Pure SSA', color='orange')
 
@@ -62,14 +62,14 @@ ax.legend()
 # Update function for animation
 def update(frame):
     # Update SSA bar heights
-    for bar, height in zip(bar_SSA, D_grid[:, frame] / h):
+    for bar, height in zip(bar_SSA, D_grid[:, frame]/h):
         bar.set_height(height)
     
     # Update PDE line
     line_PDE.set_ydata(C_grid[:, frame])
-    line_combined.set_ydata(combined_grid[:, frame] / h)
+    line_combined.set_ydata(combined_grid[:, frame])
     line_analytic.set_ydata(analytic_sol[:, frame])
-    line_pure_SSA.set_ydata(SSA_grid[:, frame]/h)
+    line_pure_SSA.set_ydata(SSA_grid[:, frame])
     
     # Return all updated artists as a tuple
     return (*bar_SSA, line_PDE, line_combined, line_analytic, line_pure_SSA)
@@ -87,4 +87,23 @@ else:
 ani = FuncAnimation(fig, update, frames=range(len(time_vector)), interval=interval_number, blit=True)
 
 # Show the animated plot
+plt.show()
+
+
+plt.figure()
+
+analytic_av = np.mean(analytic_sol,axis=0)
+PDE_av = np.mean(C_grid,axis=0)
+combined_av = np.mean(combined_grid,axis=0)
+SSA_av = np.mean(D_grid/h,axis=0)
+pure_SSA_av = np.mean(SSA_grid/h,axis=0)
+
+plt.plot(time_vector,analytic_av,label = 'Analytic')
+plt.plot(time_vector,PDE_av, label = 'PDE_av')
+plt.plot(time_vector,combined_av, label = 'Combined_av')
+plt.plot(time_vector,SSA_av, label = 'SSA')
+
+plt.legend()
+plt.xlabel('Time')
+plt.ylabel('Average concentration over')
 plt.show()

@@ -6,7 +6,7 @@ import os
 import json
 
 class Hybrid:
-    def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degredation_rate, diffusion_rate, SSA_initial):
+    def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold_conc, gamma, production_rate, degredation_rate, diffusion_rate, SSA_initial):
         self.L = domain_length
         self.SSA_M = compartment_number
         self.PDE_multiple = PDE_multiple
@@ -15,8 +15,9 @@ class Hybrid:
         self.deltax = self.L / self.PDE_M
         self.total_time = total_time
         self.timestep = timestep
-        self.threshold = threshold
+        self.threshold_conc = threshold_conc
         self.gamma = gamma
+        
         
         self.degredation_rate = degredation_rate
         
@@ -24,6 +25,9 @@ class Hybrid:
         self.diffusion_rate = diffusion_rate*self.h
         self.production_rate_per_compartment = production_rate*self.h
         self.d = diffusion_rate / (self.h ** 2)  # Jump rate in SSA
+
+        self.threshold = self.threshold_conc*self.h
+
 
         self.SSA_X = np.linspace(0, self.L - self.h, self.SSA_M)
         self.PDE_X = np.linspace(0, self.L - self.deltax, self.PDE_M)
@@ -41,10 +45,23 @@ class Hybrid:
         self.steady_state = production_rate / degredation_rate
         self.DX_NEW = self.create_finite_difference()  # Ensure DX_NEW is initialized here
         self.time_vector = np.arange(0, total_time, timestep)  # The time vector
+        self.Crank_matrix = self.create_crank_nicholson() #The crank method
+
         print("Successfully initialized the hybrid model")
 
     
-    
+    def create_crank_nicholson(self):
+        """Creates the matrix used for crank nicholson method"""
+
+        nuDX = self.create_finite_difference()
+
+        M1 = np.identity(nuDX.shape[0])*(1+0.5*self.timestep*self.degredation_rate)-nuDX
+        M2 = np.identity(nuDX.shape[0])*(1-0.5*self.timestep*self.degredation_rate)+nuDX
+        Crank_matrix = np.linalg.inv(M1)@M2
+
+        return Crank_matrix
+
+
     def create_finite_difference(self):
         """Creates finite difference matrix"""
 
@@ -85,6 +102,11 @@ class Hybrid:
         P4 = self.differential(old_vector + self.timestep * P3)
         new_vector = old_vector + (self.timestep / 6) * (P1 + 2 * P2 + 2 * P3 + P4)
         return new_vector
+    
+    def crank_nicholson(self,old_vector):
+        """Returns the new vector using the crank nicholson matrix"""
+
+        return self.Crank_matrix@old_vector #The new vector!
 
     def approximate_mass_left_hand(self,D_list, C_list):
         """Works out the approximate mass of the PDE domain over each grid point. Using the left hand rule"""
@@ -194,7 +216,9 @@ class Hybrid:
                 old_time = t  # Update old_time
                 t += tau  # Update time by the time step
             else:  # Else we run the ODE step
-                C_list = self.RK4(C_list)
+
+                # C_list = self.RK4(C_list)
+                C_list = self.crank_nicholson(C_list)
                 C_list = np.maximum(C_list, 0)  # Ensure non-negativity after RK4 step
                 t = td
                 td += self.timestep
@@ -239,7 +263,7 @@ class Hybrid:
                 start_index = j*self.PDE_multiple
                 end_index = (j+1)*self.PDE_multiple
 
-                combined_grid[start_index:end_index,i] = filled_C_grid[start_index:end_index,i]+filled_D_grid[j,i]
+                combined_grid[start_index:end_index,i] = filled_C_grid[start_index:end_index,i]+(1/self.h)*filled_D_grid[j,i]
 
         
 
