@@ -4,17 +4,26 @@ from matplotlib.animation import FuncAnimation
 import json
 import sys
 
-C_grid = np.load("Data/C_grid.npy")
-D_grid = np.load("Data/D_grid.npy")
-combined_grid = np.load("Data/combined_grid.npy")
-SSA_X = np.load("Data/SSA_X.npy")
-PDE_X = np.load("Data/PDE_X.npy")
-time_vector = np.load("Data/time_vector.npy")
+
+Hybrid_data = np.load("Data/Hybrid_data.npz")
+C_grid = Hybrid_data["C_grid"]
+D_grid = Hybrid_data["D_grid"]
+combined_grid = Hybrid_data["combined_grid"]
+SSA_X = Hybrid_data["SSA_X"]
+PDE_X = Hybrid_data["PDE_X"]
+time_vector = Hybrid_data["time_vector"]
+parameters = json.load(open("Data/parameters.json"))
+
 parameters = json.load(open("Data/parameters.json"))
 h = parameters["h"]
 bar_positions = SSA_X   # Shift left to center on the interval
 
-SSA_grid = np.load("Data/Pure_SSA_grid.npy")
+SSA_data = np.load("Data/Pure_SSA_data.npz")
+SSA_grid = SSA_data["SSA_grid"]
+
+Pure_PDE = np.load("Data/PDE_data.npz")
+
+pure_PDE_grid = Pure_PDE["PDE_grid"]
 
 print(f"shape of C_grid: {C_grid.shape}")
 print(f"shape of D_grid: {D_grid.shape}")
@@ -41,12 +50,12 @@ fig, ax = plt.subplots()
 bar_SSA = ax.bar(bar_positions, D_grid[:, 0] / h, width=h, color='blue', align='edge', label='SSA (Bar Chart)')
 
 # Initial plot for PDE data
-line_PDE, = ax.plot(PDE_X[:], C_grid[:, 0], label='PDE', color='red')
-line_combined, = ax.plot(PDE_X , combined_grid[:, 0] , label='Combined', color='green')
-line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic Solution', color='purple')
-line_pure_SSA, = ax.plot(SSA_X + h / 2, SSA_grid[:, 0], label='Pure SSA', color='orange')
+line_PDE, = ax.plot(PDE_X[:], C_grid[:, 0], label='PDE', color='green')
+line_combined, = ax.plot(PDE_X , combined_grid[:, 0] ,'k--', label='Combined')
+line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic Solution', color='red')
+line_pure_SSA, = ax.plot(SSA_X + h / 2, SSA_grid[:, 0],'b', label='Pure SSA', color='orange')
 
-# Set titles and labels
+# Set titles and labelsxs
 ax.set_xlabel('Spatial Domain')
 ax.set_ylabel('Species Concentration')
 ax.set_title('SSA and PDE Data Animation')
@@ -69,7 +78,7 @@ def update(frame):
     line_PDE.set_ydata(C_grid[:, frame])
     line_combined.set_ydata(combined_grid[:, frame])
     line_analytic.set_ydata(analytic_sol[:, frame])
-    line_pure_SSA.set_ydata(SSA_grid[:, frame])
+    line_pure_SSA.set_ydata(SSA_grid[:, frame]/h)
     
     # Return all updated artists as a tuple
     return (*bar_SSA, line_PDE, line_combined, line_analytic, line_pure_SSA)
@@ -96,12 +105,15 @@ analytic_av = np.mean(analytic_sol,axis=0)
 PDE_av = np.mean(C_grid,axis=0)
 combined_av = np.mean(combined_grid,axis=0)
 SSA_av = np.mean(D_grid/h,axis=0)
+pure_PDE_av = np.mean(pure_PDE_grid,axis=0)
 pure_SSA_av = np.mean(SSA_grid/h,axis=0)
 
-plt.plot(time_vector,analytic_av,label = 'Analytic')
-plt.plot(time_vector,PDE_av, label = 'PDE_av')
-plt.plot(time_vector,combined_av, label = 'Combined_av')
-plt.plot(time_vector,SSA_av, label = 'SSA')
+plt.plot(time_vector,analytic_av,label = 'Analytic',color = 'red')
+plt.plot(time_vector,PDE_av,'g', label = 'PDE_av')
+plt.plot(time_vector,SSA_av,'b',label='SSA_av')
+plt.plot(time_vector,pure_PDE_av,'g--', label = 'Pure PDE')
+plt.plot(time_vector,combined_av,'k--', label = 'Combined_av')
+plt.plot(time_vector,pure_SSA_av, label = 'Pure SSA',color = 'orange')
 
 plt.legend()
 plt.xlabel('Time')

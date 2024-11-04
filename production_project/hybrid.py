@@ -6,6 +6,7 @@ import os
 import json
 
 class Hybrid:
+    
     def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold_conc, gamma, production_rate, degredation_rate, diffusion_rate, SSA_initial):
         self.L = domain_length
         self.SSA_M = compartment_number
@@ -18,7 +19,6 @@ class Hybrid:
         self.threshold_conc = threshold_conc
         self.gamma = gamma
         
-        
         self.degredation_rate = degredation_rate
         
         self.h = self.L / compartment_number
@@ -30,7 +30,7 @@ class Hybrid:
 
 
         self.SSA_X = np.linspace(0, self.L - self.h, self.SSA_M)
-        self.PDE_X = np.linspace(0, self.L - self.deltax, self.PDE_M)
+        self.PDE_X = np.linspace(0, self.L-self.deltax, self.PDE_M)
 
         if not isinstance(SSA_initial, np.ndarray):
             raise ValueError("SSA initial is not a np array")
@@ -45,7 +45,7 @@ class Hybrid:
         self.steady_state = production_rate / degredation_rate
         self.DX_NEW = self.create_finite_difference()  # Ensure DX_NEW is initialized here
         self.time_vector = np.arange(0, total_time, timestep)  # The time vector
-        self.Crank_matrix = self.create_crank_nicholson() #The crank method
+        self.Crank_matrix, self.M1_inverse = self.create_crank_nicholson() #The crank method
 
         print("Successfully initialized the hybrid model")
 
@@ -53,30 +53,31 @@ class Hybrid:
     def create_crank_nicholson(self):
         """Creates the matrix used for crank nicholson method"""
 
-        nuDX = self.create_finite_difference()
+        H = self.create_finite_difference()
 
-        M1 = np.identity(nuDX.shape[0])*(1+0.5*self.timestep*self.degredation_rate)-nuDX
-        M2 = np.identity(nuDX.shape[0])*(1-0.5*self.timestep*self.degredation_rate)+nuDX
-        Crank_matrix = np.linalg.inv(M1)@M2
+        M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*self.degredation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
+        M2 = np.identity(H.shape[0]) *(1-0.5*self.timestep*self.degredation_rate) + 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
 
-        return Crank_matrix
+        M1_inverse = np.linalg.inv(M1)
+        Crank_matrix = M1_inverse@M2
+        
+        return Crank_matrix, M1_inverse
 
 
     def create_finite_difference(self):
         """Creates finite difference matrix"""
 
-        DX = np.zeros((self.PDE_M, self.PDE_M), dtype=int)  # Initialize the finite difference matrix
+        self.DX = np.zeros((self.PDE_M, self.PDE_M), dtype=int)  # Initialize the finite difference matrix
 
-        DX[0, 0], DX[-1, -1] = -1, -1  # This is the zero-flux boundary conditions
-        DX[0, 1], DX[-1, -2] = 1, 1
+        self.DX[0, 0], self.DX[-1, -1] = -1, -1  # This is the zero-flux boundary conditions
+        self.DX[0, 1], self.DX[-1, -2] = 1, 1
         # Fill over all the elements with the finite difference operators
-        for i in range(1, DX.shape[0] - 1):
-            DX[i, i] = -2  # Fill diagonal with the -2 terms (spatial operator)
-            DX[i, (i + 1)] = 1
-            DX[i, (i - 1)] = 1
-        DX_new = (self.diffusion_rate/(self.deltax**2))*DX
+        for i in range(1, self.DX.shape[0] - 1):
+            self.DX[i, i] = -2  # Fill diagonal with the -2 terms (spatial operator)
+            self.DX[i, (i + 1)] = 1
+            self.DX[i, (i - 1)] = 1
         
-        return DX_new
+        return self.DX
     
     def create_initial_dataframe(self):
         """Creates the intiial dataframes to be used throughout the simulation
@@ -89,20 +90,8 @@ class Hybrid:
 
         return C_grid,D_grid 
         
-    def differential(self,vector):
-        # return (diffusion_rate / (deltax ** 2)) * DX @ vector + production_rate - degredation_rate * vector
-        # print(f"DX_NEW: {self.DX_NEW}")  # Debugging line
-        return self.DX_NEW @ vector - self.degredation_rate * vector
-
-    def RK4(self,old_vector):
-        """Computes the next timestep using RK4"""
-        P1 = self.differential(old_vector)
-        P2 = self.differential(old_vector + 0.5 * self.timestep * P1)
-        P3 = self.differential(old_vector + 0.5 * self.timestep * P2)
-        P4 = self.differential(old_vector + self.timestep * P3)
-        new_vector = old_vector + (self.timestep / 6) * (P1 + 2 * P2 + 2 * P3 + P4)
-        return new_vector
-    
+ 
+   
     def crank_nicholson(self,old_vector):
         """Returns the new vector using the crank nicholson matrix"""
 
@@ -115,40 +104,47 @@ class Hybrid:
         for i in range(len(D_list)):
             start_index = self.PDE_multiple * i
             end_index = self.PDE_multiple * (i + 1)
-            
             sum_value = 0.0
             sum_value = np.sum(C_list[start_index:end_index])*self.deltax
             approximation_number_cont[i] = sum_value
 
         return approximation_number_cont
-    
-    def propensity_calculation(self,D_list, C_list):
-        """Calculate the propensity functions for each reaction"""
+
+    def propensity_calculation(self, D_list, C_list):
+        """
+        Calculates the propensity functions for each reaction.
+
+        Args:
+            D_list (np.ndarray): Discrete molecules list.
+            C_list (np.ndarray): Continuous mass list.
+
+        Returns:
+            np.ndarray: Combined propensity list.
+        """
         movement_propensity = 2 * self.d * D_list
-        movement_propensity[0] = self.d * D_list[0]  # Left boundary condition (only move right)
-        movement_propensity[-1] = self.d * D_list[-1]  # Right boundary condition (only move left)
+        movement_propensity[0] = self.d * D_list[0]
+        movement_propensity[-1] = self.d * D_list[-1]
         movement_propensity = np.maximum(movement_propensity, 0)
 
-        R1_propensity = self.production_rate_per_compartment * np.ones_like(D_list)  
+        R1_propensity = self.production_rate_per_compartment * np.ones_like(D_list)
         R2_propensity = self.degredation_rate * D_list
-        # print(f"length of R1_propensity: {len(R1_propensity)}")
-        # print(f"length of R2_propensity: {len(R2_propensity)}")
 
-        approximate_mass_list = self.approximate_mass_left_hand(D_list,C_list)
+        approximate_mass_list = self.approximate_mass_left_hand(D_list, C_list)
+        combined_list = np.add(D_list, approximate_mass_list)
 
-        combined_list = np.add(D_list,approximate_mass_list)  # Combined values
-        # print("Combined list:", combined_list)
         conversion_to_discrete = np.zeros_like(D_list)
         conversion_to_cont = np.zeros_like(approximate_mass_list)
 
-        """Setting propensity functions within the propensity vectors"""
-        conversion_to_cont[combined_list>=self.threshold] = D_list[combined_list>=self.threshold]*self.gamma
-        conversion_to_discrete[combined_list<self.threshold] = approximate_mass_list[combined_list<self.threshold]*self.gamma
-        
-        combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
+        # Ensure the boolean index matches the array size
+        if combined_list.shape != D_list.shape:
+            raise ValueError("Shape mismatch between combined_list and D_list")
+   
+        conversion_to_cont[combined_list >= self.threshold] = D_list[combined_list >= self.threshold] * self.gamma
+        conversion_to_discrete[combined_list < self.threshold] = approximate_mass_list[combined_list < self.threshold] * self.gamma
 
+        combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
-    
+
 
 
     def hybrid_simulation(self,D_grid, C_grid):
@@ -186,6 +182,7 @@ class Hybrid:
                 elif index == self.SSA_M - 1:  # Right boundary (can only move left)
                     D_list[index] = max(D_list[index] - 1, 0)
                     D_list[index - 1] += 1
+
                 elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Production reaction
                     # print("Production reaction")
                     D_list[compartment_index] += 1
@@ -200,6 +197,7 @@ class Hybrid:
                     
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
                     # print("Conversion from discrete to continuous")
+
                     D_list[compartment_index] = max(D_list[compartment_index] - 1, 0)
                     C_list[self.PDE_multiple*compartment_index:self.PDE_multiple*(compartment_index+1)] += 1/self.h
                   
@@ -217,7 +215,7 @@ class Hybrid:
                 t += tau  # Update time by the time step
             else:  # Else we run the ODE step
 
-                # C_list = self.RK4(C_list)
+                #C_list = self.RK4(C_list)
                 C_list = self.crank_nicholson(C_list)
                 C_list = np.maximum(C_list, 0)  # Ensure non-negativity after RK4 step
                 t = td
@@ -240,6 +238,7 @@ class Hybrid:
         filled_C_grid = np.zeros_like(C_initial)
         filled_D_grid = np.zeros_like(D_initial)
 
+       
         for _ in tqdm(range(number_of_repeats),desc="Running the simulations"):
             D_current, C_current = self.hybrid_simulation(D_initial.copy(), C_initial.copy())
             D_average += D_current
@@ -252,11 +251,6 @@ class Hybrid:
 
         combined_grid = np.zeros_like(filled_C_grid)
         
-        # for i in range(filled_D_grid.shape[1]):
-        #     approximate_cont_mass = self.approximate_mass_left_hand(filled_D_grid[:,i], filled_C_grid[:,i])
-        #     #print(f"Approximate mass = {approximate_cont_mass}")
-        #     combined_grid[:,i] = np.add(filled_D_grid[:,i], approximate_cont_mass)
-
         for i in range(filled_D_grid.shape[1]):
 
             for j in range(filled_D_grid.shape[0]):
@@ -290,13 +284,13 @@ class Hybrid:
             'initial_SSA': self.SSA_initial.tolist(),
             'h': self.h,
         }
-
-        np.save(os.path.join(datadirectory, 'D_grid'), D_grid)
-        np.save(os.path.join(datadirectory, 'C_grid'), C_grid)
-        np.save(os.path.join(datadirectory, 'combined_grid'), combined_grid)
-        np.save(os.path.join(datadirectory, 'time_vector'), self.time_vector)
-        np.save(os.path.join(datadirectory, 'SSA_X'), self.SSA_X)
-        np.save(os.path.join(datadirectory, 'PDE_X'), self.PDE_X)
+        np.savez(os.path.join(datadirectory, 'Hybrid_data'),
+                 D_grid = D_grid,
+                 C_grid = C_grid,
+                 combined_grid = combined_grid,
+                 time_vector = self.time_vector,
+                 SSA_X = self.SSA_X,
+                 PDE_X = self.PDE_X)
         
         with open(os.path.join(datadirectory, "parameters.json"), 'w') as params_file:
             json.dump(params, params_file, indent=4)

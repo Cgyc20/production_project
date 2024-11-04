@@ -144,9 +144,11 @@ class Stochastic:
             'h': self.h,
         }
 
-        np.save(os.path.join(datadirectory, 'Pure_SSA_grid'), SSA_grid)
-        np.save(os.path.join(datadirectory, 'Pure_SSA_time_vector'), self.time_vector)
-        np.save(os.path.join(datadirectory, 'Pure_SSA_X'), self.SSA_X)
+        np.savez(os.path.join(datadirectory, 'Pure_SSA_data'),
+                SSA_grid = SSA_grid,
+                time_vector = self.time_vector,
+                SSA_X = self.SSA_X
+                )
         
         with open(os.path.join(datadirectory, "parameters_pure_SSA.json"), 'w') as params_file:
             json.dump(params, params_file, indent=4)
