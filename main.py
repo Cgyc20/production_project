@@ -3,7 +3,7 @@ from production_project import Hybrid, Stochastic, PDE
 import subprocess
 
 domain_length = 1 #Length of the domain
-compartment_number = 5 #Number of compartments
+compartment_number = 12 #Number of compartments
 PDE_multiple = 8 #How many PDE's points per cell (ie we make it a multiple times more fine)
 total_time = 100 #The total time to run the system
 timestep = 0.01 #The time step

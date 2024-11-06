@@ -12,4 +12,7 @@ There is a problem with the diffusion rate, the higher the diffusion then the hy
 Have set a low particle number per compartment, a conversion threshold. The solution still looks okay, seems to be behaving exactly as one would expect. May now increase the compartment numbers to see if thats where a problem occurs
 
 
+# Report 2: git commit report 3
+
+Raised the number of compartments to 12. The combined solution is only slightly higher than the analytic solution. Problem is beginning to emerge, must find the instance in which this breaks.
 
