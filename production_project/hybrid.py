@@ -22,7 +22,8 @@ class Hybrid:
         self.degredation_rate = degredation_rate
         
         self.h = self.L / compartment_number
-        self.diffusion_rate = diffusion_rate*self.h
+        # self.diffusion_rate = diffusion_rate*self.h
+        self.diffusion_rate = diffusion_rate
         self.production_rate_per_compartment = production_rate*self.h
         self.d = diffusion_rate / (self.h ** 2)  # Jump rate in SSA
 
@@ -97,11 +98,11 @@ class Hybrid:
 
         return self.Crank_matrix@old_vector #The new vector!
 
-    def approximate_mass_left_hand(self,D_list, C_list):
+    def approximate_mass_left_hand(self, C_list):
         """Works out the approximate mass of the PDE domain over each grid point. Using the left hand rule"""
-        approximation_number_cont = np.zeros_like(D_list)
+        approximation_number_cont = np.zeros(self.SSA_M)
 
-        for i in range(len(D_list)):
+        for i in range(self.SSA_M):
             start_index = self.PDE_multiple * i
             end_index = self.PDE_multiple * (i + 1)
             sum_value = 0.0
@@ -109,6 +110,40 @@ class Hybrid:
             approximation_number_cont[i] = sum_value
 
         return approximation_number_cont
+
+    # def propensity_calculation(self, D_list, C_list):
+    #     """
+    #     Calculates the propensity functions for each reaction.
+
+    #     Args:
+    #         D_list (np.ndarray): Discrete molecules list.
+    #         C_list (np.ndarray): Continuous mass list.
+
+    #     Returns:
+    #         np.ndarray: Combined propensity list.
+    #     """
+    #     movement_propensity = 2 * self.d * D_list
+    #     movement_propensity[0] = self.d * D_list[0]
+    #     movement_propensity[-1] = self.d * D_list[-1]
+    #     movement_propensity = np.maximum(movement_propensity, 0)
+
+    #     R1_propensity = self.production_rate_per_compartment * np.ones_like(D_list)
+    #     R2_propensity = self.degredation_rate * D_list
+
+    #     combined_list = np.add(D_list, approximate_mass_list)
+
+    #     conversion_to_discrete = np.zeros_like(D_list)
+    #     conversion_to_cont = np.zeros_like(approximate_mass_list)
+
+    #     # Ensure the boolean index matches the array size
+    #     if combined_list.shape != D_list.shape:
+    #         raise ValueError("Shape mismatch between combined_list and D_list")
+   
+    #     conversion_to_cont[combined_list >= self.threshold] = D_list[combined_list >= self.threshold] * self.gamma
+    #     conversion_to_discrete[combined_list < self.threshold] = approximate_mass_list[combined_list < self.threshold] * self.gamma
+
+    #     combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
+    #     return combined_propensity
 
     def propensity_calculation(self, D_list, C_list):
         """
@@ -124,23 +159,32 @@ class Hybrid:
         movement_propensity = 2 * self.d * D_list
         movement_propensity[0] = self.d * D_list[0]
         movement_propensity[-1] = self.d * D_list[-1]
-        movement_propensity = np.maximum(movement_propensity, 0)
+        # movement_propensity = np.maximum(movement_propensity, 0)
 
         R1_propensity = self.production_rate_per_compartment * np.ones_like(D_list)
         R2_propensity = self.degredation_rate * D_list
 
-        approximate_mass_list = self.approximate_mass_left_hand(D_list, C_list)
+        approximate_mass_list = self.approximate_mass_left_hand(C_list)
         combined_list = np.add(D_list, approximate_mass_list)
 
         conversion_to_discrete = np.zeros_like(D_list)
         conversion_to_cont = np.zeros_like(approximate_mass_list)
 
+        # Debug: Print the threshold and combined list
+        # print(f"Threshold: {self.threshold}")
+        # print(f"Combined List: {combined_list}")
+        # print(f"D list = {D_list}")
+
         # Ensure the boolean index matches the array size
         if combined_list.shape != D_list.shape:
             raise ValueError("Shape mismatch between combined_list and D_list")
-   
+    
         conversion_to_cont[combined_list >= self.threshold] = D_list[combined_list >= self.threshold] * self.gamma
         conversion_to_discrete[combined_list < self.threshold] = approximate_mass_list[combined_list < self.threshold] * self.gamma
+
+        # Debug: Print the propensity values for conversion
+        # print(f"Conversion to Continuous Propensity: {conversion_to_cont}")
+        # print(f"Conversion to Discrete Propensity: {conversion_to_discrete}")
 
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
@@ -197,7 +241,9 @@ class Hybrid:
                     
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
                     # print("Conversion from discrete to continuous")
-
+                    # print(f"The compartment index = {compartment_index}")
+                    # print(f"The Discrete values when conversion to continuous triggered: {D_list[compartment_index]} ")
+                    # print(f"Propensity of conversion = {total_propensity}")
                     D_list[compartment_index] = max(D_list[compartment_index] - 1, 0)
                     C_list[self.PDE_multiple*compartment_index:self.PDE_multiple*(compartment_index+1)] += 1/self.h
                   
@@ -247,7 +293,6 @@ class Hybrid:
         filled_D_grid = D_average/number_of_repeats
         filled_C_grid = C_average/number_of_repeats
 
-        #combined_grid = np.zeros_like(filled_D_grid)
 
         combined_grid = np.zeros_like(filled_C_grid)
         
@@ -281,6 +326,7 @@ class Hybrid:
             'production_rate': self.production_rate,
             'degredation_rate': self.degredation_rate,
             'diffusion_rate': self.diffusion_rate,
+            'threshold_conc': self.threshold_conc,
             'initial_SSA': self.SSA_initial.tolist(),
             'h': self.h,
         }
