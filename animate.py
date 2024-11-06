@@ -97,7 +97,7 @@ else:
     sys.exit(1)
 
 # Create animation
-step_size = 2
+step_size = 4
 ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), step_size), interval=interval_number)
 
 # Show the animated plot

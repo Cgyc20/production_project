@@ -7,12 +7,12 @@ compartment_number = 5 #Number of compartments
 PDE_multiple = 8 #How many PDE's points per cell (ie we make it a multiple times more fine)
 total_time = 100 #The total time to run the system
 timestep = 0.01 #The time step
-threshold_conc = 500 #The threshold for the SSA to switch to the continuous regime
+threshold_conc = 50 #The threshold for the SSA to switch to the continuous regime
 gamma = 0.5 #The rate of conversion
-production_rate = 0 #The rate of production across the entire sim (this is later changed to be per cell, multiplied by h)
+production_rate = 2 #The rate of production across the entire sim (this is later changed to be per cell, multiplied by h)
 degredation_rate = 0.01 #The rate of degredation
 diffusion_rate = (domain_length**2)*(10e-2) #The rate of diffusion (Scale down by L^2) Look at courant number
-number_particles_per_cell = 20 #Number of particles initially per compartment
+number_particles_per_cell = 2 #Number of particles initially per compartment
 SSA_initial= np.ones((compartment_number), np.int64) * number_particles_per_cell #Initial conditions (within each cell) 
 
 Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold_conc, gamma, production_rate, degredation_rate, diffusion_rate, SSA_initial)
