@@ -15,7 +15,7 @@ class PDE:
         self.diffusion_rate = diffusion_rate
         self.degradation_rate = degradation_rate
         
-        self.PDE_X = np.linspace(0, self.L - self.deltax, self.PDE_points)
+        self.PDE_X = np.linspace(0, self.L,self.PDE_points)
         self.steady_state = production_rate / degradation_rate
         self.DX_NEW = self.create_finite_difference()
         self.time_vector = np.arange(0, total_time, timestep)

@@ -12,7 +12,7 @@ class Hybrid:
         self.SSA_M = compartment_number
         self.PDE_multiple = PDE_multiple
         self.production_rate = production_rate
-        self.PDE_M = compartment_number * PDE_multiple
+        self.PDE_M = compartment_number * PDE_multiple+1
         self.deltax = self.L / self.PDE_M
         self.total_time = total_time
         self.timestep = timestep
@@ -31,7 +31,7 @@ class Hybrid:
 
 
         self.SSA_X = np.linspace(0, self.L - self.h, self.SSA_M)
-        self.PDE_X = np.linspace(0, self.L-self.deltax, self.PDE_M)
+        self.PDE_X = np.linspace(0, self.L, self.PDE_M)
 
         if not isinstance(SSA_initial, np.ndarray):
             raise ValueError("SSA initial is not a np array")
@@ -111,39 +111,6 @@ class Hybrid:
 
         return approximation_number_cont
 
-    # def propensity_calculation(self, D_list, C_list):
-    #     """
-    #     Calculates the propensity functions for each reaction.
-
-    #     Args:
-    #         D_list (np.ndarray): Discrete molecules list.
-    #         C_list (np.ndarray): Continuous mass list.
-
-    #     Returns:
-    #         np.ndarray: Combined propensity list.
-    #     """
-    #     movement_propensity = 2 * self.d * D_list
-    #     movement_propensity[0] = self.d * D_list[0]
-    #     movement_propensity[-1] = self.d * D_list[-1]
-    #     movement_propensity = np.maximum(movement_propensity, 0)
-
-    #     R1_propensity = self.production_rate_per_compartment * np.ones_like(D_list)
-    #     R2_propensity = self.degredation_rate * D_list
-
-    #     combined_list = np.add(D_list, approximate_mass_list)
-
-    #     conversion_to_discrete = np.zeros_like(D_list)
-    #     conversion_to_cont = np.zeros_like(approximate_mass_list)
-
-    #     # Ensure the boolean index matches the array size
-    #     if combined_list.shape != D_list.shape:
-    #         raise ValueError("Shape mismatch between combined_list and D_list")
-   
-    #     conversion_to_cont[combined_list >= self.threshold] = D_list[combined_list >= self.threshold] * self.gamma
-    #     conversion_to_discrete[combined_list < self.threshold] = approximate_mass_list[combined_list < self.threshold] * self.gamma
-
-    #     combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
-    #     return combined_propensity
 
     def propensity_calculation(self, D_list, C_list):
         """

@@ -2,16 +2,16 @@ import numpy as np
 from production_project import Hybrid, Stochastic, PDE
 import subprocess
 
-domain_length = 1 #Length of the domain
+domain_length = 10 #Length of the domain
 compartment_number = 8 #Number of compartments
 PDE_multiple = 8 #How many PDE's points per cell (ie we make it a multiple times more fine)
 total_time = 100 #The total time to run the system
 timestep = 0.01 #The time step
-threshold_conc = 50 #The threshold for the SSA to switch to the continuous regime
-gamma = 0.1 #The rate of conversion
+threshold_conc = 20 #The threshold for the SSA to switch to the continuous regime
+gamma = 0.2 #The rate of conversion
 production_rate = 2 #The rate of production across the entire sim (this is later changed to be per cell, multiplied by h)
 degredation_rate = 0.01 #The rate of degredation
-diffusion_rate = (domain_length**2)*(10e-1) #The rate of diffusion (Scale down by L^2) Look at courant number
+diffusion_rate = (domain_length**2)*(10e-3) #The rate of diffusion (Scale down by L^2) Look at courant number
 number_particles_per_cell = 2 #Number of particles initially per compartment
 SSA_initial= np.ones((compartment_number), np.int64) * number_particles_per_cell #Initial conditions (within each cell) 
 
