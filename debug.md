@@ -27,4 +27,4 @@ First decreased compartments from 12-->8. And increased diffusion from 10e-2--> 
 
 # Report 6: git commit report 6
 
- 
+Running with larrger domain: L=10, then the combined solution does seem to be lower towards the final stages of the simulation. 

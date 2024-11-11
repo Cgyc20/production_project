@@ -252,7 +252,7 @@ class Hybrid:
         filled_D_grid = np.zeros_like(D_initial)
 
        
-        for _ in tqdm(range(number_of_repeats),desc="Running the simulations"):
+        for _ in tqdm(range(number_of_repeats),desc="Running the Hybrid simulations"):
             D_current, C_current = self.hybrid_simulation(D_initial.copy(), C_initial.copy())
             D_average += D_current
             C_average += C_current
@@ -271,6 +271,7 @@ class Hybrid:
 
                 combined_grid[start_index:end_index,i] = filled_C_grid[start_index:end_index,i]+(1/self.h)*filled_D_grid[j,i]
 
+        combined_grid[-1,:] = filled_C_grid[-1,:]
         
 
         print("Simulation completed")

@@ -30,7 +30,7 @@ def integrand(x, k):
 A_0, error_A0 = quad(integrand_A0, 0, 1)
 A_0-= K_1_K_2
 print(f"A_0 = {A_0}")
-n_max = 101
+n_max = 1001
 # Compute A_k for k = 1 to 100
 A_k_values = [A_0]  # Start with A_0
 for k in range(1, n_max):

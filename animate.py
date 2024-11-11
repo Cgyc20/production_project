@@ -100,6 +100,7 @@ else:
 step_size = 4
 ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), step_size), interval=interval_number)
 
+print(combined_grid[:,-1])
 # Show the animated plot
 plt.show()
 
@@ -107,7 +108,7 @@ plt.figure()
 
 analytic_av = np.mean(analytic_sol, axis=0)
 PDE_av = np.mean(C_grid, axis=0)
-combined_av = np.mean(combined_grid, axis=0)
+combined_av = np.mean(combined_grid[:-1,:], axis=0)
 SSA_av = np.mean(D_grid / h, axis=0)
 pure_PDE_av = np.mean(pure_PDE_grid, axis=0)
 pure_SSA_av = np.mean(SSA_grid / h, axis=0)

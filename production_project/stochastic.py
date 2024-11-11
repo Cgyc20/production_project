@@ -33,7 +33,7 @@ class Stochastic:
         self.time_vector = np.arange(0, total_time, timestep)  # The time vector
         print("Successfully initialized the Stochastic model")
 
-        print(f"initial = {SSA_initial}")
+        # print(f"initial = {SSA_initial}")
     
     def create_initial_dataframe(self):
         """Creates the intiial dataframes to be used throughout the simulation
@@ -65,7 +65,7 @@ class Stochastic:
         t = 0
         old_time = t
         SSA_list = SSA_grid[:, 0]  # Starting SSA_list
-        print(f"SSA list = {SSA_list}")
+        # print(f"SSA list = {SSA_list}")
         while t < self.total_time:
             total_propensity = self.propensity_calculation(SSA_list)
             alpha0 = np.sum(total_propensity)
@@ -115,10 +115,10 @@ class Stochastic:
         filled_SSA_grid = np.zeros_like(SSA_initial)
     
 
-        for _ in tqdm(range(number_of_repeats), desc="Running the simulations"):
+        for _ in tqdm(range(number_of_repeats), desc="Running the Stochastic simulations"):
             
             SSA_grid_initial = self.create_initial_dataframe()
-            print(f"Initial SSA_grid: {SSA_grid_initial}")  # Debugging statement
+            # print(f"Initial SSA_grid: {SSA_grid_initial}")  # Debugging statement
             SSA_current = self.stochastic_simulation(SSA_grid_initial)
 
             SSA_average += SSA_current
