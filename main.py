@@ -6,7 +6,7 @@ import subprocess
 domain_length = 1 #Length of the domain
 compartment_number = 8 #Number of compartments
 PDE_multiple = 8 #How many PDE's points per cell (ie we make it a multiple times more fine)
-total_time = 150 #The total time to run the system
+total_time = 300 #The total time to run the system
 timestep = 0.01 #The time step
 threshold_conc = 20 #The threshold for the SSA to switch to the continuous regime
 gamma = 0.2 #The rate of conversion

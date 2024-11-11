@@ -127,3 +127,23 @@ plt.legend()
 plt.xlabel('Time')
 plt.ylabel('Average concentration over')
 plt.show()
+
+# Adjust time_vector to match the shape of hybrid_relative_error
+
+adjusted_time_vector = time_vector[1:]
+
+# Calculate the relative error at each point in the grid
+hybrid_relative_error = (combined_grid[:, 1:] - analytic_sol[:, 1:]) / np.abs(analytic_sol[:, 1:])
+
+# Compute the average relative error over the spatial domain for each time point
+average_relative_error = np.mean(hybrid_relative_error, axis=0)
+
+# Plot the average relative error over time
+plt.figure()
+plt.plot(adjusted_time_vector, average_relative_error, label='Relative Error')
+plt.xlabel('Time')
+plt.ylabel('Average Relative Error')
+plt.title('Relative Error of Hybrid Model')
+plt.legend()
+plt.grid(True)
+plt.show()
