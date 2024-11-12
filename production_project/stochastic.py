@@ -41,9 +41,6 @@ class Stochastic:
 
         SSA_matrix = np.zeros((self.SSA_M,len(self.time_vector) ))  # Discrete molecules grid
         SSA_matrix[:, 0] = self.SSA_initial
-        # print(f"Shape of SSA_grid = {SSA_grid.shape}")  # Debugging statement
-        # print(f"Initial SSA_grid: {SSA_grid}")  # Debugging statement
-
         return SSA_matrix
 
     def propensity_calculation(self,SSA_list):

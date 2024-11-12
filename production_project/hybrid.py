@@ -4,6 +4,7 @@ import numpy as np
 from tqdm import tqdm
 import os
 import json
+from copy import deepcopy
 
 class Hybrid:
     
@@ -207,10 +208,7 @@ class Hybrid:
                     C_list = np.maximum(C_list, 0)  # Ensure non-negativity for continuous list
                     
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
-                    # print("Conversion from discrete to continuous")
-                    # print(f"The compartment index = {compartment_index}")
-                    # print(f"The Discrete values when conversion to continuous triggered: {D_list[compartment_index]} ")
-                    # print(f"Propensity of conversion = {total_propensity}")
+                 
                     D_list[compartment_index] = max(D_list[compartment_index] - 1, 0)
                     C_list[self.PDE_multiple*compartment_index:self.PDE_multiple*(compartment_index+1)] += 1/self.h
                   
@@ -238,8 +236,7 @@ class Hybrid:
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
                     C_grid[:, time_index] = C_list
                     D_grid[:, time_index] = D_list
-            # print("D_list:", D_list)
-            # print("C_list:", C_list)
+           
         return D_grid, C_grid
 
 
@@ -253,7 +250,7 @@ class Hybrid:
 
        
         for _ in tqdm(range(number_of_repeats),desc="Running the Hybrid simulations"):
-            D_current, C_current = self.hybrid_simulation(D_initial.copy(), C_initial.copy())
+            D_current, C_current = self.hybrid_simulation(deepcopy(D_initial), deepcopy(C_initial))
             D_average += D_current
             C_average += C_current
 
@@ -262,9 +259,9 @@ class Hybrid:
 
 
         combined_grid = np.zeros_like(filled_C_grid)
-        
-        for i in range(filled_D_grid.shape[1]):
+    
 
+        for i in range(filled_D_grid.shape[1]):
             for j in range(filled_D_grid.shape[0]):
                 start_index = j*self.PDE_multiple
                 end_index = (j+1)*self.PDE_multiple
@@ -272,7 +269,7 @@ class Hybrid:
                 combined_grid[start_index:end_index,i] = filled_C_grid[start_index:end_index,i]+(1/self.h)*filled_D_grid[j,i]
 
         combined_grid[-1,:] = filled_C_grid[-1,:]
-        
+       
 
         print("Simulation completed")
         return filled_D_grid, filled_C_grid, combined_grid
@@ -291,6 +288,7 @@ class Hybrid:
             'timestep': self.timestep,
             'threshold': self.threshold,
             'gamma': self.gamma,
+            'deltax': self.deltax,
             'production_rate': self.production_rate,
             'degredation_rate': self.degredation_rate,
             'diffusion_rate': self.diffusion_rate,
