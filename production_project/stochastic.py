@@ -2,7 +2,7 @@ import numpy as np
 from tqdm import tqdm
 import os
 import json
-
+from copy import deepcopy
 class Stochastic:
     def __init__(self, domain_length, compartment_number, total_time, timestep, production_rate, degredation_rate, diffusion_rate, SSA_initial):
         self.L = domain_length
@@ -64,7 +64,7 @@ class Stochastic:
     def stochastic_simulation(self,SSA_grid):
         t = 0
         old_time = t
-        SSA_list = SSA_grid[:, 0]  # Starting SSA_list
+        SSA_list = deepcopy(SSA_grid[:, 0])  # Starting SSA_list
         # print(f"SSA list = {SSA_list}")
         while t < self.total_time:
             total_propensity = self.propensity_calculation(SSA_list)
@@ -80,7 +80,7 @@ class Stochastic:
             compartment_index = index % self.SSA_M  # The compartmental index is just the modulo of SSA. 
             if index <= self.SSA_M - 2 and index >= 1:
                 if r3 < 0.5:  # Move left
-                    SSA_list[index] = max(SSA_list[index] - 1, 0)
+                    SSA_list[index] = SSA_list[index] - 1
                     SSA_list[index - 1] += 1
                 else:  # Move right
                     SSA_list[index] = max(SSA_list[index] - 1, 0)
