@@ -79,4 +79,4 @@ Given we have $D_j \xrightarrow{\gamma} U_j$ in compartment $j$, then we must ha
 
 ## Running the code
 
-To run the code, please open the main.py file. You can change all parameter
+You can change all parameter in the parameters_input.dat file and then run main.py to simulate. Once simulated you can re-animate by typing in python animate.py
