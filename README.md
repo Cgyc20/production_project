@@ -50,23 +50,33 @@ $$
 \frac{\partial c}{\partial t} = D\frac{\partial^2 c}{\partial x^2} + \cancel{k_1} - k_2c.
 $$
 
-Here we remove the production term, as in the hybrid model - we want all production being governed by the stochastic simulation algorithm. We then let the conversion reactions occur between the Discrete and continuous mass depending on the total combined particle number within that region. The problem here is that the discrete mass $D(C_j,t)$ is an integer value, while $u
-
-
-
+Here we remove the production term, as in the hybrid model - we want all production being governed by the stochastic simulation algorithm. We then let the conversion reactions occur between the Discrete and continuous mass depending on the total combined particle number within that region. The problem here is that the discrete mass $D(C_j,t)$ is an integer value, while $u(x_i,t_j)$ is defined over a finer domain, and hence in order to convert mass we must workout the total mass of the continuous function over that particular compartment. For this we just do the following:
 
 $$
-\int_{\mathcal{C}_i} c(x,t) \, dx = M_i
+\int_{C_j} u(x,t) \, dx = U_j
 $$
 
-We can approximate $M_i$ to be the following:
+We integrate the PDE over the spatial compartment to generate a total mass value of $U_j$. In this code we use the left hand rule to integrate across the PDE. Given we calculate this value, then we can calculate the total mass within the compartment as being the summation of either methods:
 
 $$
-\int_{\mathcal{C}_i} c(x,t) \, dx = \sum_{j=ik}^{j=(i+1)k-1} c(x_j,t) \Delta x
+A_j = D_j + U_j
 $$
 
+### Mass conversion
 
-We can then approximate the total mass to be $A_i = D_i+ M_i$ at each compartment. 
+We control the conversion of mass between either regime using the following two reactions:
 
-Note we will exclude the production term in the PDE, only the stochastic regime will produce mass.
+$$
+D \xrightarrow{\gamma} U, \ \text{Conversion from Discrete to continuous}\\
+U \xrightarrow{\gamma} D \ \text{Conversion from continuous to discrete}, 
+$$
 
+Note that conversion to continuous only occurs when $A_i \geq \text{threshold}$ within that compartment, and the opposite for conversion to discrete. 
+
+In order to conserve mass then we must convert this mass correctly. 
+
+Given we have $D_j \xrightarrow{\gamma} U_j$ in compartment $j$, then we must have that a particles worth of mass is correctly added to the continuous regime. This involves adding $1/h$ particles worth of mass for each point in the corresponding domain of the PDE solution. 
+
+## Running the code
+
+To run the code, please open the main.py file. You can change all parameter
