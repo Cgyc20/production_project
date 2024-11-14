@@ -2,3 +2,6 @@ data/*
 
 # But do not ignore .gitkeep
 !data/.gitkeep
+
+debug.md
+PDE_analytic.py
