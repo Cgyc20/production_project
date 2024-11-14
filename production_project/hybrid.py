@@ -138,11 +138,6 @@ class Hybrid:
         conversion_to_discrete = np.zeros_like(D_list)
         conversion_to_cont = np.zeros_like(approximate_mass_list)
 
-        # Debug: Print the threshold and combined list
-        # print(f"Threshold: {self.threshold}")
-        # print(f"Combined List: {combined_list}")
-        # print(f"D list = {D_list}")
-
         # Ensure the boolean index matches the array size
         if combined_list.shape != D_list.shape:
             raise ValueError("Shape mismatch between combined_list and D_list")
@@ -153,11 +148,8 @@ class Hybrid:
         # Debug: Print the propensity values for conversion
         # print(f"Conversion to Continuous Propensity: {conversion_to_cont}")
         # print(f"Conversion to Discrete Propensity: {conversion_to_discrete}")
-
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
-
-
 
     def hybrid_simulation(self,D_grid, C_grid):
         t = 0
