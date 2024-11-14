@@ -8,7 +8,7 @@ from copy import deepcopy
 
 class Hybrid:
     
-    def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold_conc, gamma, production_rate, degredation_rate, diffusion_rate, SSA_initial):
+    def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degredation_rate, diffusion_rate, SSA_initial):
         self.L = domain_length
         self.SSA_M = compartment_number
         self.PDE_multiple = PDE_multiple
@@ -17,7 +17,11 @@ class Hybrid:
         self.deltax = self.L / self.PDE_M
         self.total_time = total_time
         self.timestep = timestep
-        self.threshold_conc = threshold_conc
+        self.threshold = threshold
+
+      
+
+    
         self.gamma = gamma
         
         self.degredation_rate = degredation_rate
@@ -28,7 +32,9 @@ class Hybrid:
         self.production_rate_per_compartment = production_rate*self.h
         self.d = diffusion_rate / (self.h ** 2)  # Jump rate in SSA
 
-        self.threshold = self.threshold_conc*self.h
+        self.threshold_conc = threshold/self.h
+        
+    
 
 
         self.SSA_X = np.linspace(0, self.L - self.h, self.SSA_M)
@@ -51,7 +57,7 @@ class Hybrid:
 
         print("Successfully initialized the hybrid model")
 
-    
+        print(f"The threshold concentration is: {self.threshold_conc}")
     def create_crank_nicholson(self):
         """Creates the matrix used for crank nicholson method"""
 
@@ -260,7 +266,7 @@ class Hybrid:
 
                 combined_grid[start_index:end_index,i] = filled_C_grid[start_index:end_index,i]+(1/self.h)*filled_D_grid[j,i]
 
-        combined_grid[-1,:] = filled_C_grid[-1,:]
+        combined_grid[-1,:] = combined_grid[-2,:]
        
 
         print("Simulation completed")
