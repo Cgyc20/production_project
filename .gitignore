@@ -1,2 +1,4 @@
 data/*
-!data/.gitkeep 
+
+# But do not ignore .gitkeep
+!data/.gitkeep
