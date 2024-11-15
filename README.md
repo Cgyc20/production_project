@@ -1,5 +1,59 @@
-## Hybrid modelling the reaction diffusion system
+# Hybrid modelling the reaction diffusion system
 
+
+Welcome to this Python project! This models a reaction diffusion system in one dimensional space. This project uses [Poetry](https://python-poetry.org/) as a dependency manager
+
+
+## Prerequisites
+
+Before running the project, ensure you have the following installed:
+
+### 1. Python 3.12
+Download and install Python 3.12 from the official [Python website](https://www.python.org/downloads/).
+
+### 2. Poetry
+Install Poetry, the dependency manager used in this project:
+
+
+### 3. Clone the repository
+
+```bash 
+git clone <repository-url>
+cd <project-directory>
+``` 
+
+### 4. Install package dependencies
+Run the following command to install the required dependencies in a virtual environment:
+
+```bash 
+poetry install
+``` 
+
+## Running the project
+
+### Input parameters 
+
+
+
+The project requires a file named `parameters_input.dat` to provide input configurations.
+
+
+### Running scripts
+
+To execute the main project scripts, use the following commands. To run the main script type in the following:
+
+```bash 
+python main.py 
+``` 
+To animate the saved data - only after running the main script at least once - type the following
+
+```bash 
+python animate.py
+``` 
+
+
+
+# The Theory
 This code will model the following system of production-degradation in one dimensional space:
 
 $$
@@ -77,6 +131,3 @@ In order to conserve mass then we must convert this mass correctly.
 
 Given we have $D_j \xrightarrow{\gamma} U_j$ in compartment $j$, then we must have that a particles worth of mass is correctly added to the continuous regime. This involves adding $1/h$ particles worth of mass for each point in the corresponding domain of the PDE solution. 
 
-## Running the code
-
-You can change all parameter in the parameters_input.dat file and then run main.py to simulate. Once simulated you can re-animate by typing in python animate.py

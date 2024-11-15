@@ -19,9 +19,7 @@ class Hybrid:
         self.timestep = timestep
         self.threshold = threshold
 
-      
 
-    
         self.gamma = gamma
         
         self.degredation_rate = degredation_rate
