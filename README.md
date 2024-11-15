@@ -121,8 +121,10 @@ $$
 We control the conversion of mass between either regime using the following two reactions:
 
 $$
-D \xrightarrow{\gamma} U, \ \text{Conversion from Discrete to continuous}\\
-U \xrightarrow{\gamma} D \ \text{Conversion from continuous to discrete}, 
+D \xrightarrow{\gamma} U, \ \text{Conversion from Discrete to continuous},
+$$
+$$
+U \xrightarrow{\gamma} D \ \text{Conversion from continuous to discrete}.
 $$
 
 Note that conversion to continuous only occurs when $A_i \geq \text{threshold}$ within that compartment, and the opposite for conversion to discrete. 
