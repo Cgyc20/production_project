@@ -18,8 +18,8 @@ Install Poetry, the dependency manager used in this project:
 ### 3. Clone the repository
 
 ```bash 
-git clone <repository-url>
-cd <project-directory>
+git clone https://github.com/Cgyc20/production_project.git
+cd production_project
 ``` 
 
 ### 4. Install package dependencies
