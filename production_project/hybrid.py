@@ -1,5 +1,4 @@
 import numpy as np
-
 """Created 1/10/2024 as new project file"""
 from tqdm import tqdm
 import os
@@ -9,34 +8,27 @@ from copy import deepcopy
 class Hybrid:
     
     def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degredation_rate, diffusion_rate, SSA_initial):
-        self.L = domain_length
-        self.SSA_M = compartment_number
-        self.PDE_multiple = PDE_multiple
-        self.production_rate = production_rate
+        self.L = domain_length #The domain length
+        self.SSA_M = compartment_number #The number of compartments
+        self.PDE_multiple = PDE_multiple #The number of PDE points per compartment
+        self.production_rate = production_rate #The producti
         self.PDE_M = compartment_number * PDE_multiple+1
-        self.deltax = self.L / self.PDE_M
-        self.total_time = total_time
-        self.timestep = timestep
-        self.threshold = threshold
-
-
-        self.gamma = gamma
-        
+        self.deltax = self.L / self.PDE_M #The PDE stepsize
+        self.total_time = total_time #total simulation time
+        self.timestep = timestep #The timestep size
+        self.threshold = threshold #THe threshold (which is per compartment, the number of cells 
+        self.gamma = gamma #The rate of conversion
         self.degredation_rate = degredation_rate
         
-        self.h = self.L / compartment_number
-        # self.diffusion_rate = diffusion_rate*self.h
-        self.diffusion_rate = diffusion_rate
-        self.production_rate_per_compartment = production_rate*self.h
-        self.d = diffusion_rate / (self.h ** 2)  # Jump rate in SSA
+        self.h = self.L / compartment_number #The size of each compartment
+        self.diffusion_rate = diffusion_rate #Rate of diffusion
+        self.production_rate_per_compartment = production_rate*self.h #THe 
+        self.d = diffusion_rate / (self.h ** 2)  # The jump rate
 
-        self.threshold_conc = threshold/self.h
+        self.threshold_conc = threshold/self.h #The threshold concentration per cell
         
-    
-
-
-        self.SSA_X = np.linspace(0, self.L - self.h, self.SSA_M)
-        self.PDE_X = np.linspace(0, self.L, self.PDE_M)
+        self.SSA_X = np.linspace(0, self.L - self.h, self.SSA_M) #The spatial domain in which the SSA is defined on
+        self.PDE_X = np.linspace(0, self.L, self.PDE_M) #The spatial domain that the PDE is defined on
 
         if not isinstance(SSA_initial, np.ndarray):
             raise ValueError("SSA initial is not a np array")
@@ -47,17 +39,17 @@ class Hybrid:
         else:
             self.SSA_initial = SSA_initial
 
-        self.PDE_initial_conditions = np.zeros_like(self.PDE_X, dtype=np.float64)
-        self.steady_state = production_rate / degredation_rate
+        self.PDE_initial_conditions = np.zeros_like(self.PDE_X, dtype=np.float64) #Initially zero states for PDE
+        self.steady_state = production_rate / degredation_rate #Steady state of the system
         self.DX_NEW = self.create_finite_difference()  # Ensure DX_NEW is initialized here
         self.time_vector = np.arange(0, total_time, timestep)  # The time vector
-        self.Crank_matrix, self.M1_inverse = self.create_crank_nicholson() #The crank method
+        self.Crank_matrix, self.M1_inverse = self.create_crank_nicholson() #The crank method respective matrices
 
         print("Successfully initialized the hybrid model")
 
         print(f"The threshold concentration is: {self.threshold_conc}")
-    def create_crank_nicholson(self):
-        """Creates the matrix used for crank nicholson method"""
+    def create_crank_nicholson(self) -> np.ndarray:
+        """Creates the matrix used for crank nicholson method """
 
         H = self.create_finite_difference()
 
@@ -70,7 +62,7 @@ class Hybrid:
         return Crank_matrix, M1_inverse
 
 
-    def create_finite_difference(self):
+    def create_finite_difference(self) -> np.ndarray:
         """Creates finite difference matrix"""
 
         self.DX = np.zeros((self.PDE_M, self.PDE_M), dtype=int)  # Initialize the finite difference matrix
@@ -85,7 +77,7 @@ class Hybrid:
         
         return self.DX
     
-    def create_initial_dataframe(self):
+    def create_initial_dataframe(self) -> np.ndarray:
         """Creates the intiial dataframes to be used throughout the simulation
         Returns: the initial dataframes for discrete and continuous numbers of molecules. With initial conditions"""
 
@@ -98,26 +90,34 @@ class Hybrid:
         
  
    
-    def crank_nicholson(self,old_vector):
+    def crank_nicholson(self,old_vector: np.ndarray) -> np.ndarray:
         """Returns the new vector using the crank nicholson matrix"""
 
         return self.Crank_matrix@old_vector #The new vector!
 
-    def approximate_mass_left_hand(self, C_list):
+    def approximate_mass_left_hand(self, C_list: np.ndarray) -> np.ndarray:
         """Works out the approximate mass of the PDE domain over each grid point. Using the left hand rule"""
-        approximation_number_cont = np.zeros(self.SSA_M)
+        approximation_number_cont = np.zeros(self.SSA_M) #set empty list the length of number of compartments
 
-        for i in range(self.SSA_M):
-            start_index = self.PDE_multiple * i
-            end_index = self.PDE_multiple * (i + 1)
-            sum_value = 0.0
-            sum_value = np.sum(C_list[start_index:end_index])*self.deltax
-            approximation_number_cont[i] = sum_value
+        for i in range(self.SSA_M): #Range over each compartment
+            start_index = self.PDE_multiple * i #start index of PDE point
+            end_index = self.PDE_multiple * (i + 1) #end index of PDE point
+            sum_value = 0.0 #sum value as stands
+            sum_value = np.sum(C_list[start_index:end_index])*self.deltax  #Summing the list, left hand rule
+            approximation_number_cont[i] = sum_value #Adding to the list
 
         return approximation_number_cont
 
 
-    def propensity_calculation(self, D_list, C_list):
+    def calculate_total_mass(self,C_list:np.ndarray, D_list: np.ndarray) -> np.ndarray:
+        """This will calculate the total mass of discrete + continuous"""
+
+        approximate_mass_list = self.approximate_mass_left_hand(C_list)
+        combined_list = np.add(D_list, approximate_mass_list) 
+        return combined_list, approximate_mass_list
+    
+
+    def propensity_calculation(self, D_list: np.ndarray, C_list : np.ndarray) -> np.ndarray:
         """
         Calculates the propensity functions for each reaction.
 
@@ -128,17 +128,17 @@ class Hybrid:
         Returns:
             np.ndarray: Combined propensity list.
         """
-        movement_propensity = 2 * self.d * D_list
+        movement_propensity = 2 * self.d * D_list #The diffusion rates
         movement_propensity[0] = self.d * D_list[0]
         movement_propensity[-1] = self.d * D_list[-1]
-        # movement_propensity = np.maximum(movement_propensity, 0)
+    
 
-        R1_propensity = self.production_rate_per_compartment * np.ones_like(D_list)
-        R2_propensity = self.degredation_rate * D_list
+        R1_propensity = self.production_rate_per_compartment * np.ones_like(D_list) #The production propensity
+        R2_propensity = self.degredation_rate * D_list #degredation propensity
 
-        approximate_mass_list = self.approximate_mass_left_hand(C_list)
-        combined_list = np.add(D_list, approximate_mass_list)
 
+        combined_list, approximate_mass_list = self.calculate_total_mass(C_list, D_list)  #Add with the discrete mass to gather 
+    
         conversion_to_discrete = np.zeros_like(D_list)
         conversion_to_cont = np.zeros_like(approximate_mass_list)
 
@@ -149,13 +149,10 @@ class Hybrid:
         conversion_to_cont[combined_list >= self.threshold] = D_list[combined_list >= self.threshold] * self.gamma
         conversion_to_discrete[combined_list < self.threshold] = approximate_mass_list[combined_list < self.threshold] * self.gamma
 
-        # Debug: Print the propensity values for conversion
-        # print(f"Conversion to Continuous Propensity: {conversion_to_cont}")
-        # print(f"Conversion to Discrete Propensity: {conversion_to_discrete}")
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
 
-    def hybrid_simulation(self,D_grid, C_grid):
+    def hybrid_simulation(self,D_grid : np.ndarray, C_grid : np.ndarray) -> np.ndarray:
         t = 0
         old_time = t
         td = self.timestep
@@ -236,7 +233,7 @@ class Hybrid:
         return D_grid, C_grid
 
 
-    def run_simulation(self,number_of_repeats):
+    def run_simulation(self,number_of_repeats:int) -> np.ndarray:
         """This will run the simulation with a total number of repeats"""
         C_initial, D_initial = self.create_initial_dataframe()
         D_average = np.zeros_like(D_initial)
@@ -271,7 +268,7 @@ class Hybrid:
         return filled_D_grid, filled_C_grid, combined_grid
     
 
-    def save_simulation_data(self,D_grid,C_grid,combined_grid, datadirectory='data'):
+    def save_simulation_data(self,D_grid:np.ndarray,C_grid:np.ndarray,combined_grid:np.ndarray, datadirectory='data'):
 
         if not os.path.exists(datadirectory):
             os.makedirs(datadirectory)

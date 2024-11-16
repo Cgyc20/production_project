@@ -21,7 +21,7 @@ try:
     gamma = float(parameters_dict.get('gamma', 0))
     production_rate = float(parameters_dict.get('production_rate', 0))
     degradation_rate = float(parameters_dict.get('degradation_rate', 0))
-    
+    repeats = int(parameters_dict.get('repeats', 0))
     # Ensure number_particles_per_cell is defined and not zero
     number_particles_per_cell = int(parameters_dict.get('number_particles_per_cell', 0))
     if number_particles_per_cell == 0:
@@ -42,25 +42,12 @@ try:
     print(f"degradation_rate: {degradation_rate}")
     print(f"diffusion_rate: {diffusion_rate}")
     print(f"number_particles_per_cell: {number_particles_per_cell}")
+    print(f"The steady state is: {production_rate/degradation_rate}")
 
 except ValueError as e:
     print("Error:", e)
 
 
-
-# domain_length = 1 #Length of the domain
-# compartment_number = 8 #Number of compartments
-# PDE_multiple = 8 #How many PDE's points per cell (ie we make it a multiple times more fine)
-# total_time = 200 #The total time to run the system
-# timestep = 0.05 #The time step
-# particles_per_compartment_thresh = 10 #The max number of particles per compartment in which the conversion begins
-# gamma = 0.2 #The rate of conversion
-# production_rate = 2 #The rate of production across the entire sim (this is later changed to be per cell, multiplied by h)
-# degredation_rate = 0.01 #The rate of degredation
-# diffusion_rate = (domain_length**2)*(10e-3) #The rate of diffusion (Scale down by L^2) Look at courant number
-# number_particles_per_cell = 1 #Number of particles initially per compartment
-
-repeats = 100
 
 SSA_initial= np.ones((compartment_number), np.int64) * number_particles_per_cell #Initial conditions (within each cell) 
 

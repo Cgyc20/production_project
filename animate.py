@@ -141,7 +141,7 @@ def update(frame):
     return (*bar_SSA, line_PDE, line_combined, line_analytic, line_pure_SSA, line_pure_PDE)
 
 # Create animation
-step_size = 4
+step_size = 1
 ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), step_size), interval=interval_number)
 
 # Display the animated plot
