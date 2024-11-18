@@ -209,6 +209,8 @@ class Hybrid:
         
                     # print(f"Change in mass: {change}"
                 # Store the results for the current time step
+                
+                t+=tau 
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
@@ -216,7 +218,7 @@ class Hybrid:
                     C_grid[:, time_index] = C_list
 
                 old_time = t  # Update old_time
-                t += tau  # Update time by the time step
+                 # Update time by the time step
             else:  # Else we run the ODE step
 
                 #C_list = self.RK4(C_list)
