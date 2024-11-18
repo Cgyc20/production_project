@@ -7,8 +7,8 @@ import sys
 
 # Load data from .npz files
 Hybrid_data = np.load("Data/Hybrid_data.npz")
-C_grid = Hybrid_data["C_grid"]
-D_grid = Hybrid_data["D_grid"]
+C_grid = Hybrid_data["PDE_grid"]
+D_grid = Hybrid_data["SSA_grid"]
 combined_grid = Hybrid_data["combined_grid"]
 SSA_X = Hybrid_data["SSA_X"]
 PDE_X = Hybrid_data["PDE_X"]

@@ -52,10 +52,8 @@ class Hybrid:
         """Creates the matrix used for crank nicholson method """
 
         H = self.create_finite_difference()
-
         M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*self.degredation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
         M2 = np.identity(H.shape[0]) *(1-0.5*self.timestep*self.degredation_rate) + 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
-
         M1_inverse = np.linalg.inv(M1)
         Crank_matrix = M1_inverse@M2
         
@@ -64,7 +62,6 @@ class Hybrid:
 
     def create_finite_difference(self) -> np.ndarray:
         """Creates finite difference matrix"""
-
         self.DX = np.zeros((self.PDE_M, self.PDE_M), dtype=int)  # Initialize the finite difference matrix
 
         self.DX[0, 0], self.DX[-1, -1] = -1, -1  # This is the zero-flux boundary conditions
@@ -80,22 +77,19 @@ class Hybrid:
     def create_initial_dataframe(self) -> np.ndarray:
         """Creates the intiial dataframes to be used throughout the simulation
         Returns: the initial dataframes for discrete and continuous numbers of molecules. With initial conditions"""
+        SSA_grid = np.zeros((self.SSA_M,len(self.time_vector) ))  # Discrete molecules grid
+        SSA_grid[:, 0] = self.SSA_initial
+        PDE_grid = np.zeros((self.PDE_M, len(self.time_vector)))  # Continuous mass
+        PDE_grid[:, 0] = self.PDE_initial_conditions
 
-        D_grid = np.zeros((self.SSA_M,len(self.time_vector) ))  # Discrete molecules grid
-        D_grid[:, 0] = self.SSA_initial
-        C_grid = np.zeros((self.PDE_M, len(self.time_vector)))  # Continuous mass
-        C_grid[:, 0] = self.PDE_initial_conditions
-
-        return C_grid,D_grid 
+        return PDE_grid,SSA_grid 
         
- 
-   
     def crank_nicholson(self,old_vector: np.ndarray) -> np.ndarray:
         """Returns the new vector using the crank nicholson matrix"""
 
         return self.Crank_matrix@old_vector #The new vector!
 
-    def approximate_mass_left_hand(self, C_list: np.ndarray) -> np.ndarray:
+    def approximate_mass_left_hand(self, PDE_list: np.ndarray) -> np.ndarray:
         """Works out the approximate mass of the PDE domain over each grid point. Using the left hand rule"""
         approximation_number_cont = np.zeros(self.SSA_M) #set empty list the length of number of compartments
 
@@ -103,64 +97,64 @@ class Hybrid:
             start_index = self.PDE_multiple * i #start index of PDE point
             end_index = self.PDE_multiple * (i + 1) #end index of PDE point
             sum_value = 0.0 #sum value as stands
-            sum_value = np.sum(C_list[start_index:end_index])*self.deltax  #Summing the list, left hand rule
+            sum_value = np.sum(PDE_list[start_index:end_index])*self.deltax  #Summing the list, left hand rule
             approximation_number_cont[i] = sum_value #Adding to the list
 
         return approximation_number_cont
 
 
-    def calculate_total_mass(self,C_list:np.ndarray, D_list: np.ndarray) -> np.ndarray:
+    def calculate_total_mass(self,PDE_list:np.ndarray, SSA_list: np.ndarray) -> np.ndarray:
         """This will calculate the total mass of discrete + continuous"""
 
-        approximate_mass_list = self.approximate_mass_left_hand(C_list)
-        combined_list = np.add(D_list, approximate_mass_list) 
-        return combined_list, approximate_mass_list
+        approximate_PDE_mass = self.approximate_mass_left_hand(PDE_list)
+        combined_list = np.add(SSA_list, approximate_PDE_mass) 
+        return combined_list, approximate_PDE_mass
     
 
-    def propensity_calculation(self, D_list: np.ndarray, C_list : np.ndarray) -> np.ndarray:
+    def propensity_calculation(self, SSA_list: np.ndarray, PDE_list : np.ndarray) -> np.ndarray:
         """
         Calculates the propensity functions for each reaction.
 
         Args:
-            D_list (np.ndarray): Discrete molecules list.
-            C_list (np.ndarray): Continuous mass list.
+            SSA_list (np.ndarray): Discrete molecules list.
+            PDE_list (np.ndarray): Continuous mass list.
 
         Returns:
             np.ndarray: Combined propensity list.
         """
-        movement_propensity = 2 * self.d * D_list #The diffusion rates
-        movement_propensity[0] = self.d * D_list[0]
-        movement_propensity[-1] = self.d * D_list[-1]
+        movement_propensity = 2 * self.d * SSA_list #The diffusion rates
+        movement_propensity[0] = self.d * SSA_list[0]
+        movement_propensity[-1] = self.d * SSA_list[-1]
     
 
-        R1_propensity = self.production_rate_per_compartment * np.ones_like(D_list) #The production propensity
-        R2_propensity = self.degredation_rate * D_list #degredation propensity
+        R1_propensity = self.production_rate_per_compartment * np.ones_like(SSA_list) #The production propensity
+        R2_propensity = self.degredation_rate * SSA_list #degredation propensity
 
 
-        combined_list, approximate_mass_list = self.calculate_total_mass(C_list, D_list)  #Add with the discrete mass to gather 
+        combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)  #Add with the discrete mass to gather 
     
-        conversion_to_discrete = np.zeros_like(D_list)
-        conversion_to_cont = np.zeros_like(approximate_mass_list)
+        conversion_to_discrete = np.zeros_like(SSA_list)
+        conversion_to_cont = np.zeros_like(approximate_PDE_mass)
 
         # Ensure the boolean index matches the array size
-        if combined_list.shape != D_list.shape:
-            raise ValueError("Shape mismatch between combined_list and D_list")
+        if combined_list.shape != SSA_list.shape:
+            raise ValueError("Shape mismatch between combined_list and SSA_list")
     
-        conversion_to_cont[combined_list >= self.threshold] = D_list[combined_list >= self.threshold] * self.gamma
-        conversion_to_discrete[combined_list < self.threshold] = approximate_mass_list[combined_list < self.threshold] * self.gamma
+        conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
+        conversion_to_discrete[combined_list < self.threshold] = approximate_PDE_mass[combined_list < self.threshold] * self.gamma
 
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
 
-    def hybrid_simulation(self,D_grid : np.ndarray, C_grid : np.ndarray) -> np.ndarray:
+    def hybrid_simulation(self, SSA_grid : np.ndarray, PDE_grid : np.ndarray, approx_mass: np.ndarray) -> np.ndarray:
         t = 0
         old_time = t
         td = self.timestep
-        D_list = D_grid[:, 0]  # Starting D_list
-        C_list = C_grid[:, 0]  # Starting C_list
+        SSA_list = SSA_grid[:, 0]  # Starting SSA_list
+        PDE_list = PDE_grid[:, 0]  # Starting PDE_list
 
         while t < self.total_time:
-            total_propensity = self.propensity_calculation(D_list, C_list)
+            total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:  # Stop if no reactions can occur
                 break
@@ -173,104 +167,123 @@ class Hybrid:
 
             compartment_index = index%self.SSA_M #The compartmental index is just the modulo of SSA. 
             if t + tau <= td:  # Execute Gillespie
+                """The diffusion reactions are executed here"""
                 if index <= self.SSA_M - 2 and index >= 1:
                     # print("Reaction diffusion")
                     if r3 < 0.5:  # Move left
-                        D_list[index] = max(D_list[index] - 1, 0)
-                        D_list[index - 1] += 1
+                        SSA_list[index] = max(SSA_list[index] - 1, 0)
+                        SSA_list[index - 1] += 1
                     else:  # Move right
-                        D_list[index] = max(D_list[index] - 1, 0)
-                        D_list[index + 1] += 1
+                        SSA_list[index] = max(SSA_list[index] - 1, 0)
+                        SSA_list[index + 1] += 1
                 elif index == 0:  # Left boundary (can only move right)
-                    D_list[index] = max(D_list[index] - 1, 0)
-                    D_list[index + 1] += 1
+                    SSA_list[index] = max(SSA_list[index] - 1, 0)
+                    SSA_list[index + 1] += 1
                 elif index == self.SSA_M - 1:  # Right boundary (can only move left)
-                    D_list[index] = max(D_list[index] - 1, 0)
-                    D_list[index - 1] += 1
+                    SSA_list[index] = max(SSA_list[index] - 1, 0)
+                    SSA_list[index - 1] += 1
+
+
+
+                    """Now the reaction kinetics"""
 
                 elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Production reaction
-                    # print("Production reaction")
-                    D_list[compartment_index] += 1
+                    SSA_list[compartment_index] += 1
+
                 elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Degradation reaction
-                    # print("Degradation reaction")
-                    D_list[compartment_index] = max(D_list[compartment_index] - 1, 0)
+                    SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
+
+
+                    """Finally the conversion reactions here"""
                 elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:  # Conversion from continuous to discrete
                     # print("Conversion from continuous to discrete")
-                    D_list[compartment_index] += 1
-                    C_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1/self.h
-                    C_list = np.maximum(C_list, 0)  # Ensure non-negativity for continuous list
+                    SSA_list[compartment_index] += 1
+                    PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1/self.h
+                    PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list
                     
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
                  
-                    D_list[compartment_index] = max(D_list[compartment_index] - 1, 0)
-                    C_list[self.PDE_multiple*compartment_index:self.PDE_multiple*(compartment_index+1)] += 1/self.h
-                  
-                    # approx_mass_after = self.approximate_mass_left_hand(D_list, C_list)
-        
-                    # print(f"Change in mass: {change}"
-                # Store the results for the current time step
+                    SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
+                    PDE_list[self.PDE_multiple*compartment_index:self.PDE_multiple*(compartment_index+1)] += 1/self.h
+                 
                 
-                t+=tau 
+                t +=tau 
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
-                    D_grid[:, time_index] = D_list
-                    C_grid[:, time_index] = C_list
+                    SSA_grid[:, time_index] = SSA_list
+                    PDE_grid[:, time_index] = PDE_list
+                    approx_mass[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)[0]
 
                 old_time = t  # Update old_time
                  # Update time by the time step
             else:  # Else we run the ODE step
 
-                #C_list = self.RK4(C_list)
-                C_list = self.crank_nicholson(C_list)
-                C_list = np.maximum(C_list, 0)  # Ensure non-negativity after RK4 step
+                #PDE_list = self.RK4(PDE_list)
+                PDE_list = self.crank_nicholson(PDE_list)
+                PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
                 t = td
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
-                    C_grid[:, time_index] = C_list
-                    D_grid[:, time_index] = D_list
+                    PDE_grid[:, time_index] = PDE_list
+                    SSA_grid[:, time_index] = SSA_list
+                    approx_mass[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)[0]
            
-        return D_grid, C_grid
+        return SSA_grid, PDE_grid, approx_mass
 
 
     def run_simulation(self,number_of_repeats:int) -> np.ndarray:
         """This will run the simulation with a total number of repeats"""
-        C_initial, D_initial = self.create_initial_dataframe()
-        D_average = np.zeros_like(D_initial)
-        C_average = np.zeros_like(C_initial)
-        filled_C_grid = np.zeros_like(C_initial)
-        filled_D_grid = np.zeros_like(D_initial)
+        PDE_initial, SSA_initial = self.create_initial_dataframe()
+        approx_mass_initial = np.zeros_like(SSA_initial)
+        approx_mass_initial[:,0] = self.calculate_total_mass(PDE_initial[:,0], SSA_initial[:,0])[0]
+        SSA_sum = np.zeros_like(SSA_initial)
+        PDE_sum = np.zeros_like(PDE_initial)
+        approx_mass_sum = np.zeros_like(approx_mass_initial)
 
-       
         for _ in tqdm(range(number_of_repeats),desc="Running the Hybrid simulations"):
-            D_current, C_current = self.hybrid_simulation(deepcopy(D_initial), deepcopy(C_initial))
-            D_average += D_current
-            C_average += C_current
+            SSA_current, PDE_current, approx_mass_current = self.hybrid_simulation(deepcopy(SSA_initial), deepcopy(PDE_initial),deepcopy(approx_mass_initial))
+            SSA_sum+= SSA_current
+            PDE_sum += PDE_current
+            approx_mass_sum += approx_mass_sum
+        SSA_average = SSA_sum/number_of_repeats
+        PDE_average = PDE_sum/number_of_repeats
+        approx_sum_average = approx_mass_sum/number_of_repeats
 
-        filled_D_grid = D_average/number_of_repeats
-        filled_C_grid = C_average/number_of_repeats
+
+        combined_grid = np.zeros_like(PDE_average)
 
 
-        combined_grid = np.zeros_like(filled_C_grid)
-    
-
-        for i in range(filled_D_grid.shape[1]):
-            for j in range(filled_D_grid.shape[0]):
+        for i in range(SSA_average.shape[1]):
+            for j in range(SSA_average.shape[0]):
                 start_index = j*self.PDE_multiple
                 end_index = (j+1)*self.PDE_multiple
 
-                combined_grid[start_index:end_index,i] = filled_C_grid[start_index:end_index,i]+(1/self.h)*filled_D_grid[j,i]
+                combined_grid[start_index:end_index,i] = PDE_average[start_index:end_index,i]+(1/self.h)*SSA_average[j,i]
 
         combined_grid[-1,:] = combined_grid[-2,:]
-       
+        
+
+        # combined_grid = np.zeros_like(PDE_average)
+
+
+        # for i in range(SSA_average.shape[1]):
+        #     for j in range(SSA_average.shape[0]):
+        #         start_index = j*self.PDE_multiple
+        #         end_index = (j+1)*self.PDE_multiple
+
+        #         combined_grid[start_index:end_index,i] = PDE_average[start_index:end_index,i]+(1/self.h)*SSA_average[j,i]
+
+        # combined_grid[-1,:] = combined_grid[-2,:]
+        
 
         print("Simulation completed")
-        return filled_D_grid, filled_C_grid, combined_grid
+        return SSA_average, PDE_average, combined_grid
     
 
-    def save_simulation_data(self,D_grid:np.ndarray,C_grid:np.ndarray,combined_grid:np.ndarray, datadirectory='data'):
+    def save_simulation_data(self,SSA_grid:np.ndarray,PDE_grid:np.ndarray,combined_grid:np.ndarray, datadirectory='data'):
 
         if not os.path.exists(datadirectory):
             os.makedirs(datadirectory)
@@ -292,8 +305,8 @@ class Hybrid:
             'h': self.h,
         }
         np.savez(os.path.join(datadirectory, 'Hybrid_data'),
-                 D_grid = D_grid,
-                 C_grid = C_grid,
+                 SSA_grid = SSA_grid,
+                 PDE_grid = PDE_grid,
                  combined_grid = combined_grid,
                  time_vector = self.time_vector,
                  SSA_X = self.SSA_X,
