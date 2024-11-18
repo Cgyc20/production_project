@@ -39,7 +39,8 @@ class Hybrid:
         else:
             self.SSA_initial = SSA_initial
 
-        self.PDE_initial_conditions = np.zeros_like(self.PDE_X, dtype=np.float64) #Initially zero states for PDE
+        # self.PDE_initial_conditions = np.zeros_like(self.PDE_X, dtype=np.float64) #Initially zero states for PDE
+        self.PDE_initial_conditions = np.ones_like(self.PDE_X, dtype=np.float64) #Initially zero states for PDE
         self.steady_state = production_rate / degredation_rate #Steady state of the system
         self.DX_NEW = self.create_finite_difference()  # Ensure DX_NEW is initialized here
         self.time_vector = np.arange(0, total_time, timestep)  # The time vector
@@ -207,7 +208,7 @@ class Hybrid:
                     PDE_list[self.PDE_multiple*compartment_index:self.PDE_multiple*(compartment_index+1)] += 1/self.h
                  
                 
-                t +=tau 
+                t += tau 
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):

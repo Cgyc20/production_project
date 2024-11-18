@@ -26,6 +26,8 @@ SSA_grid = SSA_data["SSA_grid"]
 Pure_PDE = np.load("Data/PDE_data.npz")
 pure_PDE_grid = Pure_PDE["PDE_grid"]
 
+print(f"pure_PDE_grid at timestep 1: {pure_PDE_grid[:,1]}")
+
 # Display shapes of loaded data arrays for verification
 print(f"shape of C_grid: {C_grid.shape}")
 print(f"shape of D_grid: {D_grid.shape}")
@@ -60,27 +62,29 @@ SSA_total_mass = np.sum(D_grid, axis=0)
 pure_SSA_Mass = np.sum(SSA_grid, axis=0)
 
 # Function to calculate total mass for continuous data
-def calculate_mass_continuous(data_grid):
+def calculate_mass_continuous(data_grid, deltax):
     total_mass = np.zeros(data_grid.shape[1])
-    # Calculate total mass over continuous functions using the left-hand rule
+    # Calculate total mass over continuous functions using the trapezoidal rule
     for i in range(data_grid.shape[1]):
-        current_sum = 0
-        for j in range(data_grid.shape[0] - 1):
-            current_sum += data_grid[j, i] * deltax
-
-        total_mass[i] = current_sum
-        if i<20:
-            print(f"Total mass at time {i}: {total_mass[i]}")
+        # Debug print to inspect the values being integrated
+        
+        # Perform trapezoidal rule: sum over the intervals between points
+        total_mass[i] = np.sum(data_grid[:,i-1])*deltax #This was wrong - summing to the end
+        
+        # Debug print to inspect the calculated total mass
+       
     return total_mass
 
-# Calculate total mass over time for each grid
-analytic_total_mass = calculate_mass_continuous(analytic_sol)
-PDE_total_mass = calculate_mass_continuous(C_grid)
-combined_total_mass = calculate_mass_continuous(combined_grid)
-pure_PDE_total_mass = calculate_mass_continuous(pure_PDE_grid)
+# Assuming deltax is defined correctly
+analytic_total_mass = calculate_mass_continuous(analytic_sol, deltax)
+PDE_total_mass = calculate_mass_continuous(C_grid, deltax)
+combined_total_mass = calculate_mass_continuous(combined_grid, deltax)
+pure_PDE_total_mass = calculate_mass_continuous(pure_PDE_grid, deltax)
 
+print(f"pure_PDE_total mass at timestep 1: {pure_PDE_total_mass[0]}")
+print(f"the list of PDE_mass at timestep 1: {pure_PDE_grid[:,0]}")
 
-print(f"The combineed solution at first timestep: {combined_total_mass[0]}")
+print(f"The combined solution at first timestep: {combined_total_mass[0]}")
 print(f"The PDE total mass at first timestep: {pure_PDE_total_mass[0]}")
 # Adjust time vector for relative error calculation
 adjusted_time_vector = time_vector[1:]
@@ -147,7 +151,7 @@ ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), step_size), i
 # Display the animated plot
 plt.show()
 
-print(f"The combined mass: {combined_total_mass[:10]}")
+
 # Plot total mass over time for each model
 plt.figure()
 plt.plot(time_vector, SSA_total_mass, 'b--',label='SSA part')

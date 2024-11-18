@@ -2,7 +2,6 @@ import numpy as np
 from production_project import Hybrid, Stochastic, PDE
 import subprocess
 
-
 # Open file and read parameters into a dictionary
 with open("parameter_input.dat", "r") as f:
     parameters_dict = {line.split()[0]: line.split()[1] for line in f}
@@ -47,22 +46,24 @@ try:
 except ValueError as e:
     print("Error:", e)
 
+SSA_initial = np.ones((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
 
+Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial)
 
-SSA_initial= np.ones((compartment_number), np.int64) * number_particles_per_cell #Initial conditions (within each cell) 
+D_grid, C_grid, combined_grid = Model.run_simulation(number_of_repeats=repeats)
+Model.save_simulation_data(D_grid, C_grid, combined_grid, datadirectory='data')
 
-Model = Hybrid(domain_length, compartment_number, PDE_multiple,total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial)
-
-D_grid,C_grid,combined_grid = Model.run_simulation(number_of_repeats=repeats)
-Model.save_simulation_data(D_grid,C_grid,combined_grid, datadirectory='data')
-
-SSA_model =  Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial) 
+SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial)
 SSA_grid = SSA_model.run_simulation(number_of_repeats=repeats)
-SSA_model.save_simulation_data(SSA_grid, datadirectory='data') #ignore
+SSA_model.save_simulation_data(SSA_grid, datadirectory='data') # ignore
 
 PDE_points = Model.PDE_M
-PDE_initial = np.ones_like(PDE_points) * number_particles_per_cell/Model.h
+PDE_initial = np.ones_like(PDE_points) * number_particles_per_cell / Model.h
 PDE_Model = PDE(domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial)
 PDE_grid = PDE_Model.run_simulation()
 PDE_Model.save_simulation_data(PDE_grid, datadirectory='data')
-subprocess.run(['python','animate.py'])
+
+print(f"PDE grid at timestep one: {PDE_grid[:,0]}")
+print(f"Stochastic grid at timestep 1: {SSA_grid[:,0]}")
+print(f"SSA in hybrid model at timestep 1: {D_grid[:,0]}")
+subprocess.run(['python', 'animate.py'])
