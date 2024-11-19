@@ -46,12 +46,15 @@ try:
 except ValueError as e:
     print("Error:", e)
 
+
+"""Initialise the hybrid model"""
+
 SSA_initial = np.ones((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
 
-Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial)
+Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial) #Define the hybrid model
 
-D_grid, C_grid, combined_grid = Model.run_simulation(number_of_repeats=repeats)
-Model.save_simulation_data(D_grid, C_grid, combined_grid, datadirectory='data')
+Hybrid_SSA, Hybrid_PDE, Hybrid_combined = Model.run_simulation(number_of_repeats=repeats)
+Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data')
 
 SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial)
 SSA_grid = SSA_model.run_simulation(number_of_repeats=repeats)
@@ -65,5 +68,5 @@ PDE_Model.save_simulation_data(PDE_grid, datadirectory='data')
 
 print(f"PDE grid at timestep one: {PDE_grid[:,0]}")
 print(f"Stochastic grid at timestep 1: {SSA_grid[:,0]}")
-print(f"SSA in hybrid model at timestep 1: {D_grid[:,0]}")
+print(f"SSA in hybrid model at timestep 1: {Hybrid_SSA[:,0]}")
 subprocess.run(['python', 'animate.py'])

@@ -153,7 +153,7 @@ class Hybrid:
         td = self.timestep
         SSA_list = SSA_grid[:, 0]  # Starting SSA_list
         PDE_list = PDE_grid[:, 0]  # Starting PDE_list
-
+        
         while t < self.total_time:
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
@@ -218,6 +218,11 @@ class Hybrid:
 
                 old_time = t  # Update old_time
                  # Update time by the time step
+                # print(f"Stochastic particles in each box at time {t} is {SSA_list}")
+                # print(f"Continuous mass at time {t} is {PDE_list}")
+                # print(f"Approx mass at time {t} is {approx_mass[:,min(ind_after,len(self.time_vector)-1)]}")
+                # print(f"propensity list at same time is {total_propensity}")
+
             else:  # Else we run the ODE step
 
                 #PDE_list = self.RK4(PDE_list)
