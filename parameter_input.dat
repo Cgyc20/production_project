@@ -1,6 +1,6 @@
 domain_length 1
-compartment_number 5
-PDE_multiple 2
+compartment_number 10
+PDE_multiple 4
 total_time 200
 timestep 0.05
 particles_per_compartment_thresh 8
