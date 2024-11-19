@@ -13,7 +13,7 @@ class Hybrid:
         self.PDE_multiple = PDE_multiple #The number of PDE points per compartment
         self.production_rate = production_rate #The producti
         self.PDE_M = compartment_number * PDE_multiple+1
-        self.deltax = self.L / self.PDE_M #The PDE stepsize
+        self.deltax = self.L / (self.PDE_M-1) #The PDE stepsize
         self.total_time = total_time #total simulation time
         self.timestep = timestep #The timestep size
         self.threshold = threshold #THe threshold (which is per compartment, the number of cells 
@@ -151,6 +151,7 @@ class Hybrid:
         t = 0
         old_time = t
         td = self.timestep
+        PDE_particles = np.zeros_like(approx_mass)
         SSA_list = SSA_grid[:, 0]  # Starting SSA_list
         PDE_list = PDE_grid[:, 0]  # Starting PDE_list
         
@@ -214,14 +215,44 @@ class Hybrid:
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
                     SSA_grid[:, time_index] = SSA_list
                     PDE_grid[:, time_index] = PDE_list
-                    approx_mass[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)[0]
+                    approx_mass[:, time_index], PDE_particles[:,time_index] = self.calculate_total_mass(PDE_list, SSA_list)
 
                 old_time = t  # Update old_time
                  # Update time by the time step
-                # print(f"Stochastic particles in each box at time {t} is {SSA_list}")
-                # print(f"Continuous mass at time {t} is {PDE_list}")
-                # print(f"Approx mass at time {t} is {approx_mass[:,min(ind_after,len(self.time_vector)-1)]}")
-                # print(f"propensity list at same time is {total_propensity}")
+                #Printing a barrier
+
+               
+                print(f"{'Simulation Step':^30}")  # Centered title within the asterisks
+                print("*" * 30)
+
+                # Time and mass information
+                print(f"Time: {t:.2f}")
+                print(f"Mass conversion threshold: {self.threshold}")
+                print("-" * 30)  # Separator line
+
+                # Particle and mass details
+                print(f"Stochastic particles in each box at time {t}:")
+                print(f"  {SSA_list}")
+                print(f"Continuous mass at time {t:.1f}:")
+                print(f"  {PDE_list.round(1)}")
+                print(f"Number of particles continuous")
+                print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
+                print(f"Approximate mass at time {t:.1f}:")
+                print(f"  {approx_mass[:, min(ind_after+1, len(self.time_vector))-1]}")
+                print("-" * 30)
+
+                # Propensity information
+                print(f"{'Propensity Details':^30}")
+                print(f"Index of reaction chosen: {index}")
+                print("-" * 30)
+                print(f"Movement propensity:           {total_propensity[:self.SSA_M]}")
+                print(f"Production propensity:         {total_propensity[self.SSA_M:2*self.SSA_M]}")
+                print(f"Degradation propensity:        {total_propensity[2*self.SSA_M:3*self.SSA_M]}")
+                print(f"Conversion to discrete prop.:  {total_propensity[3*self.SSA_M:4*self.SSA_M]}")
+                print(f"Conversion to continuous prop.: {total_propensity[4*self.SSA_M:]}")
+                print("*" * 30)
+                print("\n")  # Extra blank line for space between steps
+
 
             else:  # Else we run the ODE step
 
@@ -235,7 +266,7 @@ class Hybrid:
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
                     PDE_grid[:, time_index] = PDE_list
                     SSA_grid[:, time_index] = SSA_list
-                    approx_mass[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)[0]
+                    approx_mass[:, time_index], PDE_particles[:,time_index]  = self.calculate_total_mass(PDE_list, SSA_list)
            
         return SSA_grid, PDE_grid, approx_mass
 
