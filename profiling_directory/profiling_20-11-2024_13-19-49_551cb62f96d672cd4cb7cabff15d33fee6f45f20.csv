@@ -1,0 +1,678 @@
+Function,Calls,Total Time (s),Per Call Time (s),Cumulative Time (s)
+"('~', 0, '<built-in method builtins.exec>')",1,0.0005749980000000001,0.0005749980000000001,23.64360375
+"('<string>', 1, '<module>')",1,2.7836000000000003e-05,2.7836000000000003e-05,23.643471917000003
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 321, 'run_simulation')",1,0.019157238,0.019157238,19.498262583000002
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 189, 'hybrid_simulation')",20,1.658687424,0.0829343712,19.467786793000002
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 106, 'calculate_total_mass')",466977,0.260736421,5.583495996590838e-07,11.238814462
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 92, 'approximate_mass_left_hand')",466977,2.291206659,4.906465755272744e-06,10.978078041
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 143, 'propensity_calculation')",207001,1.882266462,9.093030767967305e-06,9.722086775000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 2255, 'sum')",5106935,2.0903457220000004,4.093151218881776e-07,9.267718761000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 69, '_wrapreduction')",5106941,2.564479153,5.021556256475257e-07,6.84371491
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/stochastic.py', 108, 'run_simulation')",1,0.00043908500000000003,0.00043908500000000003,4.098208958
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/stochastic.py', 61, 'stochastic_simulation')",20,1.333073454,0.0666536727,4.09282154
+"('~', 0, ""<method 'reduce' of 'numpy.ufunc' objects>"")",5106941,3.8246801550000002,7.489180225500941e-07,3.8246801550000002
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 113, 'boolean_if_less_mass')",207001,1.7960991210000001,8.676765431084875e-06,2.086782318
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 51, '_wrapfunc')",1748660,0.44692564300000004,2.555817843377215e-07,1.6837091080000002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 1402, 'searchsorted')",1311495,0.32618010000000003,2.4870861116512076e-07,1.476128322
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/stochastic.py', 46, 'propensity_calculation')",230164,0.791214431,3.4376115769625136e-06,1.073517843
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/numeric.py', 65, 'zeros_like')",621030,0.547778569,8.820484823599503e-07,0.739338481
+"('~', 0, ""<method 'searchsorted' of 'numpy.ndarray' objects>"")",1311495,0.722106225,5.505977720082806e-07,0.722106225
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 2609, 'cumsum')",437165,0.12692087500000002,2.9032716480047585e-07,0.6606828450000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/numeric.py', 218, 'ones_like')",437167,0.456591817,1.0444334018807458e-06,0.513589368
+"('~', 0, ""<method 'items' of 'dict' objects>"")",5106970,0.454560556,8.900787668617595e-08,0.454560556
+"('~', 0, ""<method 'cumsum' of 'numpy.ndarray' objects>"")",437165,0.365342906,8.357094140656274e-07,0.365342906
+"('~', 0, '<built-in method builtins.isinstance>')",5107586,0.33374754,6.534349886619628e-08,0.333771457
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 2250, '_sum_dispatcher')",5106935,0.27942800900000003,5.471540346607114e-08,0.27942800900000003
+"('~', 0, '<built-in method numpy.zeros>')",1295040,0.221480172,1.7102187731653077e-07,0.221480172
+"('~', 0, '<built-in method builtins.getattr>')",1748984,0.14939179800000002,8.541633199617607e-08,0.149392465
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 87, 'crank_nicholson')",40001,0.095042018,2.3759910502237447e-06,0.095042018
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 1398, '_searchsorted_dispatcher')",1311495,0.085677681,6.532825592167717e-08,0.085677681
+"('~', 0, '<built-in method builtins.min>')",437212,0.07630511000000001,1.7452656834670597e-07,0.07630511000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/multiarray.py', 1089, 'copyto')",1060197,0.073957531,6.975829114777726e-08,0.073957531
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/multiarray.py', 83, 'empty_like')",1058197,0.063380242,5.989455838563141e-08,0.063380242
+"('~', 0, '<built-in method builtins.max>')",287264,0.050983045000000005,1.7747801673721735e-07,0.051039991
+"('~', 0, '<built-in method builtins.len>')",438659,0.042031345000000005,9.58178106456268e-08,0.042034060000000005
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/numeric.py', 59, '_zeros_like_dispatcher')",621030,0.039847181,6.416305331465468e-08,0.039847181
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/PDE.py', 50, 'run_simulation')",1,0.002471776,0.002471776,0.036608041
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/PDE.py', 47, 'crank_nicholson')",1999,0.031831949000000005,1.5923936468234118e-05,0.034116015
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 2605, '_cumsum_dispatcher')",437165,0.029854069,6.829016275319388e-08,0.029854069
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/numeric.py', 212, '_ones_like_dispatcher')",437167,0.028806421000000002,6.589340229248778e-08,0.028806421000000002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/multiarray.py', 161, 'concatenate')",437165,0.028232998000000002,6.458201823110268e-08,0.028232998000000002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/copy.py', 61, 'copy')",40001,0.016572095000000002,4.1429201769955757e-07,0.024151058000000003
+"('<frozen importlib._bootstrap>', 1349, '_find_and_load')",5,7.0418e-05,1.40836e-05,0.014462375000000001
+"('<frozen importlib._bootstrap>', 1304, '_find_and_load_unlocked')",5,5.2613000000000006e-05,1.0522600000000002e-05,0.014326416000000002
+"('<frozen importlib._bootstrap>', 911, '_load_unlocked')",5,4.5964e-05,9.192800000000001e-06,0.013734000000000001
+"('<frozen importlib._bootstrap>', 480, '_call_with_frames_removed')",11,1.8379e-05,1.6708181818181819e-06,0.012355833
+"('<frozen importlib._bootstrap_external>', 989, 'exec_module')",4,2.3829000000000002e-05,5.9572500000000004e-06,0.012129332000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 760, 'get_lock')",4,2.1251e-05,5.31275e-06,0.010033415
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 90, '__init__')",1,1.4166000000000001e-05,1.4166000000000001e-05,0.010010833
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 116, 'create_mp_lock')",1,2.1709000000000002e-05,2.1709000000000002e-05,0.009992834
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1160, '__iter__')",42,0.000115667,2.7539761904761905e-06,0.009929501
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1325, 'refresh')",42,0.000107081,2.549547619047619e-06,0.009778374000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1198, 'update')",40,0.000222038,5.55095e-06,0.009461166
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1464, 'display')",44,0.000103837,2.3599318181818182e-06,0.009423084
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 70, 'RLock')",1,1.9624e-05,1.9624e-05,0.007549125
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1150, '__str__')",44,0.000186452,4.237545454545455e-06,0.006910246
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 464, 'format_meter')",44,0.001151981,2.6181386363636365e-05,0.006567206000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 378, 'disp_len')",132,7.891400000000001e-05,5.978333333333334e-07,0.00558942
+"('<frozen importlib._bootstrap_external>', 1062, 'get_code')",21,7.3872e-05,3.5177142857142858e-06,0.005576416000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 374, '_text_width')",132,0.000122669,9.29310606060606e-07,0.005366549
+"('~', 0, '<built-in method builtins.sum>')",132,0.000988151,7.485992424242425e-06,0.00524388
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/__init__.py', 1, '<module>')",1,3.75e-06,3.75e-06,0.005083042
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 193, '__init__')",1,2.459e-06,2.459e-06,0.005038917
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 50, '__init__')",1,5.4457000000000004e-05,5.4457000000000004e-05,0.005036458000000001
+"('~', 0, ""<method 'get' of 'dict' objects>"")",40298,0.004829839000000001,1.1985306963124722e-07,0.004829839000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py', 583, 'savez')",3,1.8541e-05,6.180333333333333e-06,0.004764333
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py', 741, '_savez')",3,8.9793e-05,2.9931e-05,0.004744292000000001
+"('<frozen importlib._bootstrap>', 806, 'module_from_spec')",25,2.6081000000000003e-05,1.04324e-06,0.00444179
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 375, '<genexpr>')",17476,0.0018903600000000002,1.0816891737239644e-07,0.004255729000000001
+"('<frozen importlib._bootstrap_external>', 1183, 'get_data')",21,3.1336e-05,1.4921904761904762e-06,0.004234957
+"('<frozen importlib._bootstrap_external>', 1287, 'create_module')",3,2.9140000000000004e-06,9.713333333333335e-07,0.004170208
+"('~', 0, '<built-in method _imp.create_dynamic>')",3,0.004164791,0.0013882636666666668,0.004164791
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 1, '<module>')",1,3.75e-06,3.75e-06,0.004022875
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/__init__.py', 1, '<module>')",1,1.1124e-05,1.1124e-05,0.003733
+"('~', 0, ""<method 'read' of '_io.BufferedReader' objects>"")",21,0.003251166,0.00015481742857142858,0.003251166
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/stochastic.py', 129, 'save_simulation_data')",1,3.0334e-05,3.0334e-05,0.0032087500000000002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/copy.py', 118, 'deepcopy')",80,0.00019804300000000001,2.4755375000000004e-06,0.003192255
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 370, 'save_simulation_data')",1,7.0039e-05,7.0039e-05,0.003185292
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 952, '__init__')",2,0.00012079400000000001,6.0397000000000005e-05,0.0028086250000000004
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/copy.py', 102, '_copy_immutable')",40001,0.002798128,6.995145121371966e-08,0.002798128
+"('~', 0, ""<method '__deepcopy__' of 'numpy.ndarray' objects>"")",80,0.0027917930000000003,3.489741250000001e-05,0.0027917930000000003
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/resource_tracker.py', 172, 'register')",1,2.334e-06,2.334e-06,0.002669084
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/resource_tracker.py', 180, '_send')",1,2.4499e-05,2.4499e-05,0.0026667500000000003
+"('<frozen importlib._bootstrap>', 1390, '_handle_fromlist')",16,1.6044e-05,1.00275e-06,0.002657211
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/resource_tracker.py', 94, 'ensure_running')",1,5.0418000000000004e-05,5.0418000000000004e-05,0.0026355000000000003
+"('~', 0, '<built-in method builtins.__import__>')",3,7.293e-06,2.431e-06,0.002634458
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 386, 'disp_trim')",44,2.3046000000000003e-05,5.237727272727274e-07,0.0025633770000000004
+"('~', 0, ""<method '__exit__' of '_io._IOBase' objects>"")",37,0.0022387870000000003,6.050775675675677e-05,0.002465413
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/cli.py', 1, '<module>')",1,1.4708e-05,1.4708e-05,0.002461708
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/util.py', 450, 'spawnv_passfds')",1,4.7334000000000005e-05,4.7334000000000005e-05,0.002448542
+"('~', 0, '<built-in method _posixsubprocess.fork_exec>')",1,0.0023822080000000002,0.0023822080000000002,0.0023822080000000002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 457, 'print_status')",44,8.6087e-05,1.9565227272727274e-06,0.002380207
+"('~', 0, '<built-in method unicodedata.east_asian_width>')",17344,0.002365369,1.3637967020295203e-07,0.002365369
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/numeric.py', 143, 'ones')",2000,0.001822108,9.11054e-07,0.002304149
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/format.py', 685, 'write_array')",13,0.00010196200000000001,7.84323076923077e-06,0.0021414570000000003
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 1, '<module>')",1,9.5e-06,9.5e-06,0.002007833
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/resource_tracker.py', 1, '<module>')",1,9.497e-06,9.497e-06,0.0019136670000000002
+"('~', 0, '<built-in method _io.open>')",7,0.001902999,0.000271857,0.001905708
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 333, '_screen_shape_linux')",2,6.1751e-05,3.08755e-05,0.001863917
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/__init__.py', 1, '<module>')",1,1.2955e-05,1.2955e-05,0.0018193340000000001
+"('<frozen importlib._bootstrap>', 1240, '_find_spec')",25,0.000111582,4.46328e-06,0.001780377
+"('<frozen importlib._bootstrap_external>', 1520, 'find_spec')",24,1.3417e-05,5.590416666666667e-07,0.0015312090000000002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py', 90, 'zipfile_factory')",3,2.2333e-05,7.4443333333333334e-06,0.001521584
+"('<frozen importlib._bootstrap_external>', 1491, '_get_spec')",24,3.4252000000000003e-05,1.4271666666666669e-06,0.001517792
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 1292, '__init__')",3,4.2749e-05,1.4249666666666667e-05,0.0014984590000000002
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/PDE.py', 56, 'save_simulation_data')",1,9.417e-06,9.417e-06,0.0014606250000000001
+"('<frozen importlib._bootstrap_external>', 1593, 'find_spec')",34,0.000164155,4.828088235294118e-06,0.00140879
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 1652, '_array_str_implementation')",3,7.3340000000000004e-06,2.4446666666666667e-06,0.001142542
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 1, '<module>')",1,1.5040000000000002e-05,1.5040000000000002e-05,0.001141291
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 582, 'array2string')",3,1.5831e-05,5.2770000000000005e-06,0.001135208
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 1200, 'write')",26,4.5461000000000004e-05,1.7485e-06,0.001134204
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 527, 'wrapper')",3,1.1752e-05,3.917333333333333e-06,0.001101084
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 544, '_array2string')",3,1.6707e-05,5.569e-06,0.001086333
+"('<frozen importlib._bootstrap_external>', 751, '_compile_bytecode')",21,1.8911000000000002e-05,9.005238095238096e-07,0.001013917
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/linalg/_linalg.py', 493, 'inv')",2,0.0009653750000000001,0.00048268750000000004,0.001004583
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/PDE.py', 7, '__init__')",1,4.25e-05,4.25e-05,0.000989
+"('~', 0, '<built-in method marshal.loads>')",21,0.000982002,4.6762000000000004e-05,0.000982002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1, '<module>')",1,1.3081e-05,1.3081e-05,0.000965125
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 9, '__init__')",1,2.1251e-05,2.1251e-05,0.0009508330000000001
+"('~', 0, '<built-in method _io.open_code>')",21,0.0009107910000000001,4.3371e-05,0.0009107910000000001
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 51, 'create_crank_nicholson')",1,0.000348041,0.000348041,0.0008387500000000001
+"('~', 0, '<built-in method builtins.__build_class__>')",58,0.000459714,7.926103448275862e-06,0.00083434
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/PDE.py', 29, 'create_crank_nicholson')",1,0.00021654200000000001,0.00021654200000000001,0.000828292
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 451, 'fp_write')",44,6.2705e-05,1.4251136363636364e-06,0.0007949560000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 194, 'inner')",92,3.5159e-05,3.8216304347826085e-07,0.0007365430000000001
+"('~', 0, ""<method 'write' of '_io.TextIOWrapper' objects>"")",168,0.000708926,4.219797619047619e-06,0.000708926
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 473, '_get_format_function')",3,1.2289e-05,4.0963333333333335e-06,0.000682
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 432, '<lambda>')",3,6.96e-06,2.3200000000000002e-06,0.000662418
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 939, '__init__')",3,1.6291e-05,5.430333333333334e-06,0.000655458
+"('~', 0, '<built-in method posix.stat>')",97,0.000645755,6.6572680412371135e-06,0.000645755
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 966, 'fillFormat')",3,0.00043107800000000005,0.00014369266666666667,0.0006377920000000001
+"('<frozen importlib._bootstrap_external>', 140, '_path_stat')",94,1.7706e-05,1.8836170212765957e-07,0.0005917930000000001
+"('~', 0, ""<method 'write' of '_io.BufferedRandom' objects>"")",110,0.000571662,5.196927272727273e-06,0.000571662
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/__init__.py', 226, 'compile')",3,3e-06,1e-06,0.000550917
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/__init__.py', 280, '_compile')",3,2.8458e-05,9.486e-06,0.0005479170000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/format.py', 432, '_write_array_header')",13,5.555e-05,4.273076923076923e-06,0.000526372
+"('~', 0, '<built-in method zlib.crc32>')",26,0.000522374,2.0091307692307693e-05,0.000522374
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 740, 'compile')",3,1.0083e-05,3.361e-06,0.000488417
+"('<frozen importlib._bootstrap_external>', 1644, '_fill_cache')",3,1.8917000000000002e-05,6.305666666666667e-06,0.00046020800000000004
+"('~', 0, '<built-in method posix.listdir>')",3,0.00043308400000000003,0.00014436133333333334,0.00043308400000000003
+"('~', 0, ""<method 'format' of 'str' objects>"")",96,0.000192465,2.00484375e-06,0.00042237700000000004
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 1570, 'open')",13,4.5125000000000006e-05,3.4711538461538466e-06,0.00041462400000000005
+"('<frozen importlib._bootstrap_external>', 159, '_path_isfile')",33,3.7290000000000004e-05,1.1300000000000002e-06,0.000397335
+"('~', 0, '<built-in method _pickle.dump>')",1,0.000389126,0.000389126,0.0003935
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 806, '_formatArray')",3,7.083000000000001e-06,2.3610000000000003e-06,0.00038662500000000003
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 815, 'recurser')",3,0.00014032,4.6773333333333335e-05,0.000379542
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 102, 'acquire')",52,0.00010849400000000001,2.086423076923077e-06,0.00037741500000000003
+"('~', 0, '<built-in method numpy.empty>')",2000,0.000372969,1.864845e-07,0.000372969
+"('<frozen importlib._bootstrap_external>', 150, '_path_is_mode_type')",36,1.4836000000000002e-05,4.1211111111111114e-07,0.000368462
+"('<frozen importlib._bootstrap>', 416, '__enter__')",25,1.6326000000000003e-05,6.530400000000001e-07,0.000334999
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 1942, 'close')",6,1.3504000000000001e-05,2.250666666666667e-06,0.00033212700000000004
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1265, 'close')",4,1.4335e-05,3.58375e-06,0.000326958
+"('~', 0, ""<method 'tobytes' of 'numpy.ndarray' objects>"")",12,0.00027396,2.283e-05,0.00027396
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 400, 'format_interval')",86,0.000237452,2.7610697674418605e-06,0.000271246
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 1, '<module>')",1,1.4748e-05,1.4748e-05,0.000259458
+"('~', 0, ""<method 'acquire' of '_multiprocessing.SemLock' objects>"")",52,0.000251629,4.839019230769231e-06,0.000251629
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/version.py', 1, '<module>')",1,1.7500000000000002e-06,1.7500000000000002e-06,0.0002455
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 969, 'parse')",3,9.665e-06,3.2216666666666666e-06,0.00024320800000000002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 245, 'tqdm')",1,1.6250000000000002e-05,1.6250000000000002e-05,0.000242541
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 2058, '_fpclose')",3,3.041e-06,1.0136666666666667e-06,0.000234875
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/stochastic.py', 38, 'create_initial_dataframe')",21,4.5331000000000004e-05,2.158619047619048e-06,0.000233541
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/json/__init__.py', 120, 'dump')",2,4.8283000000000005e-05,2.4141500000000003e-05,0.00023266700000000001
+"('<frozen importlib._bootstrap>', 304, 'acquire')",35,7.2425e-05,2.0692857142857143e-06,0.000231961
+"('~', 0, ""<method 'close' of '_io.BufferedRandom' objects>"")",3,0.00023183400000000002,7.7278e-05,0.00023183400000000002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 573, '_code')",3,1.6333e-05,5.444333333333334e-06,0.000229874
+"('<frozen importlib._bootstrap>', 733, '_init_module_attrs')",25,4.7204000000000004e-05,1.8881600000000001e-06,0.00022979100000000002
+"('~', 0, '<built-in method now>')",42,0.00022846000000000002,5.43952380952381e-06,0.00022846000000000002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 452, '_parse_sub')",3,3.0999e-05,1.0333e-05,0.00022733400000000002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 1219, 'close')",13,5.2041000000000005e-05,4.003153846153846e-06,0.000226626
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 512, '_parse')",3,8.6815e-05,2.8938333333333334e-05,0.000202916
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 273, '_is_ascii')",88,0.000128646,1.4618863636363637e-06,0.000201878
+"('<frozen importlib._bootstrap_external>', 482, 'cache_from_source')",42,5.9336e-05,1.4127619047619048e-06,0.000193
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 387, '__init__')",13,0.000163833,1.2602538461538462e-05,0.00018795700000000002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 1672, '_open_to_write')",13,3.85e-05,2.9615384615384614e-06,0.000179333
+"('<frozen importlib._bootstrap_external>', 126, '_path_join')",182,0.00010213600000000001,5.611868131868133e-07,0.000177872
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 106, 'release')",52,8.6035e-05,1.6545192307692307e-06,0.000173999
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 37, '_compile')",3,5.7275e-05,1.909166666666667e-05,0.000170958
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 231, '__call__')",242,0.000160752,6.642644628099174e-07,0.000160752
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1446, 'format_dict')",44,0.00011833600000000001,2.689454545454546e-06,0.000156588
+"('<frozen importlib._bootstrap>', 426, '_get_module_lock')",35,4.3961e-05,1.2560285714285715e-06,0.000152046
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/function_base.py', 25, 'linspace')",4,0.00012196300000000001,3.0490750000000003e-05,0.000147875
+"('<frozen importlib._bootstrap>', 632, 'cached')",45,1.1338e-05,2.519555555555556e-07,0.000146625
+"('~', 0, ""<method 'sub' of 're.Pattern' objects>"")",132,0.000143957,1.0905833333333333e-06,0.000143957
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 446, 'FileHeader')",26,8.1135e-05,3.120576923076923e-06,0.000143668
+"('<frozen importlib._bootstrap_external>', 611, '_get_cached')",24,1.8081000000000002e-05,7.533750000000001e-07,0.00013528700000000002
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 779, '_extendLine_pretty')",101,4.1933e-05,4.151782178217822e-07,0.000133802
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/process.py', 1, '<module>')",1,3.0792e-05,3.0792e-05,0.000128625
+"('~', 0, ""<method 'read' of '_io.TextIOWrapper' objects>"")",1,0.00012495800000000002,0.00012495800000000002,0.000127791
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 186, '__format__')",44,0.00011170900000000001,2.5388409090909093e-06,0.000127413
+"('~', 0, '<built-in method builtins.print>')",25,0.000123038,4.921520000000001e-06,0.000123038
+"('<frozen importlib._bootstrap_external>', 1295, 'exec_module')",3,1.751e-06,5.836666666666667e-07,0.00012025100000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 76, 'wrap')",1,3.6680000000000003e-06,3.6680000000000003e-06,0.000118375
+"('~', 0, '<built-in method _imp.exec_dynamic>')",3,0.00011666600000000001,3.888866666666667e-05,0.00011666600000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/copy.py', 231, '_keep_alive')",80,0.000102532,1.28165e-06,0.00011491800000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 1021, '<genexpr>')",104,2.6587e-05,2.5564423076923077e-07,0.000114426
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/stochastic.py', 7, '__init__')",1,2.6166000000000003e-05,2.6166000000000003e-05,0.000113875
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/inspect.py', 3339, 'signature')",1,1.167e-06,1.167e-06,0.00011312500000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/inspect.py', 3077, 'from_callable')",1,6.083e-06,6.083e-06,0.000111958
+"('<frozen importlib._bootstrap>', 162, '__enter__')",35,2.5538000000000002e-05,7.296571428571429e-07,0.00011154100000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/signal.py', 69, 'pthread_sigmask')",2,1.8791e-05,9.3955e-06,0.000111457
+"('~', 0, ""<method 'seek' of '_io.BufferedRandom' objects>"")",45,0.000110625,2.4583333333333337e-06,0.000110625
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/inspect.py', 2497, '_signature_from_callable')",1,1.0501e-05,1.0501e-05,0.00010587500000000001
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 112, '__format__')",44,0.00010249900000000001,2.3295227272727275e-06,0.00010249900000000001
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 77, 'create_initial_dataframe')",1,4.165e-06,4.165e-06,9.995800000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/json/encoder.py', 414, '_iterencode')",122,2.3292e-05,1.9091803278688524e-07,9.9796e-05
+"('<frozen importlib._bootstrap>', 232, '__init__')",25,9.491500000000001e-05,3.7966e-06,9.8583e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 1052, '__call__')",101,7.1547e-05,7.083861386138614e-07,9.7546e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/reduction.py', 1, '<module>')",1,1.6999e-05,1.6999e-05,9.7458e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 663, '__new__')",2,4.2375e-05,2.11875e-05,9.562500000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/spawn.py', 1, '<module>')",1,7.458e-06,7.458e-06,9.3708e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 34, 'envwrap')",1,1.3378000000000001e-05,1.3378000000000001e-05,9.3708e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/inspect.py', 2393, '_signature_from_function')",1,3.1245e-05,3.1245e-05,9.2083e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/_weakrefset.py', 63, '__iter__')",22,2.8502000000000003e-05,1.2955454545454548e-06,8.6792e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 884, '__init__')",1,3.7000000000000005e-05,3.7000000000000005e-05,8.575000000000001e-05
+"('<frozen importlib._bootstrap>', 463, '_lock_unlock_module')",10,6.496e-06,6.496e-07,8.5289e-05
+"('<frozen importlib._bootstrap_external>', 1202, 'path_stats')",21,7.962000000000001e-06,3.7914285714285717e-07,8.4669e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/_monitor.py', 47, 'get_instances')",4,8.668e-06,2.167e-06,8.4626e-05
+"('<frozen genericpath>', 16, 'exists')",3,1.0332e-05,3.444e-06,8.2e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 1964, '_write_end_record')",3,4.0251000000000005e-05,1.3417000000000002e-05,8.141600000000001e-05
+"('<frozen importlib._bootstrap>', 124, 'setdefault')",35,3.788e-05,1.0822857142857144e-06,8.037800000000001e-05
+"('<frozen importlib._bootstrap_external>', 1588, '_get_spec')",24,2.0254000000000003e-05,8.439166666666668e-07,8.0126e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/signal.py', 72, '<genexpr>')",4,1.0626000000000001e-05,2.6565000000000003e-06,7.966700000000001e-05
+"('~', 0, ""<method 'release' of '_multiprocessing.SemLock' objects>"")",52,7.6919e-05,1.4792115384615384e-06,7.6919e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/json/encoder.py', 334, '_iterencode_dict')",122,3.8062e-05,3.119836065573771e-07,7.5462e-05
+"('<frozen _collections_abc>', 892, '__iter__')",34,1.1835000000000001e-05,3.480882352941177e-07,7.4082e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 1016, '<genexpr>')",104,3.9247000000000006e-05,3.7737500000000003e-07,7.3711e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 243, '_optimize_charset')",9,6.4416e-05,7.1573333333333335e-06,7.1999e-05
+"('<frozen importlib._bootstrap_external>', 1469, '_path_importer_cache')",39,1.2123e-05,3.1084615384615386e-07,7.1247e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/signal.py', 24, '_int_to_enum')",2,2.6123e-05,1.30615e-05,6.9041e-05
+"('<frozen importlib._bootstrap_external>', 132, '_path_split')",42,2.6208e-05,6.24e-07,6.737400000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/format.py', 356, 'header_data_from_array_1_0')",13,2.7206e-05,2.092769230769231e-06,6.687300000000001e-05
+"('~', 0, '<built-in method builtins.ord>')",937,6.6061e-05,7.050266808964782e-08,6.6061e-05
+"('~', 0, '<built-in method builtins.hasattr>')",200,6.537700000000001e-05,3.2688500000000006e-07,6.537700000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 679, '_get_free_pos')",2,2.5459e-05,1.27295e-05,6.4916e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 30, 'BaseContext')",1,6.3874e-05,6.3874e-05,6.433300000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/_weakrefset.py', 95, 'copy')",4,5.3330000000000004e-06,1.3332500000000001e-06,6.4249e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 153, '__init__')",44,5.2082e-05,1.1836818181818183e-06,6.4041e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/_monitor.py', 30, '__init__')",1,2.175e-05,2.175e-05,6.275000000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 765, '_extendLine')",101,4.3365e-05,4.2935643564356437e-07,6.254000000000001e-05
+"('<frozen importlib._bootstrap>', 372, 'release')",35,3.8751e-05,1.1071714285714286e-06,6.108200000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/_weakrefset.py', 37, '__init__')",6,1.6623e-05,2.7705e-06,6.070700000000001e-05
+"('~', 0, '<built-in method numpy._core._multiarray_umath.dragon4_positional>')",202,6.046300000000001e-05,2.9932178217821786e-07,6.046300000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/enum.py', 726, '__call__')",36,2.8498e-05,7.916111111111112e-07,5.9128e-05
+"('<frozen importlib._bootstrap_external>', 1456, '_path_hooks')",3,7.917e-06,2.639e-06,5.9124000000000005e-05
+"('<frozen importlib._bootstrap_external>', 802, 'spec_from_file_location')",24,3.1699e-05,1.3207916666666668e-06,5.7247e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/format.py', 408, '_wrap_header_guess_version')",13,7.126e-06,5.481538461538461e-07,5.6208e-05
+"('<frozen importlib._bootstrap>', 420, '__exit__')",25,8.292000000000001e-06,3.3168000000000007e-07,5.5915e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/numeric.py', 2178, 'identity')",4,2.0207e-05,5.05175e-06,5.3875e-05
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/PDE.py', 37, 'create_finite_difference')",2,4.1792e-05,2.0896e-05,5.3792e-05
+"('~', 0, ""<method 'update' of 'dict' objects>"")",52,3.9512000000000004e-05,7.598461538461539e-07,5.338e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 686, '_decr_instances')",2,1.8167e-05,9.0835e-06,5.3208e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/json/encoder.py', 205, 'iterencode')",2,4.6624000000000006e-05,2.3312000000000003e-05,5.2833e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 121, '_make_name')",1,1.458e-06,1.458e-06,5.0875e-05
+"('~', 0, '<built-in method builtins.next>')",9,4.126e-06,4.5844444444444443e-07,5.0626000000000006e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/format.py', 384, '_wrap_header')",13,3.3002e-05,2.5386153846153847e-06,4.9082e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/util.py', 1, '<module>')",1,1.3042000000000002e-05,1.3042000000000002e-05,4.6625e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/_distutils_hack/__init__.py', 102, 'find_spec')",25,2.6125e-05,1.0450000000000002e-06,4.6581e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/tempfile.py', 153, '__next__')",1,6.042000000000001e-06,6.042000000000001e-06,4.6500000000000005e-05
+"('~', 0, ""<method 'join' of 'str' objects>"")",239,4.6249000000000004e-05,1.9351046025104605e-07,4.6249000000000004e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/_weakrefset.py', 27, '__exit__')",12,1.0665e-05,8.887500000000001e-07,4.6249000000000004e-05
+"('~', 0, '<built-in method _thread.start_new_thread>')",1,4.5458000000000004e-05,4.5458000000000004e-05,4.5458000000000004e-05
+"('~', 0, '<built-in method time.time>')",167,4.4421e-05,2.6599401197604793e-07,4.4421e-05
+"('~', 0, ""<method 'rstrip' of 'str' objects>"")",414,4.4116e-05,1.0656038647342996e-07,4.4116e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/_weakrefset.py', 120, 'update')",4,1.2708000000000001e-05,3.1770000000000002e-06,4.4084e-05
+"('~', 0, ""<method 'append' of 'list' objects>"")",429,4.4002e-05,1.0256876456876457e-07,4.4002e-05
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 63, 'create_finite_difference')",2,4.0375000000000006e-05,2.0187500000000003e-05,4.2958000000000004e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 511, '_compile_info')",3,1.7502e-05,5.8339999999999995e-06,4.2333e-05
+"('<frozen os>', 709, '__getitem__')",33,1.6993e-05,5.14939393939394e-07,4.2333e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 213, '__init__')",2,9.792e-06,4.896e-06,4.0791e-05
+"('~', 0, '<built-in method builtins.divmod>')",216,3.9958e-05,1.8499074074074074e-07,3.9958e-05
+"('~', 0, '<built-in method builtins.id>')",257,3.9804e-05,1.548793774319066e-07,3.9804e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/format.py', 244, 'dtype_to_descr')",13,2.5960000000000002e-05,1.996923076923077e-06,3.9667000000000005e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/inspect.py', 2739, '__init__')",28,2.1033e-05,7.511785714285714e-07,3.9499e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 110, '__enter__')",10,4.502e-06,4.5020000000000005e-07,3.9208e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 588, '__init__')",2,5.835e-06,2.9175e-06,3.9167e-05
+"('<frozen importlib._bootstrap>', 1171, 'exec_module')",1,7.930000000000001e-07,7.930000000000001e-07,3.7167000000000005e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 637, 'wait')",2,9.333e-06,4.6665e-06,3.5916e-05
+"('<frozen importlib._bootstrap_external>', 666, '_classify_pyc')",21,1.7666e-05,8.412380952380952e-07,3.5666e-05
+"('<frozen importlib._bootstrap_external>', 84, '_unpack_uint32')",63,2.1845000000000002e-05,3.467460317460318e-07,3.5092e-05
+"('<frozen importlib._bootstrap_external>', 699, '_validate_timestamp_pyc')",21,1.3870000000000001e-05,6.604761904761905e-07,3.3959000000000005e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/_weakrefset.py', 53, '_commit_removals')",12,2.9501e-05,2.4584166666666667e-06,3.3083e-05
+"('<frozen runpy>', 1, '<module>')",1,5.667e-06,5.667e-06,3.2833e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/enum.py', 1129, '__new__')",36,3.063e-05,8.508333333333334e-07,3.063e-05
+"('<frozen importlib._bootstrap_external>', 1685, 'path_hook_for_FileFinder')",3,4.958000000000001e-06,1.6526666666666669e-06,3.0249e-05
+"('~', 0, ""<method 'rpartition' of 'str' objects>"")",163,3.0165000000000003e-05,1.8506134969325156e-07,3.0165000000000003e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 178, 'getwidth')",8,2.1252000000000003e-05,2.6565000000000003e-06,3.0043e-05
+"('~', 0, '<built-in method posix.getcwd>')",1,3.0042e-05,3.0042e-05,3.0042e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 168, '__getitem__')",113,2.101e-05,1.85929203539823e-07,2.9922000000000003e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 113, '__exit__')",10,6.210000000000001e-06,6.210000000000001e-07,2.9918e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 108, '__init__')",44,2.9832e-05,6.78e-07,2.9832e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/tempfile.py', 142, 'rng')",1,3.0820000000000003e-06,3.0820000000000003e-06,2.9625000000000002e-05
+"('<frozen importlib._bootstrap>', 1128, 'find_spec')",25,1.2875000000000001e-05,5.15e-07,2.8915e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 323, 'wait')",2,1.6084e-05,8.042e-06,2.8792e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/_weakrefset.py', 85, 'add')",7,2.0292e-05,2.898857142857143e-06,2.8583e-05
+"('<frozen importlib._bootstrap>', 74, '__new__')",35,2.0666000000000002e-05,5.904571428571429e-07,2.8082000000000003e-05
+"('~', 0, ""<method 'startswith' of 'str' objects>"")",162,2.7632000000000002e-05,1.7056790123456791e-07,2.7632000000000002e-05
+"('<frozen posixpath>', 71, 'join')",5,1.7205000000000002e-05,3.4410000000000006e-06,2.7583000000000003e-05
+"('~', 0, '<built-in method _struct.pack>')",81,2.6911e-05,3.322345679012346e-07,2.6911e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/_monitor.py', 1, '<module>')",1,4.374e-06,4.374e-06,2.6750000000000003e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/random.py', 126, '__init__')",1,2.7090000000000002e-06,2.7090000000000002e-06,2.6042000000000002e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/_ufunc_config.py', 410, '__enter__')",5,8.540000000000001e-06,1.7080000000000002e-06,2.5541e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/logging/__init__.py', 2149, 'getLogger')",1,7.041000000000001e-06,7.041000000000001e-06,2.5500000000000003e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/_twodim_base_impl.py', 159, 'eye')",4,1.5293e-05,3.82325e-06,2.5293e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/enum.py', 1562, '__and__')",6,1.0127000000000001e-05,1.6878333333333336e-06,2.4917000000000002e-05
+"('<frozen importlib._bootstrap>', 645, 'parent')",58,1.6877e-05,2.909827586206897e-07,2.4875e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 277, '__init__')",2,1.8666e-05,9.333e-06,2.4583e-05
+"('<frozen importlib._bootstrap>', 1226, '__exit__')",99,1.5386e-05,1.5541414141414143e-07,2.4424000000000002e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 341, '_sanitize_filename')",13,1.7791e-05,1.3685384615384616e-06,2.4124e-05
+"('<frozen abc>', 117, '__instancecheck__')",3,2.7500000000000004e-06,9.166666666666667e-07,2.3917e-05
+"('<frozen importlib._bootstrap>', 1222, '__enter__')",99,1.4838000000000001e-05,1.4987878787878788e-07,2.3457000000000003e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/random.py', 135, 'seed')",1,4.874e-06,4.874e-06,2.3333000000000002e-05
+"('~', 0, ""<method 'splitlines' of 'str' objects>"")",101,2.3330000000000002e-05,2.3099009900990102e-07,2.3330000000000002e-05
+"('~', 0, '<built-in method fcntl.ioctl>')",2,2.1792e-05,1.0896e-05,2.3250000000000003e-05
+"('<frozen importlib._bootstrap>', 491, '_verbose_message')",198,2.3048e-05,1.1640404040404041e-07,2.3048e-05
+"('<frozen importlib._bootstrap>', 445, 'cb')",25,1.4501e-05,5.8004e-07,2.3004000000000002e-05
+"('<frozen importlib._bootstrap_external>', 134, '<genexpr>')",84,1.3994e-05,1.665952380952381e-07,2.283e-05
+"('~', 0, ""<method 'tell' of '_io.BufferedRandom' objects>"")",32,2.254e-05,7.04375e-07,2.254e-05
+"('~', 0, '<built-in method fromtimestamp>')",2,2.1667e-05,1.08335e-05,2.1667e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 2781, 'max')",3,6.5410000000000006e-06,2.1803333333333335e-06,2.1625e-05
+"('~', 0, '<built-in method _abc._abc_instancecheck>')",3,5.8750000000000005e-06,1.9583333333333334e-06,2.1167000000000002e-05
+"('<frozen zipimport>', 64, '__init__')",3,6.542e-06,2.1806666666666667e-06,2.0958e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 1183, '__init__')",13,1.8542e-05,1.4263076923076923e-06,2.0876e-05
+"('~', 0, '<built-in method builtins.repr>')",51,1.9958e-05,3.9133333333333337e-07,1.9958e-05
+"('<frozen os>', 732, '__iter__')",34,1.0534000000000001e-05,3.0982352941176473e-07,1.9914000000000003e-05
+"('~', 0, ""<method 'acquire' of '_thread.RLock' objects>"")",54,1.9876e-05,3.680740740740741e-07,1.9876e-05
+"('<frozen importlib._bootstrap_external>', 185, '_path_abspath')",27,6.294e-06,2.3311111111111112e-07,1.9753000000000002e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 494, '_encodeFilenameFlags')",39,1.021e-05,2.617948717948718e-07,1.9667e-05
+"('~', 0, '<built-in method builtins.issubclass>')",104,1.934e-05,1.8596153846153849e-07,1.934e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 1025, '<genexpr>')",104,1.2744e-05,1.2253846153846153e-07,1.9036000000000002e-05
+"('~', 0, ""<method 'split' of 'str' objects>"")",123,1.8919e-05,1.538130081300813e-07,1.8919e-05
+"('~', 0, ""<method 'encode' of 'str' objects>"")",89,1.8662000000000002e-05,2.0968539325842698e-07,1.8662000000000002e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/logging/__init__.py', 1377, 'getLogger')",1,6.4170000000000006e-06,6.4170000000000006e-06,1.8417e-05
+"('~', 0, ""<method 'disable' of '_lsprof.Profiler' objects>"")",1,1.825e-05,1.825e-05,1.825e-05
+"('<frozen importlib._bootstrap>', 82, 'remove')",35,1.2172000000000001e-05,3.477714285714286e-07,1.8209e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/util.py', 189, '__init__')",1,1.7583e-05,1.7583e-05,1.8167e-05
+"('<frozen os>', 795, 'decode')",66,1.005e-05,1.522727272727273e-07,1.809e-05
+"('~', 0, '<function Random.seed at 0x102876660>')",1,1.7959000000000002e-05,1.7959000000000002e-05,1.7959000000000002e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 975, 'start')",1,1.917e-06,1.917e-06,1.7250000000000003e-05
+"('~', 0, '<built-in method _imp.acquire_lock>')",159,1.7202000000000002e-05,1.0818867924528304e-07,1.7202000000000002e-05
+"('~', 0, '<built-in method _thread.allocate_lock>')",31,1.7e-05,5.483870967741935e-07,1.7e-05
+"('<frozen os>', 791, 'encode')",33,9.802e-06,2.97030303030303e-07,1.6630000000000002e-05
+"('~', 0, ""<method 'flush' of '_io.TextIOWrapper' objects>"")",48,1.6628e-05,3.464166666666667e-07,1.6628e-05
+"('~', 0, ""<method '__exit__' of '_thread.RLock' objects>"")",76,1.6625e-05,2.1875000000000002e-07,1.6625e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 64, '_make_options_dict')",3,1.1208e-05,3.736e-06,1.6459e-05
+"('~', 0, ""<method 'flush' of '_io.BufferedRandom' objects>"")",3,1.6168000000000002e-05,5.389333333333334e-06,1.6168000000000002e-05
+"('~', 0, '<built-in method posix.close>')",3,1.6124e-05,5.374666666666667e-06,1.6124e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 616, 'set')",1,1.917e-06,1.917e-06,1.6042e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 261, 'get')",51,9.088e-06,1.7819607843137255e-07,1.5961000000000002e-05
+"('~', 0, '<built-in method __new__ of type object at 0x10096f320>')",39,1.5875e-05,4.0705128205128205e-07,1.5875e-05
+"('<frozen importlib._bootstrap_external>', 1567, '__init__')",3,6.167e-06,2.0556666666666667e-06,1.5667e-05
+"('<frozen abc>', 121, '__subclasscheck__')",1,7.92e-07,7.92e-07,1.5292000000000002e-05
+"('<frozen abc>', 105, '__new__')",1,1.7500000000000002e-06,1.7500000000000002e-06,1.5167e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 98, 'closegroup')",4,1.2480000000000002e-06,3.1200000000000004e-07,1.5124000000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 1026, '<genexpr>')",104,1.0745000000000001e-05,1.033173076923077e-07,1.5080000000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/json/encoder.py', 278, '_iterencode_list')",26,1.1908e-05,4.58e-07,1.5078e-05
+"('~', 0, '<built-in method _imp.release_lock>')",159,1.4834e-05,9.329559748427674e-08,1.4834e-05
+"('~', 0, ""<method 'release' of '_thread.RLock' objects>"")",54,1.467e-05,2.716666666666667e-07,1.467e-05
+"('~', 0, '<built-in method _struct.calcsize>')",39,1.4582e-05,3.738974358974359e-07,1.4582e-05
+"('~', 0, '<built-in method _abc._abc_subclasscheck>')",1,8.25e-06,8.25e-06,1.45e-05
+"('<frozen importlib._bootstrap>', 173, '__exit__')",35,8.707e-06,2.4877142857142856e-07,1.4457e-05
+"('<frozen importlib._bootstrap>', 79, '__init__')",35,1.4416e-05,4.118857142857143e-07,1.4416e-05
+"('~', 0, ""<method 'acquire' of '_thread.lock' objects>"")",10,1.8414e-05,1.8414e-06,1.4289000000000002e-05
+"('~', 0, '<built-in method builtins.abs>')",48,1.4253e-05,2.969375e-07,1.4253e-05
+"('<frozen importlib._bootstrap>', 982, 'find_spec')",25,5.878e-06,2.3512e-07,1.4209e-05
+"('~', 0, '<built-in method numpy.arange>')",7,1.4208e-05,2.029714285714286e-06,1.4208e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/_weakrefset.py', 110, 'remove')",2,3.791e-06,1.8955e-06,1.4125000000000001e-05
+"('<frozen importlib._bootstrap_external>', 643, '_check_name_wrapper')",21,1.2253000000000001e-05,5.834761904761905e-07,1.4085000000000002e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/gui.py', 1, '<module>')",1,3.3750000000000003e-06,3.3750000000000003e-06,1.4084000000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/__init__.py', 23, '<genexpr>')",38,5.9480000000000005e-06,1.565263157894737e-07,1.3868e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/_utils_impl.py', 711, 'drop_metadata')",13,1.3707000000000001e-05,1.0543846153846154e-06,1.3707000000000001e-05
+"('~', 0, '<built-in method builtins.dir>')",1,1.3666000000000001e-05,1.3666000000000001e-05,1.3666000000000001e-05
+"('<frozen importlib._bootstrap_external>', 180, '_path_isabs')",27,7.747e-06,2.8692592592592594e-07,1.3459000000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/inspect.py', 3025, '__init__')",1,7.331000000000001e-06,7.331000000000001e-06,1.3458e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/contextlib.py', 272, 'contextmanager')",2,3.501e-06,1.7505e-06,1.3292e-05
+"('~', 0, ""<method 'set' of '_contextvars.ContextVar' objects>"")",5,1.3041000000000001e-05,2.6082000000000003e-06,1.3041000000000001e-05
+"('~', 0, '<built-in method _signal.pthread_sigmask>')",2,1.2999e-05,6.4995e-06,1.2999e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/functools.py', 391, '__get__')",2,1.2084000000000002e-05,6.042000000000001e-06,1.2875000000000001e-05
+"('~', 0, ""<method 'remove' of 'set' objects>"")",14,6.752000000000001e-06,4.822857142857144e-07,1.2835000000000002e-05
+"('~', 0, '<built-in method builtins.sorted>')",14,1.2498000000000001e-05,8.927142857142858e-07,1.2498000000000001e-05
+"('~', 0, ""<method 'pop' of 'list' objects>"")",65,1.2043000000000001e-05,1.852769230769231e-07,1.2043000000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 372, '_escape')",9,7.292000000000001e-06,8.102222222222223e-07,1.2043000000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 167, 'colour')",44,1.1959e-05,2.7179545454545455e-07,1.1959e-05
+"('~', 0, ""<method 'add' of 'set' objects>"")",22,8.748e-06,3.976363636363636e-07,1.1873000000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 438, 'status_printer')",2,8.002e-06,4.001e-06,1.1834e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 187, 'disable_on_exception')",4,1.1166000000000001e-05,2.7915000000000003e-06,1.1832000000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 240, '__next')",71,1.1041000000000002e-05,1.5550704225352115e-07,1.1041000000000002e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/random.py', 454, 'choices')",1,6.626000000000001e-06,6.626000000000001e-06,1.0417e-05
+"('<frozen importlib._bootstrap_external>', 67, '_relax_case')",34,1.0126000000000001e-05,2.9782352941176473e-07,1.0126000000000001e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 424, 'notify_all')",1,4.626e-06,4.626e-06,1.0125e-05
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/subprocess.py', 300, '_args_from_interpreter_flags')",1,7.874000000000001e-06,7.874000000000001e-06,1.0083e-05
+"('~', 0, '<built-in method builtins.setattr>')",30,9.832e-06,3.2773333333333336e-07,9.832e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 1806, '_writecheck')",13,8.288000000000001e-06,6.375384615384616e-07,9.749000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/json/encoder.py', 105, '__init__')",2,9.667e-06,4.8335e-06,9.667e-06
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/stochastic.py', 1, '<module>')",1,1.667e-06,1.667e-06,9.625e-06
+"('<frozen importlib._bootstrap_external>', 164, '_path_isdir')",3,1.207e-06,4.0233333333333335e-07,9.624000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 398, '_simple')",10,3.417e-06,3.417e-07,9.584e-06
+"('<frozen importlib._bootstrap>', 48, '_new_module')",22,9.582e-06,4.355454545454546e-07,9.582e-06
+"('~', 0, ""<method 'rfind' of 'str' objects>"")",44,9.419e-06,2.1406818181818184e-07,9.419e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 216, '_compile_charset')",9,6.63e-06,7.366666666666667e-07,9.376000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/json/encoder.py', 224, 'floatstr')",15,9.375000000000001e-06,6.25e-07,9.375000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/format.py', 1004, 'isfileobj')",12,6.584000000000001e-06,5.486666666666667e-07,9.166e-06
+"('~', 0, ""<method 'endswith' of 'str' objects>"")",35,8.998000000000001e-06,2.570857142857143e-07,8.998000000000001e-06
+"('~', 0, '<built-in method builtins.locals>')",10,8.96e-06,8.960000000000001e-07,8.96e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 1193, '_fileobj')",78,8.958000000000001e-06,1.1484615384615387e-07,8.958000000000001e-06
+"('~', 0, '<built-in method posix.fspath>')",80,8.921e-06,1.115125e-07,8.921e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/functools.py', 35, 'update_wrapper')",2,5.042e-06,2.521e-06,8.916e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/process.py', 399, '__init__')",1,2.875e-06,2.875e-06,8.833e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/numerictypes.py', 470, 'issubdtype')",2,4.209e-06,2.1045e-06,8.750000000000001e-06
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/PDE.py', 1, '<module>')",1,1.3750000000000002e-06,1.3750000000000002e-06,8.750000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 256, 'match')",55,6.4560000000000005e-06,1.1738181818181819e-07,8.665000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/_weakrefset.py', 21, '__enter__')",12,5.709000000000001e-06,4.7575000000000006e-07,8.542e-06
+"('~', 0, '<built-in method from_bytes>')",63,8.540000000000001e-06,1.3555555555555557e-07,8.540000000000001e-06
+"('~', 0, '<built-in method posix.pipe>')",2,8.459e-06,4.2295e-06,8.459e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 164, '__len__')",43,5.429e-06,1.2625581395348836e-07,8.422e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/format.py', 202, 'magic')",13,8.333000000000001e-06,6.410000000000001e-07,8.333000000000001e-06
+"('~', 0, '<built-in method _imp.is_builtin>')",25,8.331e-06,3.3324000000000004e-07,8.331e-06
+"('~', 0, '<built-in method _imp._fix_co_filename>')",21,8.253e-06,3.9300000000000004e-07,8.253e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/enum.py', 1544, '_get_value')",18,5.628e-06,3.126666666666667e-07,8.249e-06
+"('~', 0, ""<method 'extend' of 'list' objects>"")",13,6.037e-06,4.6438461538461537e-07,8.207000000000001e-06
+"('~', 0, ""<method 'decode' of 'bytes' objects>"")",66,8.040000000000001e-06,1.2181818181818182e-07,8.040000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 2925, 'min')",3,1.4570000000000002e-06,4.856666666666668e-07,7.999e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/linalg/_linalg.py', 148, '_commonType')",2,5.042e-06,2.521e-06,7.959000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1286, 'fp_write')",4,3.457e-06,8.6425e-07,7.749e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 156, '__init__')",2,5.2500000000000006e-06,2.6250000000000003e-06,7.583e-06
+"('~', 0, '<built-in method _thread.get_ident>')",75,7.576000000000001e-06,1.0101333333333335e-07,7.576000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/process.py', 71, 'BaseProcess')",1,6.625e-06,6.625e-06,7.5e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/util.py', 174, 'register_after_fork')",1,1.7520000000000001e-06,1.7520000000000001e-06,7.459e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 176, 'append')",25,4.666e-06,1.8663999999999998e-07,7.377000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py', 578, '_savez_dispatcher')",16,6.502000000000001e-06,4.0637500000000004e-07,7.377000000000001e-06
+"('<frozen posixpath>', 408, 'abspath')",1,2.125e-06,2.125e-06,7.083000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/_ufunc_config.py', 426, '__exit__')",5,2.999e-06,5.998e-07,7.083000000000001e-06
+"('~', 0, ""<method 'pop' of 'dict' objects>"")",28,7.039000000000001e-06,2.5139285714285715e-07,7.039000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 152, 'wrapper_setattr')",6,6.4170000000000006e-06,1.0695e-06,6.4170000000000006e-06
+"('~', 0, ""<method 'lower' of 'str' objects>"")",55,6.415e-06,1.1663636363636364e-07,6.415e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 302, '__exit__')",4,5.833000000000001e-06,1.4582500000000002e-06,6.374e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 293, 'tell')",27,4.634e-06,1.7162962962962962e-07,6.339000000000001e-06
+"('<frozen os>', 1116, '__subclasshook__')",1,2.7500000000000004e-06,2.7500000000000004e-06,6.25e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/json/encoder.py', 260, '_make_iterencode')",2,5.75e-06,2.875e-06,6.209e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/inspect.py', 3072, '<genexpr>')",29,4.629e-06,1.5962068965517242e-07,6.127000000000001e-06
+"('~', 0, '<built-in method _weakref._remove_dead_weakref>')",35,6.037e-06,1.724857142857143e-07,6.037e-06
+"('~', 0, '<built-in method _abc._abc_init>')",1,6e-06,6e-06,6e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 131, 'Bar')",1,4.541e-06,4.541e-06,6e-06
+"('~', 0, '<built-in method posix.urandom>')",1,5.958e-06,5.958e-06,5.958e-06
+"('~', 0, '<built-in method _imp.find_frozen>')",25,5.831000000000001e-06,2.3324000000000002e-07,5.831000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 423, '_get_formatdict')",3,5.7510000000000005e-06,1.917e-06,5.7510000000000005e-06
+"('~', 0, ""<method 'remove' of 'list' objects>"")",35,5.75e-06,1.6428571428571429e-07,5.75e-06
+"('~', 0, ""<method 'reshape' of 'numpy.ndarray' objects>"")",4,5.583000000000001e-06,1.3957500000000001e-06,5.583000000000001e-06
+"('<frozen importlib._bootstrap>', 599, '__init__')",25,5.459000000000001e-06,2.1836000000000003e-07,5.459000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 266, '_supports_unicode')",2,2.499e-06,1.2495e-06,5.416e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/weakref.py', 164, '__setitem__')",1,3.834e-06,3.834e-06,5.375e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 394, 'notify')",1,2.832e-06,2.832e-06,5.291000000000001e-06
+"('~', 0, '<built-in method numpy.asanyarray>')",13,5.251e-06,4.0392307692307694e-07,5.251e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 311, '_acquire_restore')",3,3.8740000000000005e-06,1.2913333333333334e-06,5.124e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/lib/format.py', 197, '_check_version')",13,5.124e-06,3.9415384615384616e-07,5.124e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/weakref.py', 104, '__init__')",1,2.9590000000000004e-06,2.9590000000000004e-06,5e-06
+"('<frozen codecs>', 319, 'decode')",3,3.333e-06,1.111e-06,5e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 163, 'colour')",44,4.994e-06,1.135e-07,4.994e-06
+"('<frozen posixpath>', 41, '_get_sep')",6,1.793e-06,2.9883333333333336e-07,4.96e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 125, '__eq__')",2,2.666e-06,1.333e-06,4.958000000000001e-06
+"('~', 0, '<built-in method _json.encode_basestring_ascii>')",23,4.9170000000000005e-06,2.137826086956522e-07,4.9170000000000005e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 449, '_uniq')",4,3.209e-06,8.0225e-07,4.876e-06
+"('~', 0, '<built-in method posix.write>')",1,4.875e-06,4.875e-06,4.875e-06
+"('~', 0, ""<method 'find' of 'str' objects>"")",13,4.833e-06,3.7176923076923076e-07,4.833e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 76, 'TqdmDefaultWriteLock')",1,3.0420000000000003e-06,3.0420000000000003e-06,4.7080000000000005e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/logging/__init__.py', 1497, '__init__')",1,3.916e-06,3.916e-06,4.7080000000000005e-06
+"('~', 0, '<built-in method builtins.any>')",2,1.917e-06,9.585e-07,4.417e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1157, '__hash__')",8,1.875e-06,2.34375e-07,4.25e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/numerictypes.py', 288, 'issubclass_')",4,2.333e-06,5.8325e-07,4.25e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 86, 'opengroup')",4,2.2080000000000003e-06,5.520000000000001e-07,4.209e-06
+"('~', 0, ""<method 'reset' of '_contextvars.ContextVar' objects>"")",5,4.084e-06,8.168000000000001e-07,4.084e-06
+"('<frozen posixpath>', 60, 'isabs')",1,2.916e-06,2.916e-06,4.041e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 1485, 'current_thread')",1,3.917e-06,3.917e-06,4.000000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 231, '__init__')",3,2.333e-06,7.776666666666667e-07,4.000000000000001e-06
+"('~', 0, '<built-in method numpy._core._multiarray_umath._make_extobj>')",5,3.96e-06,7.92e-07,3.96e-06
+"('~', 0, ""<method 'find' of 'bytearray' objects>"")",17,3.958e-06,2.3282352941176472e-07,3.958e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 1042, '_set_native_id')",1,3.7490000000000004e-06,3.7490000000000004e-06,3.916e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/linalg/_linalg.py', 123, '_makearray')",2,2.583e-06,1.2915e-06,3.875e-06
+"('~', 0, ""<method 'isidentifier' of 'str' objects>"")",28,3.7930000000000004e-06,1.3546428571428573e-07,3.7930000000000004e-06
+"('~', 0, '<function _ZipWriteFile.close at 0x10f67f240>')",13,3.71e-06,2.8538461538461536e-07,3.71e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 314, '_is_owned')",5,1.5830000000000001e-06,3.166e-07,3.582e-06
+"('~', 0, '<built-in method atexit.register>')",2,3.542e-06,1.771e-06,3.542e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 436, '_get_literal_prefix')",3,2.8740000000000004e-06,9.580000000000002e-07,3.541e-06
+"('<frozen importlib._bootstrap>', 158, '__init__')",35,3.5380000000000003e-06,1.0108571428571429e-07,3.5380000000000003e-06
+"('<frozen _collections_abc>', 104, '_check_methods')",1,3.5000000000000004e-06,3.5000000000000004e-06,3.5000000000000004e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/_weakrefset.py', 17, '__init__')",12,3.4990000000000003e-06,2.9158333333333334e-07,3.4990000000000003e-06
+"('~', 0, ""<method 'astype' of 'numpy.ndarray' objects>"")",6,3.458e-06,5.763333333333334e-07,3.458e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/logging/__init__.py', 234, '_acquireLock')",1,1.207e-06,1.207e-06,3.4160000000000004e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 1356, '_make_invoke_excepthook')",1,3.3750000000000003e-06,3.3750000000000003e-06,3.3750000000000003e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 299, '__enter__')",5,2.126e-06,4.252e-07,3.293e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 124, 'RLock')",5,3.2500000000000002e-06,6.5e-07,3.2500000000000002e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 839, '_newname')",1,3.2500000000000002e-06,3.2500000000000002e-06,3.2500000000000002e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 83, 'groups')",15,2.088e-06,1.392e-07,3.086e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/spawn.py', 36, 'set_executable')",1,1.7490000000000001e-06,1.7490000000000001e-06,3.0830000000000004e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 1045, '_set_tstate_lock')",1,1.875e-06,1.875e-06,3e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/logging/__init__.py', 1428, '_fixupParents')",1,2.125e-06,2.125e-06,3e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/reduction.py', 33, 'ForkingPickler')",1,2.9590000000000004e-06,2.9590000000000004e-06,2.9590000000000004e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 46, 'SemLock')",1,2.875e-06,2.875e-06,2.875e-06
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/hybrid.py', 7, 'Hybrid')",1,2.8330000000000002e-06,2.8330000000000002e-06,2.8330000000000002e-06
+"('<frozen importlib._bootstrap>', 412, '__init__')",25,2.793e-06,1.1172000000000001e-07,2.793e-06
+"('~', 0, ""<method '__contains__' of 'frozenset' objects>"")",28,2.7500000000000004e-06,9.821428571428573e-08,2.7500000000000004e-06
+"('<frozen importlib._bootstrap>', 653, 'has_location')",25,2.7100000000000003e-06,1.0840000000000002e-07,2.7100000000000003e-06
+"('<frozen importlib._bootstrap>', 1103, '_resolve_filename')",1,1.667e-06,1.667e-06,2.6250000000000003e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/inspect.py', 754, 'unwrap')",1,2.043e-06,2.043e-06,2.6250000000000003e-06
+"('~', 0, ""<method 'result_type' of 'numpy._core._multiarray_umath._array_converter' objects>"")",4,2.583e-06,6.4575e-07,2.583e-06
+"('~', 0, '<built-in method _sre.compile>')",3,2.458e-06,8.193333333333333e-07,2.458e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 113, '__init__')",21,2.458e-06,1.1704761904761905e-07,2.458e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 139, '__getattr__')",4,1.2080000000000001e-06,3.0200000000000003e-07,2.4170000000000003e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 745, '_get_compressor')",13,2.334e-06,1.7953846153846155e-07,2.334e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1153, '_comparable')",4,1.543e-06,3.8575e-07,2.2920000000000002e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 265, 'getwhile')",1,1.7920000000000002e-06,1.7920000000000002e-06,2.2920000000000002e-06
+"('<frozen importlib._bootstrap_external>', 1153, '__init__')",21,2.25e-06,1.0714285714285714e-07,2.25e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 370, 'Barrier')",1,1.7500000000000002e-06,1.7500000000000002e-06,2.25e-06
+"('~', 0, '<built-in method math.floor>')",8,2.249e-06,2.81125e-07,2.249e-06
+"('~', 0, ""<method 'setter' of 'property' objects>"")",7,2.209e-06,3.1557142857142855e-07,2.209e-06
+"('~', 0, ""<method 'tolist' of 'numpy.ndarray' objects>"")",2,2.209e-06,1.1045e-06,2.209e-06
+"('<frozen importlib._bootstrap_external>', 1573, '<genexpr>')",24,2.17e-06,9.041666666666667e-08,2.17e-06
+"('<frozen codecs>', 309, '__init__')",2,1.7080000000000002e-06,8.540000000000001e-07,2.167e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 726, '_check_compression')",16,2.1290000000000003e-06,1.3306250000000002e-07,2.1290000000000003e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 407, '_generate_overlap_table')",2,1.875e-06,9.375e-07,2.125e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/linalg/_linalg.py', 142, '_realType')",2,1.7500000000000002e-06,8.750000000000001e-07,2.125e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 222, '__eq__')",4,1.25e-06,3.125e-07,2.0830000000000002e-06
+"('~', 0, ""<method 'remove' of 'collections.deque' objects>"")",3,2.043e-06,6.81e-07,2.043e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/weakref.py', 289, 'update')",1,1.5e-06,1.5e-06,2.041e-06
+"('~', 0, ""<method 'release' of '_thread.lock' objects>"")",5,2.041e-06,4.082e-07,2.041e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 252, '_is_utf')",2,8.74e-07,4.37e-07,1.958e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 308, '_release_save')",4,1.3750000000000002e-06,3.4375000000000004e-07,1.957e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 1251, 'daemon')",1,1.709e-06,1.709e-06,1.917e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 3267, 'ndim')",4,1.875e-06,4.6875e-07,1.875e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 570, 'isstring')",6,1.294e-06,2.1566666666666668e-07,1.8340000000000001e-06
+"('~', 0, '<built-in method _operator.index>')",12,1.833e-06,1.5275000000000001e-07,1.833e-06
+"('<frozen importlib._bootstrap_external>', 1178, 'get_filename')",21,1.8320000000000002e-06,8.723809523809525e-08,1.8320000000000002e-06
+"('~', 0, '<built-in method posix.sysconf>')",1,1.7920000000000002e-06,1.7920000000000002e-06,1.7920000000000002e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/numeric.py', 1918, 'isscalar')",4,1.25e-06,3.125e-07,1.791e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 183, 'DisableOnWriteError')",1,1.7500000000000002e-06,1.7500000000000002e-06,1.7500000000000002e-06
+"('~', 0, ""<method 'wrap' of 'numpy._core._multiarray_umath._array_converter' objects>"")",4,1.7490000000000001e-06,4.3725000000000003e-07,1.7490000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/inspect.py', 176, 'get_annotations')",1,9.570000000000001e-07,9.570000000000001e-07,1.7080000000000002e-06
+"('<frozen _collections_abc>', 823, 'items')",1,1.4170000000000002e-06,1.4170000000000002e-06,1.7080000000000002e-06
+"('~', 0, '<built-in method _codecs.utf_8_decode>')",3,1.667e-06,5.556666666666667e-07,1.667e-06
+"('~', 0, '<built-in method fromkeys>')",4,1.667e-06,4.1675e-07,1.667e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 67, 'TRLock')",1,1.1660000000000001e-06,1.1660000000000001e-06,1.666e-06
+"('~', 0, ""<method 'difference' of 'set' objects>"")",2,1.6250000000000001e-06,8.125000000000001e-07,1.6250000000000001e-06
+"('~', 0, ""<method 'as_arrays' of 'numpy._core._multiarray_umath._array_converter' objects>"")",4,1.6250000000000001e-06,4.0625000000000003e-07,1.6250000000000001e-06
+"('~', 0, '<built-in method numpy.asarray>')",5,1.584e-06,3.168e-07,1.584e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 17, '<genexpr>')",4,1.1240000000000002e-06,2.8100000000000004e-07,1.5410000000000002e-06
+"('<frozen importlib._bootstrap_external>', 986, 'create_module')",21,1.5020000000000002e-06,7.152380952380954e-08,1.5020000000000002e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 953, 'fix_flags')",3,1.333e-06,4.4433333333333333e-07,1.5e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/zipfile/__init__.py', 1938, '__del__')",3,9.99e-07,3.3300000000000003e-07,1.5e-06
+"('~', 0, '<built-in method builtins.chr>')",13,1.5e-06,1.1538461538461539e-07,1.5e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/inspect.py', 2792, 'name')",28,1.498e-06,5.35e-08,1.498e-06
+"('~', 0, ""<method 'random' of '_random.Random' objects>"")",8,1.458e-06,1.8225e-07,1.458e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/resource_tracker.py', 60, '__init__')",1,9.59e-07,9.59e-07,1.4170000000000002e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 233, '__init__')",1,1.3750000000000002e-06,1.3750000000000002e-06,1.3750000000000002e-06
+"('<frozen os>', 841, 'fsencode')",1,7.09e-07,7.09e-07,1.334e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/functools.py', 355, '__init__')",1,1.1240000000000002e-06,1.1240000000000002e-06,1.333e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 16, '<genexpr>')",3,9.58e-07,3.193333333333333e-07,1.292e-06
+"('<frozen importlib._bootstrap>', 662, 'spec_from_loader')",1,1.0420000000000001e-06,1.0420000000000001e-06,1.292e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 220, 'Process')",1,1.292e-06,1.292e-06,1.292e-06
+"('~', 0, ""<method 'fileno' of '_io.TextIOWrapper' objects>"")",1,1.292e-06,1.292e-06,1.292e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/util.py', 185, 'Finalize')",1,1.292e-06,1.292e-06,1.292e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 312, '_class_escape')",2,8.74e-07,4.37e-07,1.291e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/_monitor.py', 94, 'report')",1,1.125e-06,1.125e-06,1.25e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/reduction.py', 43, 'register')",5,1.209e-06,2.418e-07,1.209e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/reduction.py', 251, 'AbstractReducer')",1,1.2080000000000001e-06,1.2080000000000001e-06,1.2080000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 226, '__init__')",6,1.2080000000000001e-06,2.0133333333333336e-07,1.2080000000000001e-06
+"('<frozen importlib._bootstrap>', 1158, 'create_module')",1,7.49e-07,7.49e-07,1.2080000000000001e-06
+"('~', 0, ""<method '__enter__' of '_thread.lock' objects>"")",5,1.167e-06,2.334e-07,1.167e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1147, '__del__')",2,8.340000000000001e-07,4.1700000000000004e-07,1.0840000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/_ufunc_config.py', 400, '__init__')",5,1.083e-06,2.1660000000000002e-07,1.083e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/resource_tracker.py', 58, 'ResourceTracker')",1,1.083e-06,1.083e-06,1.083e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 172, '__setitem__')",10,1.044e-06,1.0440000000000001e-07,1.044e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/ast.py', 1799, '__getattr__')",1,1.0420000000000001e-06,1.0420000000000001e-06,1.0420000000000001e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 1236, 'daemon')",2,1.041e-06,5.205e-07,1.041e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 90, '_make_methods')",1,1.041e-06,1.041e-06,1.041e-06
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/linalg/_linalg.py', 128, 'isComplexType')",4,7.070000000000001e-07,1.7675000000000002e-07,1.041e-06
+"('~', 0, ""<method 'discard' of 'set' objects>"")",3,9.600000000000001e-07,3.2000000000000006e-07,9.600000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/process.py', 364, '_ParentProcess')",1,9.58e-07,9.58e-07,9.58e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/weakref.py', 347, '__new__')",1,7.08e-07,7.08e-07,9.58e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 284, 'SpawnProcess')",1,9.170000000000001e-07,9.170000000000001e-07,9.170000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 217, 'Condition')",1,9.170000000000001e-07,9.170000000000001e-07,9.170000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/functools.py', 65, 'wraps')",2,8.750000000000001e-07,4.3750000000000005e-07,8.750000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 31, '_combine_flags')",4,8.750000000000001e-07,2.1875000000000002e-07,8.750000000000001e-07
+"('~', 0, ""<method 'values' of 'dict' objects>"")",3,8.750000000000001e-07,2.916666666666667e-07,8.750000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 230, 'DefaultContext')",1,8.750000000000001e-07,8.750000000000001e-07,8.750000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/logging/__init__.py', 243, '_releaseLock')",1,6.67e-07,6.67e-07,8.340000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/linalg/_linalg.py', 198, '_assert_stacked_square')",2,8.340000000000001e-07,4.1700000000000004e-07,8.340000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/_tqdm_pandas.py', 1, '<module>')",1,8.33e-07,8.33e-07,8.33e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/_distutils_hack/__init__.py', 109, '<lambda>')",7,7.92e-07,1.1314285714285714e-07,7.92e-07
+"('~', 0, ""<method 'copy' of 'dict' objects>"")",3,7.92e-07,2.64e-07,7.92e-07
+"('~', 0, '<built-in method posix._path_normpath>')",1,7.92e-07,7.92e-07,7.92e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 601, 'is_set')",7,7.5e-07,1.0714285714285714e-07,7.5e-07
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/stochastic.py', 6, 'Stochastic')",1,7.5e-07,7.5e-07,7.5e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_parser.py', 77, '__init__')",3,7.09e-07,2.3633333333333335e-07,7.09e-07
+"('~', 0, ""<method 'append' of 'collections.deque' objects>"")",4,7.09e-07,1.7725e-07,7.09e-07
+"('~', 0, '<built-in method _imp.get_frozen_object>')",1,7.08e-07,7.08e-07,7.08e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 328, 'Event')",1,7.08e-07,7.08e-07,7.08e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/linalg/_linalg.py', 192, '_assert_stacked_2d')",2,7.08e-07,3.54e-07,7.08e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/logging/__init__.py', 208, '_checkLevel')",1,6.25e-07,6.25e-07,6.67e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/threading.py', 1038, '_set_ident')",1,5.01e-07,5.01e-07,6.67e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/arrayprint.py', 930, '_none_or_positive_arg')",3,6.67e-07,2.2233333333333335e-07,6.67e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 203, 'reducer')",1,4.16e-07,4.16e-07,6.67e-07
+"('~', 0, '<built-in method _weakref.proxy>')",4,6.660000000000001e-07,1.6650000000000002e-07,6.660000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/util.py', 108, '_platform_supports_abstract_sockets')",1,3.75e-07,3.75e-07,6.25e-07
+"('<frozen runpy>', 26, '_TempModule')",1,6.25e-07,6.25e-07,6.25e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/_monitor.py', 15, 'TMonitor')",1,6.25e-07,6.25e-07,6.25e-07
+"('/Users/charliecameron/CodingHub/PhD/RCM/1D/production_project/production_project/PDE.py', 6, 'PDE')",1,6.25e-07,6.25e-07,6.25e-07
+"('~', 0, '<built-in method builtins.iter>')",6,6.240000000000001e-07,1.0400000000000002e-07,6.240000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 467, '_get_charset_prefix')",1,5.01e-07,5.01e-07,5.84e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 117, 'Comparable')",1,5.84e-07,5.84e-07,5.84e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 277, 'ForkProcess')",1,5.830000000000001e-07,5.830000000000001e-07,5.830000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/gui.py', 24, 'tqdm_gui')",1,5.830000000000001e-07,5.830000000000001e-07,5.830000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/weakref.py', 352, '__init__')",1,5.830000000000001e-07,5.830000000000001e-07,5.830000000000001e-07
+"('<frozen codecs>', 186, '__init__')",2,5.420000000000001e-07,2.7100000000000003e-07,5.420000000000001e-07
+"('<frozen runpy>', 49, '_ModifiedArgv0')",1,5.420000000000001e-07,5.420000000000001e-07,5.420000000000001e-07
+"('~', 0, ""<method '__exit__' of '_thread.lock' objects>"")",4,5.41e-07,1.3525e-07,5.41e-07
+"('~', 0, ""<method '__array_wrap__' of 'numpy.ndarray' objects>"")",2,5.41e-07,2.705e-07,5.41e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/__init__.py', 146, '_DType_reduce')",1,5.41e-07,5.41e-07,5.41e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/function_base.py', 20, '_linspace_dispatcher')",4,5.4e-07,1.35e-07,5.4e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 282, '_screen_shape_wrapper')",2,5.000000000000001e-07,2.5000000000000004e-07,5.000000000000001e-07
+"('~', 0, '<built-in method _thread._set_sentinel>')",1,5.000000000000001e-07,5.000000000000001e-07,5.000000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 237, 'get_context')",1,5.000000000000001e-07,5.000000000000001e-07,5.000000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 138, 'ObjectWrapper')",1,5.000000000000001e-07,5.000000000000001e-07,5.000000000000001e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 163, 'SimpleTextIOWrapper')",1,5.000000000000001e-07,5.000000000000001e-07,5.000000000000001e-07
+"('<frozen codecs>', 260, '__init__')",2,4.59e-07,2.295e-07,4.59e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/util.py', 371, 'ForkAwareThreadLock')",1,4.59e-07,4.59e-07,4.59e-07
+"('~', 0, ""<method 'replace' of 'str' objects>"")",1,4.5800000000000005e-07,4.5800000000000005e-07,4.5800000000000005e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/re/_compiler.py', 428, '_get_iscased')",4,4.5800000000000005e-07,1.1450000000000001e-07,4.5800000000000005e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 102, 'FormatReplace')",1,4.5800000000000005e-07,4.5800000000000005e-07,4.5800000000000005e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 3263, '_ndim_dispatcher')",4,4.5800000000000005e-07,1.1450000000000001e-07,4.5800000000000005e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 296, 'ForkServerProcess')",1,4.1700000000000004e-07,4.1700000000000004e-07,4.1700000000000004e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/inspect.py', 378, 'isfunction')",2,3.34e-07,1.67e-07,4.1700000000000004e-07
+"('~', 0, '<built-in method posix.getpid>')",2,3.7600000000000003e-07,1.8800000000000002e-07,3.7600000000000003e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 2920, '_min_dispatcher')",3,3.75e-07,1.25e-07,3.75e-07
+"('<frozen importlib._bootstrap_external>', 1276, '__init__')",3,3.75e-07,1.25e-07,3.75e-07
+"('~', 0, '<built-in method builtins.callable>')",3,3.75e-07,1.25e-07,3.75e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/subprocess.py', 290, '_optim_args_from_interpreter_flags')",1,3.75e-07,3.75e-07,3.75e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 311, 'ForkServerContext')",1,3.34e-07,3.34e-07,3.34e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py', 2776, '_max_dispatcher')",3,3.3300000000000003e-07,1.1100000000000001e-07,3.3300000000000003e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/reduction.py', 211, '_C')",1,3.3300000000000003e-07,3.3300000000000003e-07,3.3300000000000003e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 130, 'Semaphore')",1,2.92e-07,2.92e-07,2.92e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/logging/__init__.py', 1317, '__init__')",1,2.92e-07,2.92e-07,2.92e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 40, 'TqdmWarning')",1,2.92e-07,2.92e-07,2.92e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 197, 'get_start_method')",1,2.92e-07,2.92e-07,2.92e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 149, 'BoundedSemaphore')",1,2.91e-07,2.91e-07,2.91e-07
+"('<frozen _collections_abc>', 845, '__init__')",1,2.91e-07,2.91e-07,2.91e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/process.py', 349, 'AuthenticationString')",1,2.5000000000000004e-07,2.5000000000000004e-07,2.5000000000000004e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/resource_tracker.py', 54, 'ReentrantCallError')",1,2.5000000000000004e-07,2.5000000000000004e-07,2.5000000000000004e-07
+"('~', 0, ""<method '_recursion_count' of '_thread.RLock' objects>"")",1,2.5000000000000004e-07,2.5000000000000004e-07,2.5000000000000004e-07
+"('~', 0, ""<method 'insert' of 'list' objects>"")",1,2.5000000000000004e-07,2.5000000000000004e-07,2.5000000000000004e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/util.py', 388, 'ForkAwareLocal')",1,2.5000000000000004e-07,2.5000000000000004e-07,2.5000000000000004e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 166, 'Lock')",1,2.5000000000000004e-07,2.5000000000000004e-07,2.5000000000000004e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/process.py', 397, '_MainProcess')",1,2.5000000000000004e-07,2.5000000000000004e-07,2.5000000000000004e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/utils.py', 226, 'CallbackIOWrapper')",1,2.5000000000000004e-07,2.5000000000000004e-07,2.5000000000000004e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 214, 'EMA')",1,2.5000000000000004e-07,2.5000000000000004e-07,2.5000000000000004e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 307, 'SpawnContext')",1,2.09e-07,2.09e-07,2.09e-07
+"('~', 0, '<built-in method builtins.globals>')",2,2.09e-07,1.045e-07,2.09e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/_monitor.py', 9, 'TqdmSynchronisationWarning')",1,2.09e-07,2.09e-07,2.09e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 303, 'ForkContext')",1,2.08e-07,2.08e-07,2.08e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/_dist_ver.py', 1, '<module>')",1,2.08e-07,2.08e-07,2.08e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/util.py', 48, 'debug')",1,2.08e-07,2.08e-07,2.08e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/synchronize.py', 191, 'RLock')",1,1.67e-07,1.67e-07,1.67e-07
+"('~', 0, '<built-in method _thread.get_native_id>')",1,1.67e-07,1.67e-07,1.67e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/spawn.py', 45, 'get_executable')",1,1.67e-07,1.67e-07,1.67e-07
+"('<frozen runpy>', 166, '_Error')",1,1.66e-07,1.66e-07,1.66e-07
+"('~', 0, '<built-in method sys.getrecursionlimit>')",1,1.66e-07,1.66e-07,1.66e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/numpy/linalg/_linalg.py', 489, '_unary_dispatcher')",2,1.2600000000000002e-07,6.300000000000001e-08,1.2600000000000002e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 17, 'BufferTooShort')",1,1.2500000000000002e-07,1.2500000000000002e-07,1.2500000000000002e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/logging/__init__.py', 811, '__init__')",1,1.2500000000000002e-07,1.2500000000000002e-07,1.2500000000000002e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/process.py', 37, 'current_process')",1,1.2500000000000002e-07,1.2500000000000002e-07,1.2500000000000002e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 20, 'TimeoutError')",1,1.2500000000000002e-07,1.2500000000000002e-07,1.2500000000000002e-07
+"('~', 0, '<built-in method _thread.daemon_threads_allowed>')",1,1.2500000000000002e-07,1.2500000000000002e-07,1.2500000000000002e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 14, 'ProcessError')",1,1.2500000000000002e-07,1.2500000000000002e-07,1.2500000000000002e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 62, 'TqdmMonitorWarning')",1,1.2500000000000002e-07,1.2500000000000002e-07,1.2500000000000002e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 32, 'TqdmTypeError')",1,1.2500000000000002e-07,1.2500000000000002e-07,1.2500000000000002e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 1301, '<lambda>')",2,1.2500000000000002e-07,6.250000000000001e-08,1.2500000000000002e-07
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 52, 'TqdmExperimentalWarning')",1,8.400000000000001e-08,8.400000000000001e-08,8.400000000000001e-08
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/multiprocessing/context.py', 23, 'AuthenticationError')",1,8.3e-08,8.3e-08,8.3e-08
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 57, 'TqdmDeprecationWarning')",1,8.3e-08,8.3e-08,8.3e-08
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/site-packages/tqdm/std.py', 36, 'TqdmKeyError')",1,8.3e-08,8.3e-08,8.3e-08
+"('/opt/miniconda3/envs/FastEnv/lib/python3.12/inspect.py', 3085, 'parameters')",1,4.1e-08,4.1e-08,4.1e-08

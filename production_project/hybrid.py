@@ -242,14 +242,14 @@ class Hybrid:
                     PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
                     
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
-                    print(f"*"*30)
-                    print(f"Checking conversion to PDE, given this occurs")
-                    print(f"  {SSA_list}")
-                    print(f"Continuous mass at time {t:.1f}:")
-                    print(f"  {PDE_list.round(1)}")
-                    print(f"Number of particles continuous")
-                    print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
-                    print(f"*"*30)
+                    # print(f"*"*30)
+                    # print(f"Checking conversion to PDE, given this occurs")
+                    # print(f"  {SSA_list}")
+                    # print(f"Continuous mass at time {t:.1f}:")
+                    # print(f"  {PDE_list.round(1)}")
+                    # print(f"Number of particles continuous")
+                    # print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
+                    # print(f"*"*30)
 
 
                     SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
@@ -269,36 +269,36 @@ class Hybrid:
                 #Printing a barrier
 
                
-                print(f"{'Simulation Step':^30}")  # Centered title within the asterisks
-                print("*" * 30)
+                # print(f"{'Simulation Step':^30}")  # Centered title within the asterisks
+                # print("*" * 30)
 
-                # Time and mass information
-                print(f"Time: {t:.2f}")
-                print(f"Mass conversion threshold: {self.threshold}")
-                print("-" * 30)  # Separator line
+                # # Time and mass information
+                # print(f"Time: {t:.2f}")
+                # print(f"Mass conversion threshold: {self.threshold}")
+                # print("-" * 30)  # Separator line
 
-                # Particle and mass details
-                print(f"Stochastic particles in each box at time {t}:")
-                print(f"  {SSA_list}")
-                print(f"Continuous mass at time {t:.1f}:")
-                print(f"  {PDE_list.round(1)}")
-                print(f"Number of particles continuous")
-                print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
-                print(f"Approximate mass at time {t:.1f}:")
-                print(f"  {approx_mass[:, min(ind_after+1, len(self.time_vector))-1]}")
-                print("-" * 30)
+                # # Particle and mass details
+                # print(f"Stochastic particles in each box at time {t}:")
+                # print(f"  {SSA_list}")
+                # print(f"Continuous mass at time {t:.1f}:")
+                # print(f"  {PDE_list.round(1)}")
+                # print(f"Number of particles continuous")
+                # print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
+                # print(f"Approximate mass at time {t:.1f}:")
+                # print(f"  {approx_mass[:, min(ind_after+1, len(self.time_vector))-1]}")
+                # print("-" * 30)
 
-                # Propensity information
-                print(f"{'Propensity Details':^30}")
-                print(f"Index of reaction chosen: {index}")
-                print("-" * 30)
-                print(f"Movement propensity:           {total_propensity[:self.SSA_M]}")
-                print(f"Production propensity:         {total_propensity[self.SSA_M:2*self.SSA_M]}")
-                print(f"Degradation propensity:        {total_propensity[2*self.SSA_M:3*self.SSA_M]}")
-                print(f"Conversion to discrete prop.:  {total_propensity[3*self.SSA_M:4*self.SSA_M]}")
-                print(f"Conversion to continuous prop.: {total_propensity[4*self.SSA_M:]}")
-                print("*" * 30)
-                print("\n")  # Extra blank line for space between steps
+                # # Propensity information
+                # print(f"{'Propensity Details':^30}")
+                # print(f"Index of reaction chosen: {index}")
+                # print("-" * 30)
+                # print(f"Movement propensity:           {total_propensity[:self.SSA_M]}")
+                # print(f"Production propensity:         {total_propensity[self.SSA_M:2*self.SSA_M]}")
+                # print(f"Degradation propensity:        {total_propensity[2*self.SSA_M:3*self.SSA_M]}")
+                # print(f"Conversion to discrete prop.:  {total_propensity[3*self.SSA_M:4*self.SSA_M]}")
+                # print(f"Conversion to continuous prop.: {total_propensity[4*self.SSA_M:]}")
+                # print("*" * 30)
+                # print("\n")  # Extra blank line for space between steps
 
 
             else:  # Else we run the ODE step
