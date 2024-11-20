@@ -1,5 +1,5 @@
 domain_length 1
-compartment_number 5
+compartment_number 10
 PDE_multiple 8
 total_time 100
 timestep 0.05
