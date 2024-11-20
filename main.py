@@ -54,7 +54,7 @@ except ValueError as e:
 np.random.seed(0)
 SSA_initial = np.ones((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
 
-Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial) #Define the hybrid model
+Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial,use_c_functions=False) #Define the hybrid model
 
 Hybrid_SSA, Hybrid_PDE, Hybrid_combined = Model.run_simulation(number_of_repeats=repeats)
 Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data')
