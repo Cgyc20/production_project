@@ -4,7 +4,7 @@ PDE_multiple 8
 total_time 100
 timestep 0.05
 particles_per_compartment_thresh 10
-gamma 1
+gamma 0.5
 production_rate 2
 degradation_rate 0.05 
 number_particles_per_cell 14
