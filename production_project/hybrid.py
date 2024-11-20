@@ -3,8 +3,7 @@ import numpy as np
 from tqdm import tqdm
 import os
 import json
-from copy import deepcopy
-
+from copy import deepcopy, copy
 class Hybrid:
     
     def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degredation_rate, diffusion_rate, SSA_initial):
@@ -134,15 +133,20 @@ class Hybrid:
 
         combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)  #Add with the discrete mass to gather 
     
-        conversion_to_discrete = np.zeros_like(SSA_list)
-        conversion_to_cont = np.zeros_like(approximate_PDE_mass)
+        conversion_to_discrete = np.zeros_like(SSA_list) #length of SSA_m
+        conversion_to_cont = np.zeros_like(approximate_PDE_mass) #length as SSA_m 
 
         # Ensure the boolean index matches the array size
         if combined_list.shape != SSA_list.shape:
             raise ValueError("Shape mismatch between combined_list and SSA_list")
-    
-        conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
+
+
+        dummy_PDE = np.zeros_like(PDE_list)
+        dummy_PDE[PDE_list>1/self.h] = PDE_list[PDE_list>1/self.h]
+        
         conversion_to_discrete[combined_list < self.threshold] = approximate_PDE_mass[combined_list < self.threshold] * self.gamma
+        conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
+        
 
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
@@ -154,7 +158,7 @@ class Hybrid:
         PDE_particles = np.zeros_like(approx_mass)
         SSA_list = SSA_grid[:, 0]  # Starting SSA_list
         PDE_list = PDE_grid[:, 0]  # Starting PDE_list
-        
+        ind_after = 0
         while t < self.total_time:
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
@@ -186,7 +190,6 @@ class Hybrid:
                     SSA_list[index - 1] += 1
 
 
-
                     """Now the reaction kinetics"""
 
                 elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Production reaction
@@ -201,10 +204,19 @@ class Hybrid:
                     # print("Conversion from continuous to discrete")
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1/self.h
-                    PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list
+                    PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
                     
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
-                 
+                    print(f"*"*30)
+                    print(f"Checking conversion to PDE, given this occurs")
+                    print(f"  {SSA_list}")
+                    print(f"Continuous mass at time {t:.1f}:")
+                    print(f"  {PDE_list.round(1)}")
+                    print(f"Number of particles continuous")
+                    print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
+                    print(f"*"*30)
+
+
                     SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
                     PDE_list[self.PDE_multiple*compartment_index:self.PDE_multiple*(compartment_index+1)] += 1/self.h
                  
@@ -259,7 +271,7 @@ class Hybrid:
                 #PDE_list = self.RK4(PDE_list)
                 PDE_list = self.crank_nicholson(PDE_list)
                 PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
-                t = td
+                t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')

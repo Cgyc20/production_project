@@ -29,6 +29,7 @@ try:
     # Calculate diffusion_rate using domain_length
     diffusion_rate = (domain_length ** 2) * (10e-3)
 
+
     # Print the values to confirm
     print(f"domain_length: {domain_length}")
     print(f"compartment_number: {compartment_number}")
@@ -49,6 +50,7 @@ except ValueError as e:
 
 """Initialise the hybrid model"""
 
+np.random.seed(0)
 SSA_initial = np.ones((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
 
 Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial) #Define the hybrid model
