@@ -110,6 +110,35 @@ class Hybrid:
         combined_list = np.add(SSA_list, approximate_PDE_mass) 
         return combined_list, approximate_PDE_mass
     
+    def boolean_if_less_mass(self,PDE_list: np.ndarray)-> np.ndarray:
+        """This takes in the PDE_list. If there is any instance in which a point is less than 1/h, then the boolean value will be 0
+        Input: the PDE_list
+        Returns: A boolean list with length SSA_M. 1 if all points are above 1/h (in that compartment), else 0 if there exists at least one point less than 1/h
+        """
+
+        boolean_PDE_list = np.zeros_like(PDE_list) #Set the boolean list to zero
+        boolean_PDE_list[PDE_list>1/self.h] = 1 #s
+
+        boolean_threshold_SSA = np.zeros(self.SSA_M)
+
+        for i in range(self.SSA_M):
+            """Run over the compartments"""
+            start_index = i*self.PDE_multiple
+            BOOL_VALUE = True
+            for j in range(self.PDE_multiple):
+                current_index = start_index+j
+                if boolean_PDE_list[j] == 0:
+                    BOOL_VALUE = False
+            
+            if BOOL_VALUE:
+                boolean_threshold_SSA[i] = 1 
+            else:
+                boolean_threshold_SSA[i] = 0
+
+        return boolean_threshold_SSA
+
+
+
 
     def propensity_calculation(self, SSA_list: np.ndarray, PDE_list : np.ndarray) -> np.ndarray:
         """
@@ -140,14 +169,20 @@ class Hybrid:
         if combined_list.shape != SSA_list.shape:
             raise ValueError("Shape mismatch between combined_list and SSA_list")
 
-
-        dummy_PDE = np.zeros_like(PDE_list)
-        dummy_PDE[PDE_list>1/self.h] = PDE_list[PDE_list>1/self.h]
         
+       
+
+        boolean_SSA_threshold = self.boolean_if_less_mass(PDE_list)
+
+        # dummy_PDE = np.zeros_like(PDE_list)
+        # dummy_PDE[PDE_list>1/self.h] = PDE_list[PDE_list>1/self.h]
+        # dummy_approximate_PDE_mass, dummy_combined_mass = self.calculate_total_mass(dummy_PDE,SSA_list)
+
         conversion_to_discrete[combined_list < self.threshold] = approximate_PDE_mass[combined_list < self.threshold] * self.gamma
+        conversion_to_discrete *= boolean_SSA_threshold
         conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
         
-
+        
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
 
