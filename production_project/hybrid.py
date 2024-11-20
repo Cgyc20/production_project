@@ -2,8 +2,13 @@ import numpy as np
 """Created 1/10/2024 as new project file"""
 from tqdm import tqdm
 import os
+import ctypes
 import json
 from copy import deepcopy, copy
+
+clibrary = ctypes.CDLL("c_class/clibrary.so") #import the c library
+
+
 class Hybrid:
     
     def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degredation_rate, diffusion_rate, SSA_initial):

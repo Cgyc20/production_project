@@ -1,6 +1,7 @@
 import numpy as np
 from production_project import Hybrid, Stochastic, PDE
 import subprocess
+import sys
 
 # Open file and read parameters into a dictionary
 with open("parameter_input.dat", "r") as f:
@@ -71,4 +72,7 @@ PDE_Model.save_simulation_data(PDE_grid, datadirectory='data')
 print(f"PDE grid at timestep one: {PDE_grid[:,0]}")
 print(f"Stochastic grid at timestep 1: {SSA_grid[:,0]}")
 print(f"SSA in hybrid model at timestep 1: {Hybrid_SSA[:,0]}")
-subprocess.run(['python', 'animate.py'])
+
+if len(sys.argv)>=2:
+    if sys.argv[1] == 'plot':
+        subprocess.run(['python', 'animate.py'])
