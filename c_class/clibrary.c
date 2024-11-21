@@ -53,3 +53,29 @@ void BooleanMass(int SSA_m, int PDE_m, int PDE_multiple, float *PDE_list, int *b
         boolean_SSA_list[i] = BOOL_value; // Assign the result to the SSA list
     }
 }
+
+void CalculatePropensitySub(int SSA_M, float *PDE_list, int *SSA_list, float *propensity_list, float degradation_rate, float Production_rate_PC, float jump_rate, int *boolean_mass_list){
+    // works out the propensity functions
+    // first we will in the diffusion rates
+    float boolean_mass_list;
+
+    propensity_list[0] = 2*jump_rate*SSA_list[0];
+    propensity_list[SSA_M-1] = 2*jump_rate*SSA_list[SSA_M-1];
+    for (int i=1; i<=SSA_M-2; i++){
+        propensity_list[i] = SSA_list[i]*jump_rate;
+    }
+
+    // now we fill in the production_rates
+
+    for (int i =SSA_M; i<=2*SSA_M-1,i++){
+        propensity_list[i] = Production_rate_PC;
+    }
+    
+    // now the degradation
+    for (int i = 2*SSA_M; i<=3*SSA_M-1,i++){
+        propensity_list[i] = degradation_rate*SSA_list[i];
+    }
+
+    boolean_mas_list
+
+}

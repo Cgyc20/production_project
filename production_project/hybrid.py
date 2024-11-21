@@ -135,7 +135,6 @@ class Hybrid:
         PDE_list_Ctypes = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
 
         approximate_PDE_mass_Ctypes = approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-
         # Call the C function
         clibrary.ApproximateMassLeftHand(self.SSA_M, self.PDE_multiple, PDE_list_Ctypes, approximate_PDE_mass_Ctypes, self.deltax)
 
@@ -156,49 +155,59 @@ class Hybrid:
         combined_list = np.add(SSA_list, approximate_PDE_mass) 
         return combined_list, approximate_PDE_mass
     
+
+    def booleanMassC(self, PDE_list: np.ndarray) -> np.ndarray:
+        """Calculate boolean mass using c-type function"""
+        PDE_list = PDE_list.astype(np.float32)
+        boolean_PDE_list = np.zeros_like(PDE_list, dtype=np.int32)
+        boolean_SSA_list = np.zeros(self.SSA_M, dtype=np.int32)
+
+        PDE_list_Ctypes = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+        boolean_PDE_list_Ctypes = boolean_PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+        boolean_SSA_list_Ctypes = boolean_SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+
+        clibrary.BooleanMass(self.SSA_M, self.PDE_M, self.PDE_multiple, PDE_list_Ctypes, boolean_PDE_list_Ctypes, boolean_SSA_list_Ctypes, self.h)
+
+        boolean_SSA_list = np.ctypeslib.as_array(boolean_SSA_list_Ctypes, shape=boolean_SSA_list.shape)
+        return boolean_SSA_list
+
+    def booleanMassPython(self, PDE_list: np.ndarray) -> np.ndarray:
+        """Calculate mass using python function"""
+        PDE_list = PDE_list.astype(float)
+        boolean_PDE_list = np.zeros_like(PDE_list)  # Set the boolean list to zero
+        boolean_PDE_list[PDE_list > 1 / self.h] = 1  # s
+
+        boolean_threshold_SSA = np.zeros(self.SSA_M)
+
+        for i in range(self.SSA_M):
+            """Run over the compartments"""
+            start_index = i * self.PDE_multiple
+            BOOL_VALUE = True
+            for j in range(self.PDE_multiple):
+                current_index = start_index + j
+                if boolean_PDE_list[j] == 0:
+                    BOOL_VALUE = False
+            
+            if BOOL_VALUE:
+                boolean_threshold_SSA[i] = 1 
+            else:
+                boolean_threshold_SSA[i] = 0
+        return boolean_threshold_SSA
+
+
     def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray:
         """This takes in the PDE_list. If there is any instance in which a point is less than 1/h, then the boolean value will be 0
         Input: the PDE_list
         Returns: A boolean list with length SSA_M. 1 if all points are above 1/h (in that compartment), else 0 if there exists at least one point less than 1/h
         """
         if self.use_c_functions:
-            PDE_list = PDE_list.astype(np.float32)
-            boolean_PDE_list = np.zeros_like(PDE_list, dtype=np.int32)
-            boolean_SSA_list = np.zeros(self.SSA_M, dtype=np.int32)
-
-            PDE_list_Ctypes = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-            boolean_PDE_list_Ctypes = boolean_PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
-            boolean_SSA_list_Ctypes = boolean_SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
-
-            clibrary.BooleanMass(self.SSA_M, self.PDE_M, self.PDE_multiple, PDE_list_Ctypes, boolean_PDE_list_Ctypes, boolean_SSA_list_Ctypes, self.h)
-
-            boolean_SSA_list = np.ctypeslib.as_array(boolean_SSA_list_Ctypes, shape=boolean_SSA_list.shape)
-            return boolean_SSA_list
+            return self.booleanMassC(PDE_list)
         else:
-            PDE_list = PDE_list.astype(float)
-            boolean_PDE_list = np.zeros_like(PDE_list)  # Set the boolean list to zero
-            boolean_PDE_list[PDE_list > 1 / self.h] = 1  # s
+            return self.booleanMassPython(PDE_list)
+        
+            
 
-            boolean_threshold_SSA = np.zeros(self.SSA_M)
-
-            for i in range(self.SSA_M):
-                """Run over the compartments"""
-                start_index = i * self.PDE_multiple
-                BOOL_VALUE = True
-                for j in range(self.PDE_multiple):
-                    current_index = start_index + j
-                    if boolean_PDE_list[j] == 0:
-                        BOOL_VALUE = False
-                
-                if BOOL_VALUE:
-                    boolean_threshold_SSA[i] = 1 
-                else:
-                    boolean_threshold_SSA[i] = 0
-
-            return boolean_threshold_SSA
-    
-
-    def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
+    def propensity_calculationPython(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
         """
         Calculates the propensity functions for each reaction.
 
@@ -222,12 +231,9 @@ class Hybrid:
         approximate_PDE_mass = np.zeros_like(SSA_list)
         combined_list = np.zeros_like(SSA_list)
 
-        
         #approximate_PDE_mass = self.ApproximateLeftHandC(PDE_list)
         combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
         
-
-
         conversion_to_discrete = np.zeros_like(SSA_list)  # length of SSA_m
         conversion_to_cont = np.zeros_like(approximate_PDE_mass)  # length as SSA_m 
 
@@ -253,7 +259,7 @@ class Hybrid:
         PDE_list = PDE_grid[:, 0].astype(float)  # Starting PDE_list
         ind_after = 0
         while t < self.total_time:
-            total_propensity = self.propensity_calculation(SSA_list, PDE_list)
+            total_propensity = self.propensity_calculationPython(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:  # Stop if no reactions can occur
                 break
