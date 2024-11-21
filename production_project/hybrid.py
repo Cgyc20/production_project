@@ -15,6 +15,18 @@ clibrary.ApproximateMassLeftHand.argtypes = [
     ctypes.POINTER(ctypes.c_float),  # approxMass (pointer to float)
     ctypes.c_float  # deltax (float)
 ]
+
+clibrary.BooleanMass.argtypes = [
+    ctypes.c_int,                  # SSA_m
+    ctypes.c_int,                  # PDE_m
+    ctypes.c_int,                  # PDE_multiple
+    ctypes.POINTER(ctypes.c_float),  # PDE_list (float array)
+    ctypes.POINTER(ctypes.c_int),  # boolean_PDE_list (int array)
+    ctypes.POINTER(ctypes.c_int),  # boolean_SSA_list (int array)
+    ctypes.c_float                 # h
+]
+
+
 class Hybrid:
     
     def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degredation_rate, diffusion_rate, SSA_initial, use_c_functions=False):
@@ -149,27 +161,41 @@ class Hybrid:
         Input: the PDE_list
         Returns: A boolean list with length SSA_M. 1 if all points are above 1/h (in that compartment), else 0 if there exists at least one point less than 1/h
         """
-        PDE_list = PDE_list.astype(float)
-        boolean_PDE_list = np.zeros_like(PDE_list)  # Set the boolean list to zero
-        boolean_PDE_list[PDE_list > 1 / self.h] = 1  # s
+        if self.use_c_functions:
+            PDE_list = PDE_list.astype(np.float32)
+            boolean_PDE_list = np.zeros_like(PDE_list, dtype=np.int32)
+            boolean_SSA_list = np.zeros(self.SSA_M, dtype=np.int32)
 
-        boolean_threshold_SSA = np.zeros(self.SSA_M)
+            PDE_list_Ctypes = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+            boolean_PDE_list_Ctypes = boolean_PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+            boolean_SSA_list_Ctypes = boolean_SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
 
-        for i in range(self.SSA_M):
-            """Run over the compartments"""
-            start_index = i * self.PDE_multiple
-            BOOL_VALUE = True
-            for j in range(self.PDE_multiple):
-                current_index = start_index + j
-                if boolean_PDE_list[j] == 0:
-                    BOOL_VALUE = False
-            
-            if BOOL_VALUE:
-                boolean_threshold_SSA[i] = 1 
-            else:
-                boolean_threshold_SSA[i] = 0
+            clibrary.BooleanMass(self.SSA_M, self.PDE_M, self.PDE_multiple, PDE_list_Ctypes, boolean_PDE_list_Ctypes, boolean_SSA_list_Ctypes, self.h)
 
-        return boolean_threshold_SSA
+            boolean_SSA_list = np.ctypeslib.as_array(boolean_SSA_list_Ctypes, shape=boolean_SSA_list.shape)
+            return boolean_SSA_list
+        else:
+            PDE_list = PDE_list.astype(float)
+            boolean_PDE_list = np.zeros_like(PDE_list)  # Set the boolean list to zero
+            boolean_PDE_list[PDE_list > 1 / self.h] = 1  # s
+
+            boolean_threshold_SSA = np.zeros(self.SSA_M)
+
+            for i in range(self.SSA_M):
+                """Run over the compartments"""
+                start_index = i * self.PDE_multiple
+                BOOL_VALUE = True
+                for j in range(self.PDE_multiple):
+                    current_index = start_index + j
+                    if boolean_PDE_list[j] == 0:
+                        BOOL_VALUE = False
+                
+                if BOOL_VALUE:
+                    boolean_threshold_SSA[i] = 1 
+                else:
+                    boolean_threshold_SSA[i] = 0
+
+            return boolean_threshold_SSA
     
 
     def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
