@@ -26,10 +26,25 @@ clibrary.BooleanMass.argtypes = [
     ctypes.c_float                 # h
 ]
 
+clibrary.CalculatePropensity.argtypes = [
+    ctypes.c_int,  # SSA_M (int)
+    ctypes.POINTER(ctypes.c_float),  # PDE_list (pointer to float)
+    ctypes.POINTER(ctypes.c_int),  # SSA_list (pointer to int)
+    ctypes.POINTER(ctypes.c_float),  # propensity_list (pointer to float)
+    ctypes.POINTER(ctypes.c_float),  # combined_mass_list (pointer to float)
+    ctypes.POINTER(ctypes.c_float),  # Approximate_PDE_Mass (pointer to float)
+    ctypes.POINTER(ctypes.c_int),  # boolean_mass_list (pointer to int)
+    ctypes.c_float,  # degradation_rate (float)
+    ctypes.c_float,  # threshold 
+    ctypes.c_float,  # Production_rate_PC (float)
+    ctypes.c_float,  # gamma (float)
+    ctypes.c_float  # jump_rate (float)
+]
+
 
 class Hybrid:
     
-    def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degredation_rate, diffusion_rate, SSA_initial, use_c_functions=False):
+    def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False):
         self.L = domain_length #The domain length
         self.SSA_M = compartment_number #The number of compartments
         self.PDE_multiple = PDE_multiple #The number of PDE points per compartment
@@ -40,7 +55,7 @@ class Hybrid:
         self.timestep = timestep #The timestep size
         self.threshold = threshold #THe threshold (which is per compartment, the number of cells 
         self.gamma = gamma #The rate of conversion
-        self.degredation_rate = degredation_rate
+        self.degradation_rate = degradation_rate
         
         self.h = self.L / compartment_number #The size of each compartment
         self.diffusion_rate = diffusion_rate #Rate of diffusion
@@ -63,7 +78,7 @@ class Hybrid:
 
         # self.PDE_initial_conditions = np.zeros_like(self.PDE_X, dtype=np.float64) #Initially zero states for PDE
         self.PDE_initial_conditions = np.ones_like(self.PDE_X, dtype=np.float64) #Initially zero states for PDE
-        self.steady_state = production_rate / degredation_rate #Steady state of the system
+        self.steady_state = production_rate / degradation_rate #Steady state of the system
         self.DX_NEW = self.create_finite_difference()  # Ensure DX_NEW is initialized here
         self.time_vector = np.arange(0, total_time, timestep)  # The time vector
         self.Crank_matrix, self.M1_inverse = self.create_crank_nicholson() #The crank method respective matrices
@@ -77,8 +92,8 @@ class Hybrid:
         """Creates the matrix used for crank nicholson method """
 
         H = self.create_finite_difference()
-        M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*self.degredation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
-        M2 = np.identity(H.shape[0]) *(1-0.5*self.timestep*self.degredation_rate) + 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
+        M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*self.degradation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
+        M2 = np.identity(H.shape[0]) *(1-0.5*self.timestep*self.degradation_rate) + 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
         M1_inverse = np.linalg.inv(M1)
         Crank_matrix = M1_inverse@M2
         
@@ -226,7 +241,7 @@ class Hybrid:
         movement_propensity[-1] = self.d * SSA_list[-1]
     
         R1_propensity = self.production_rate_per_compartment * np.ones_like(SSA_list)  # The production propensity
-        R2_propensity = self.degredation_rate * SSA_list  # degredation propensity
+        R2_propensity = self.degradation_rate * SSA_list  # degredation propensity
 
         approximate_PDE_mass = np.zeros_like(SSA_list)
         combined_list = np.zeros_like(SSA_list)
@@ -249,6 +264,78 @@ class Hybrid:
         
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
+    
+
+
+        # Assuming the C library is already loaded (e.g., clibrary = ctypes.CDLL('./path_to_your_c_library.so'))
+
+    def propensity_calculationC(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
+        """
+        Calculates the propensity functions for each reaction using the C library.
+
+        Args:
+            SSA_list (np.ndarray): Discrete molecules list.
+            PDE_list (np.ndarray): Continuous mass list.
+
+        Returns:
+            np.ndarray: Combined propensity list.
+        """
+        SSA_list = np.ascontiguousarray(SSA_list, dtype=np.int32)
+        PDE_list = np.ascontiguousarray(PDE_list, dtype=np.float32)
+        
+
+        # Initialize propensity_list and other arrays
+        propensity_list = np.zeros(5 * self.SSA_M, dtype=np.float32)
+        combined_mass_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
+        boolean_SSA_threshold = self.boolean_if_less_mass(PDE_list).astype(int)
+        boolean_SSA_threshold = np.ascontiguousarray(boolean_SSA_threshold, dtype=np.int32)
+        combined_mass_list = np.ascontiguousarray(combined_mass_list, dtype=np.float32)
+        approximate_PDE_mass = np.ascontiguousarray(approximate_PDE_mass, dtype=np.float32)
+
+      
+        # Call the C function to calculate propensities
+        clibrary.CalculatePropensity(
+            self.SSA_M,
+            PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
+            propensity_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            combined_mass_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            boolean_SSA_threshold.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
+            self.degradation_rate,
+            self.threshold,
+            self.production_rate_per_compartment,
+            self.gamma,
+            self.d
+        )
+
+        # Convert propensity list back into numpy floats
+        propensity_list = np.ctypeslib.as_array(propensity_list, shape=propensity_list.shape)
+        return propensity_list
+        
+    
+
+    def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
+        """
+        Wrapper function to choose between Python and C implementation of propensity calculation.
+
+        Args:
+            SSA_list (np.ndarray): Discrete molecules list.
+            PDE_list (np.ndarray): Continuous mass list.
+
+        Returns:
+            np.ndarray: Combined propensity list.
+        """
+        if self.use_c_functions:
+            return self.propensity_calculationC(SSA_list, PDE_list)
+        else:
+            return self.propensity_calculationPython(SSA_list, PDE_list)
+
+        
+        # print(f"Propensity C: {propensity_c_list}")
+        # print(f"Propensity Python: {propensity_python_list}")
+
+        return propensity_python_list
 
     def hybrid_simulation(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, approx_mass: np.ndarray) -> np.ndarray:
         t = 0
@@ -259,7 +346,7 @@ class Hybrid:
         PDE_list = PDE_grid[:, 0].astype(float)  # Starting PDE_list
         ind_after = 0
         while t < self.total_time:
-            total_propensity = self.propensity_calculationPython(SSA_list, PDE_list)
+            total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:  # Stop if no reactions can occur
                 break
@@ -374,7 +461,7 @@ class Hybrid:
             'gamma': self.gamma,
             'deltax': self.deltax,
             'production_rate': self.production_rate,
-            'degredation_rate': self.degredation_rate,
+            'degradation_rate': self.degradation_rate,
             'diffusion_rate': self.diffusion_rate,
             'threshold_conc': self.threshold_conc,
             'initial_SSA': self.SSA_initial.tolist(),

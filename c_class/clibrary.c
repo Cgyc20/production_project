@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 void ApproximateMassLeftHand(int SSA_M, int PDE_multiple, float *PDE_list, float *approxMass, float deltax) {
     // Works out the approximate mass of the PDE domain over each grid point using the left-hand rule
     int start_index, end_index;
@@ -54,28 +55,47 @@ void BooleanMass(int SSA_m, int PDE_m, int PDE_multiple, float *PDE_list, int *b
     }
 }
 
-void CalculatePropensitySub(int SSA_M, float *PDE_list, int *SSA_list, float *propensity_list, float degradation_rate, float Production_rate_PC, float jump_rate, int *boolean_mass_list){
-    // works out the propensity functions
-    // first we will in the diffusion rates
-    float boolean_mass_list;
+// Function to calculate the propensities
 
-    propensity_list[0] = 2*jump_rate*SSA_list[0];
-    propensity_list[SSA_M-1] = 2*jump_rate*SSA_list[SSA_M-1];
-    for (int i=1; i<=SSA_M-2; i++){
-        propensity_list[i] = SSA_list[i]*jump_rate;
+
+void CalculatePropensity(int SSA_M, float *PDE_list, int *SSA_list, float *propensity_list, 
+                         float *combined_mass_list, float *Approximate_PDE_Mass, 
+                         int *boolean_mass_list, float degradation_rate, float threshold, 
+                         float Production_rate_PC, float gamma, float jump_rate) {
+    
+    // Initialize all propensity values to zero
+    for (int i = 0; i < 5 * SSA_M; i++) {
+        propensity_list[i] = 0.0f;
     }
 
-    // now we fill in the production_rates
+    // Diffusion propensities (boundary conditions)
+    propensity_list[0] = jump_rate * (float)SSA_list[0];
+    for (int i = 1; i < SSA_M - 1; i++) {
+        propensity_list[i] = 2 * jump_rate * (float)SSA_list[i];
+    }
+    propensity_list[SSA_M - 1] = jump_rate * (float)SSA_list[SSA_M - 1];
 
-    for (int i =SSA_M; i<=2*SSA_M-1,i++){
+    // Production rates (constant for each compartment)
+    for (int i = SSA_M; i < 2 * SSA_M; i++) {
         propensity_list[i] = Production_rate_PC;
     }
-    
-    // now the degradation
-    for (int i = 2*SSA_M; i<=3*SSA_M-1,i++){
-        propensity_list[i] = degradation_rate*SSA_list[i];
+
+    // Degradation rates (depends on SSA_list)
+    for (int i = 2 * SSA_M; i < 3 * SSA_M; i++) {
+        propensity_list[i] = degradation_rate * (float)SSA_list[i - 2 * SSA_M];
     }
 
-    boolean_mas_list
+    // Conversion from continuous to discrete (below threshold)
+    for (int i = 3 * SSA_M; i < 4 * SSA_M; i++) {
+        if (combined_mass_list[i - 3 * SSA_M] < threshold) {
+            propensity_list[i] = gamma * Approximate_PDE_Mass[i - 3 * SSA_M] * (float)boolean_mass_list[i - 3 * SSA_M];
+        }
+    }
 
+    // Conversion from discrete to continuous (above threshold)
+    for (int i = 4 * SSA_M; i < 5 * SSA_M; i++) {
+        if (combined_mass_list[i - 4 * SSA_M] >= threshold) {
+            propensity_list[i] = gamma * (float)SSA_list[i - 4 * SSA_M];
+        }
+    }
 }

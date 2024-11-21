@@ -44,7 +44,7 @@ analytic_sol = np.zeros_like(C_grid)
 
 # Retrieve parameters for analytical solution
 production_rate = parameters["production_rate"]
-degradation_rate = parameters["degredation_rate"]
+degradation_rate = parameters["degradation_rate"]
 initial_SSA = parameters["initial_SSA"]
 concentration_threshold = parameters["threshold_conc"]
 
