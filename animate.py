@@ -1,182 +1,170 @@
-# Import necessary libraries
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import json
-import sys
+import seaborn as sns
 
-# Load data from .npz files
-Hybrid_data = np.load("Data/Hybrid_data.npz")
-C_grid = Hybrid_data["PDE_grid"]
-D_grid = Hybrid_data["SSA_grid"]
-combined_grid = Hybrid_data["combined_grid"]
-SSA_X = Hybrid_data["SSA_X"]
-PDE_X = Hybrid_data["PDE_X"]
-time_vector = Hybrid_data["time_vector"]
+def main():
+    # Set seaborn style
+    sns.set_theme(style="whitegrid")
 
-# Load simulation parameters from JSON file
-parameters = json.load(open("data/parameters.json"))
-h = parameters["h"]
-deltax = parameters["deltax"]
-bar_positions = SSA_X  # Adjust bar positions for the SSA histogram display
+    # Load data from .npz files
+    Hybrid_data = np.load("Data/Hybrid_data.npz")
+    C_grid = Hybrid_data["PDE_grid"]
+    D_grid = Hybrid_data["SSA_grid"]
+    combined_grid = Hybrid_data["combined_grid"]
+    SSA_X = Hybrid_data["SSA_X"]
+    PDE_X = Hybrid_data["PDE_X"]
+    time_vector = Hybrid_data["time_vector"]
 
-# Load additional data sets
-SSA_data = np.load("Data/Pure_SSA_data.npz")
-SSA_grid = SSA_data["SSA_grid"]
-Pure_PDE = np.load("Data/PDE_data.npz")
-pure_PDE_grid = Pure_PDE["PDE_grid"]
+    SSA_data = np.load("Data/Pure_SSA_data.npz")
+    SSA_grid = SSA_data["SSA_grid"]
 
-print(f"pure_PDE_grid at timestep 1: {pure_PDE_grid[:,1]}")
+    PDE_data = np.load("Data/PDE_data.npz")
+    PDE_grid = PDE_data["PDE_grid"]
 
-# Display shapes of loaded data arrays for verification
-print(f"shape of C_grid: {C_grid.shape}")
-print(f"shape of D_grid: {D_grid.shape}")
-print(f"shape of combined_grid: {combined_grid.shape}")
-print(f"shape of SSA_X: {SSA_X.shape}")
-print(f"shape of PDE_X: {PDE_X.shape}")
-print(f"shape of time_vector: {time_vector.shape}")
-print(f"shape of SSA_grid: {SSA_grid.shape}")
+    # Load simulation parameters from JSON file
+    parameters = json.load(open("data/parameters.json"))
+    h = parameters["h"]
+    deltax = parameters["deltax"]
+    bar_positions = SSA_X
 
-print(f"The conmbined grid: {combined_grid[:5,0:5]}")
-print(f"The PDE grid: {C_grid[:5,0:5]}")
-# Initialize analytical solution array
-analytic_sol = np.zeros_like(C_grid)
+    # Initialize analytical solution array
+    analytic_sol = np.zeros_like(C_grid)
 
-# Retrieve parameters for analytical solution
-production_rate = parameters["production_rate"]
-degradation_rate = parameters["degradation_rate"]
-initial_SSA = parameters["initial_SSA"]
-concentration_threshold = parameters["threshold_conc"]
+    # Retrieve parameters for analytical solution
+    production_rate = parameters["production_rate"]
+    degradation_rate = parameters["degradation_rate"]
+    initial_SSA = parameters["initial_SSA"]
+    concentration_threshold = parameters["threshold_conc"]
+    domain_length = parameters["domain_length"]
 
-# Initial concentration for the analytical solution
-initial_conc = initial_SSA[0] / h
+    # Calculate analytical solution
+    initial_conc = initial_SSA[0] / h
+    for i in range(analytic_sol.shape[1]):
+        analytic_sol[:, i] = (
+            production_rate / degradation_rate
+            + (initial_conc - production_rate / degradation_rate) * np.exp(-degradation_rate * time_vector[i])
+        )
 
-# Calculate the analytical solution at each time point
-for i in range(analytic_sol.shape[1]):
-    analytic_sol[:, i] = (production_rate / degradation_rate + 
-                          (initial_conc - production_rate / degradation_rate) * 
-                          np.exp(-degradation_rate * time_vector[i]))
-
-# Calculate total mass for SSA data
-SSA_total_mass = np.sum(D_grid, axis=0)
-pure_SSA_Mass = np.sum(SSA_grid, axis=0)
-
-# Function to calculate total mass for continuous data
-def calculate_mass_continuous(data_grid, deltax):
-    total_mass = np.zeros(data_grid.shape[1])
-    # Calculate total mass over continuous functions using the trapezoidal rule
-    for i in range(data_grid.shape[1]):
-        # Debug print to inspect the values being integrated
-        
-        # Perform trapezoidal rule: sum over the intervals between points
-        total_mass[i] = np.sum(data_grid[:,i-1])*deltax #This was wrong - summing to the end
-        
-        # Debug print to inspect the calculated total mass
-       
-    return total_mass
-
-# Assuming deltax is defined correctly
-analytic_total_mass = calculate_mass_continuous(analytic_sol, deltax)
-PDE_total_mass = calculate_mass_continuous(C_grid, deltax)
-combined_total_mass = calculate_mass_continuous(combined_grid, deltax)
-pure_PDE_total_mass = calculate_mass_continuous(pure_PDE_grid, deltax)
-
-print(f"pure_PDE_total mass at timestep 1: {pure_PDE_total_mass[0]}")
-print(f"the list of PDE_mass at timestep 1: {pure_PDE_grid[:,0]}")
-
-print(f"The combined solution at first timestep: {combined_total_mass[0]}")
-print(f"The PDE total mass at first timestep: {pure_PDE_total_mass[0]}")
-# Adjust time vector for relative error calculation
-adjusted_time_vector = time_vector[1:]
-
-# Calculate relative error between the combined and analytical solutions
-hybrid_relative_error = (combined_grid[:, 1:] - analytic_sol[:, 1:]) / np.abs(analytic_sol[:, 1:])
-average_relative_error = np.mean(hybrid_relative_error, axis=0)
-
-# Define interval for animation if provided in command-line arguments
-if len(sys.argv) == 1:
-    interval_number = 1
-elif len(sys.argv) == 2:
-    interval_number = int(sys.argv[1])
-else:
-    print("Usage: python animate.py [interval_number]")
-    sys.exit(1)
-
-# Plotting and Animation
-
-# Set up the initial figure and axis for animation
-fig, ax = plt.subplots()
-
-# Initial bar plot for SSA data with custom bar widths
-bar_SSA = ax.bar(bar_positions, D_grid[:, 0] / h, width=h, color='blue', align='edge', label='SSA (Bar Chart)')
-
-# Initial plot for PDE and other data
-line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g--',label='PDE')
-line_combined, = ax.plot(PDE_X, combined_grid[:, 0], 'k--', label='Combined')
-line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic Solution', color='red')
-line_pure_SSA, = ax.plot(SSA_X + h / 2, SSA_grid[:, 0] / h,'m', label='Pure SSA')
-line_pure_PDE, = ax.plot(PDE_X, pure_PDE_grid[:, 0], 'g', label='Pure PDE')
-
-# Set titles, labels, and axis limits
-ax.set_xlabel('Spatial Domain')
-ax.set_ylabel('Species Concentration')
-ax.set_title('SSA and PDE Data Animation')
-ax.set_xlim(0, parameters["domain_length"])
-ax.set_ylim(0, 220)
-ax.grid(True)
-ax.legend()
-
-# Plot concentration threshold line
-ax.axhline(y=concentration_threshold, color='purple', linestyle='--', label='Threshold Concentration')
-
-# Update function for animation frames
-def update(frame):
-    # Update SSA bar heights
-    for bar, height in zip(bar_SSA, D_grid[:, frame] / h):
-        bar.set_height(height)
+    # Function to calculate total mass for continuous data
+    def calculate_mass_continuous(data_grid, deltax):
+        return np.sum(data_grid, axis=0) * deltax
     
-    # Update lines for each dataset
-    line_PDE.set_ydata(C_grid[:, frame])
-    line_combined.set_ydata(combined_grid[:, frame])
-    line_analytic.set_ydata(analytic_sol[:, frame])
-    line_pure_SSA.set_ydata(SSA_grid[:, frame] / h)
-    line_pure_PDE.set_ydata(pure_PDE_grid[:, frame])
-    
-    return (*bar_SSA, line_PDE, line_combined, line_analytic, line_pure_SSA, line_pure_PDE)
+    def calculate_mass_discrete(data_grid):
+        return np.sum(data_grid,axis=0)
 
-# Create animation
-step_size = 1
-ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), step_size), interval=interval_number)
+    # Calculate total mass for all solutions
+    analytic_total_mass = calculate_mass_continuous(analytic_sol, deltax)
+    Hybrid_PDE_total_mass = calculate_mass_continuous(C_grid, deltax)
+    pure_PDE_total_mass = calculate_mass_continuous(PDE_grid, deltax)
+    combined_total_mass = calculate_mass_continuous(combined_grid, deltax)
 
-# Display the animated plot
-plt.show()
+    # Calculate total mass for pure SSA and pure PDE
+    SSA_total_mass = calculate_mass_discrete(SSA_grid)
+    Hybrid_SSA_mass = calculate_mass_discrete(D_grid)
 
 
-# Plot total mass over time for each model
-plt.figure()
-plt.plot(time_vector, SSA_total_mass, 'b--',label='SSA part')
-plt.plot(time_vector, analytic_total_mass,'r', label='Analytic')
-plt.plot(time_vector, PDE_total_mass, 'g--',label='PDE part')
-plt.plot(time_vector, combined_total_mass,'k--',label='Combined')
-# plot the threshold and steady state
-plt.plot(time_vector,np.ones_like(time_vector)*concentration_threshold,'k--',linewidth = 0.5,label = 'Threshold')
-plt.plot(time_vector,np.ones_like(time_vector)*production_rate/degradation_rate,'r--', label = 'Steady state')
-plt.plot(time_vector,pure_SSA_Mass, 'm',label = 'Pure SSA' )
-plt.plot(time_vector, pure_PDE_total_mass,'g', label='Pure PDE')
-plt.plot(time_vector,np.ones_like(pure_PDE_total_mass)*concentration_threshold,'k--',linewidth = 0.5,label = 'Threshold')
-plt.xlabel('Time')
-plt.ylabel('Total Mass')
-plt.title('Total Mass over Time')
-plt.legend()
-plt.grid(True)
-plt.show()
 
-# Plot average relative error over time
-plt.figure()
-plt.plot(adjusted_time_vector, average_relative_error, label='Relative Error')
-plt.xlabel('Time')
-plt.ylabel('Average Relative Error')
-plt.title('Relative Error of Hybrid Model')
-plt.legend()
-plt.grid(True)
-plt.show()
+    # Plotting and Animation
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Initial SSA bar plot
+    bar_SSA = ax.bar(
+        bar_positions, D_grid[:, 0] / h, width=h, color='blue', align='edge', label='SSA (Bar Chart)', alpha=0.7
+    )
+
+    # Continuous plots
+    line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g', label='PDE', linewidth=2)
+    line_combined, = ax.plot(PDE_X, combined_grid[:, 0], 'k--', label='Combined', linewidth=2)
+    line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic', color='red', linewidth=2)
+
+    # Threshold line
+    threshold_line = ax.axhline(y=concentration_threshold, color='purple', linestyle='--', label='Threshold', linewidth=1.5)
+
+    # Axis labels and title
+    ax.set_xlabel('Spatial Domain', fontsize=12)
+    ax.set_ylabel('Species Concentration', fontsize=12)
+    ax.set_title('Hybrid simulation', fontsize=14)
+    ax.set_xlim(0, domain_length)
+    ax.set_ylim(0, max(np.max(combined_grid) * 1.1, concentration_threshold * 1.1))
+    ax.grid(True, linestyle='--', alpha=0.6)
+
+    # Add a text annotation for the timestamp
+    time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes, fontsize=12, verticalalignment='top')
+
+    # Steady-state concentration
+    steady_state_concentration = production_rate / degradation_rate
+
+    # Adjust y-axis limit to ensure steady state is included
+    y_max = max(np.max(combined_grid) * 1.1, steady_state_concentration * 1.1, concentration_threshold * 1.1)
+    ax.set_ylim(0, y_max)
+
+    # Add a steady-state line
+    steady_state_line = ax.axhline(
+        y=steady_state_concentration,
+        color='gray',
+        linestyle='--',
+        label='Steady State',
+        linewidth=1.5,
+    )
+
+    # Update function for animation
+    def update(frame):
+        for bar, height in zip(bar_SSA, D_grid[:, frame] / h):
+            bar.set_height(height)
+        line_PDE.set_ydata(C_grid[:, frame])
+        line_combined.set_ydata(combined_grid[:, frame])
+        line_analytic.set_ydata(analytic_sol[:, frame])
+        
+        # Update the timestamp
+        time_text.set_text(f'Time: {time_vector[frame]:.2f}')
+        
+        return (*bar_SSA, line_PDE, line_combined, line_analytic, time_text, threshold_line, steady_state_line)
+
+    # Create animation
+    ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=10)
+
+    # Set legend position fixed
+    # Adjust the figure layout to make space for the legend
+    fig.subplots_adjust(right=0.8)
+
+    # Set legend position outside the main pane
+    ax.legend(loc='center left', bbox_to_anchor=(1.05, 0.5), fontsize=10)
+
+    # Display the animation
+    plt.show()
+
+    # Additional plot: Total mass over time
+    plt.figure(figsize=(12, 6))
+
+    # Plot PDE total mass in green
+    plt.plot(time_vector, Hybrid_PDE_total_mass, 'g--', label='Hybrid PDE', linewidth=2)
+    # Plot pure PDE total mass in red
+    plt.plot(time_vector, pure_PDE_total_mass, 'g', label='Pure PDE', linewidth=2)
+
+    # plot SSA hybrid
+    plt.plot(time_vector, Hybrid_SSA_mass, 'b--', label='Hybrid SSA', linewidth=2)
+    # plot pure SSA
+    plt.plot(time_vector, SSA_total_mass, 'b', label='Pure SSA', linewidth=2)
+
+    # Plot Combined total mass in dashed black
+    plt.plot(time_vector, combined_total_mass, 'k--', label='Combined (Dashed)', linewidth=2)
+
+    # Plot hybrid total mass in dashed black (as requested)
+
+    # Plot steady state line in gray
+    plt.axhline(y=production_rate / degradation_rate, color='gray', linestyle='--', label='Steady State', linewidth=1.5)
+
+    # Plot concentration threshold in purple
+    plt.axhline(y=concentration_threshold, color='purple', linestyle='--', label='Threshold', linewidth=1.5)
+
+    plt.xlabel('Time', fontsize=12)
+    plt.ylabel('Total Mass', fontsize=12)
+    plt.title('Total Mass over Time', fontsize=14)
+    plt.legend(fontsize=10)
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.show()
+
+if __name__ == "__main__":
+    main()

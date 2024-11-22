@@ -40,16 +40,19 @@ The project requires a file named `parameters_input.dat` to provide input config
 
 ### Running scripts
 
-To execute the main project scripts, use the following commands. To run the main script type in the following:
+To execute the main project scripts, use the following commands:
 
-```bash 
-python main.py 
-``` 
-To animate the saved data - only after running the main script at least once - type the following
 
+#### To run the main script:
 ```bash 
-python animate.py
+poetry run main
 ``` 
+
+#### To animate the saved data (only after running the main script at least once):
+```bash 
+poetry run animate
+``` 
+
 
 
 
