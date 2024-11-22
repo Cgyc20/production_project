@@ -48,7 +48,7 @@ class Hybrid:
             self.SSA_initial = SSA_initial.astype(int)
 
         # self.PDE_initial_conditions = np.zeros_like(self.PDE_X, dtype=np.float64) #Initially zero states for PDE
-        self.PDE_initial_conditions = np.ones_like(self.PDE_X, dtype=np.float64) #Initially zero states for PDE
+        self.PDE_initial_conditions = np.zeros_like(self.PDE_X, dtype=np.float64) #Initially zero states for PDE
         self.steady_state = production_rate / degradation_rate #Steady state of the system
         self.DX_NEW = self.create_finite_difference()  # Ensure DX_NEW is initialized here
         self.time_vector = np.arange(0, total_time, timestep)  # The time vector
