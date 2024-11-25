@@ -113,14 +113,14 @@ def main():
     def update(frame):
         for bar, height in zip(bar_SSA, D_grid[:, frame] / h):
             bar.set_height(height)
-        line_PDE.set_ydata(C_grid[:, frame])
         line_combined.set_ydata(combined_grid[:, frame])
+        line_PDE.set_ydata(C_grid[:, frame])
         line_analytic.set_ydata(analytic_sol[:, frame])
         
         # Update the timestamp
         time_text.set_text(f'Time: {time_vector[frame]:.2f}')
         
-        return (*bar_SSA, line_PDE, line_combined, line_analytic, time_text, threshold_line, steady_state_line)
+        return (*bar_SSA, line_combined, line_PDE, line_analytic, time_text, threshold_line, steady_state_line)
 
     # Create animation
     ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=10)
@@ -138,18 +138,18 @@ def main():
     # Additional plot: Total mass over time
     plt.figure(figsize=(12, 6))
 
-    # Plot PDE total mass in green
+    plt.plot(time_vector, combined_total_mass, 'k--', label='Combined (Dashed)', linewidth=2)
     plt.plot(time_vector, Hybrid_PDE_total_mass, 'g--', label='Hybrid PDE', linewidth=2)
     # Plot pure PDE total mass in red
-    plt.plot(time_vector, pure_PDE_total_mass, 'g', label='Pure PDE', linewidth=2)
-
     # plot SSA hybrid
     plt.plot(time_vector, Hybrid_SSA_mass, 'b--', label='Hybrid SSA', linewidth=2)
-    # plot pure SSA
+    
+
+
+    plt.plot(time_vector, pure_PDE_total_mass, 'g', label='Pure PDE', linewidth=2)
     plt.plot(time_vector, SSA_total_mass, 'b', label='Pure SSA', linewidth=2)
 
-    # Plot Combined total mass in dashed black
-    plt.plot(time_vector, combined_total_mass, 'k--', label='Combined (Dashed)', linewidth=2)
+    
 
     # Plot hybrid total mass in dashed black (as requested)
 
