@@ -27,10 +27,13 @@ class Hybrid:
         self.threshold = threshold #THe threshold (which is per compartment, the number of cells 
         self.gamma = gamma #The rate of conversion
         self.degradation_rate = degradation_rate
-        
+    
         self.h = self.L / compartment_number #The size of each compartment
         self.diffusion_rate = diffusion_rate #Rate of diffusion
-        self.production_rate_per_compartment = production_rate*self.h #THe 
+        self.production_rate_per_compartment = production_rate*self.h #THe
+
+        self.production_rate_per_compartment = 0 #Changing to be zero - so production only occurs via the PDE
+
         self.d = diffusion_rate / (self.h ** 2)  # The jump rate
 
         self.threshold_conc = threshold/self.h #The threshold concentration per cell
@@ -63,8 +66,10 @@ class Hybrid:
         """Creates the matrix used for crank nicholson method """
 
         H = self.create_finite_difference()
-        M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*self.degradation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
-        M2 = np.identity(H.shape[0]) *(1-0.5*self.timestep*self.degradation_rate) + 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
+        # M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*self.degradation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
+        # M2 = np.identity(H.shape[0]) *(1-0.5*self.timestep*self.degradation_rate) + 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
+        M1 = np.identity(H.shape[0]) * (1 + 0.5 * self.timestep * self.degradation_rate) - 0.5 * (self.timestep * self.diffusion_rate / self.deltax**2) * H
+        M2 = np.identity(H.shape[0]) * (1 - 0.5 * self.timestep * self.degradation_rate) + 0.5 * (self.timestep * self.diffusion_rate / self.deltax**2) * H
         M1_inverse = np.linalg.inv(M1)
         Crank_matrix = M1_inverse@M2
         
@@ -97,7 +102,8 @@ class Hybrid:
     def crank_nicholson(self, old_vector: np.ndarray) -> np.ndarray:
         """Returns the new vector using the crank nicholson matrix"""
         old_vector = old_vector.astype(float)
-        return self.Crank_matrix @ old_vector  # The new vector!
+        return self.Crank_matrix @ old_vector + self.M1_inverse@ (self.production_rate * self.timestep*np.ones(self.PDE_M))
+        #return self.Crank_matrix @ old_vector  # The new vector!
 
     def ApproximateLeftHandPython(self, PDE_list: np.ndarray) -> np.ndarray:
         """Works out the approximate mass of the PDE domain over each grid point. Using the left hand rule"""
@@ -212,6 +218,7 @@ class Hybrid:
         movement_propensity[-1] = self.d * SSA_list[-1]
     
         R1_propensity = self.production_rate_per_compartment * np.ones_like(SSA_list)  # The production propensity
+
         R2_propensity = self.degradation_rate * SSA_list  # degredation propensity
 
         approximate_PDE_mass = np.zeros_like(SSA_list)
@@ -306,7 +313,7 @@ class Hybrid:
         # print(f"Propensity C: {propensity_c_list}")
         # print(f"Propensity Python: {propensity_python_list}")
 
-        return propensity_python_list
+
 
     def hybrid_simulation(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, approx_mass: np.ndarray) -> np.ndarray:
         t = 0
