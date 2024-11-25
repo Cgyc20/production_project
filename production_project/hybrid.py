@@ -356,9 +356,8 @@ class Hybrid:
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
                     PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
-                    
-<<<<<<< HEAD
-                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
+                
+                #elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
                     # print(f"*"*30)
                     # print(f"Checking conversion to PDE, given this occurs")
                     # print(f"  {SSA_list}")
@@ -368,10 +367,8 @@ class Hybrid:
                     # print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
                     # print(f"*"*30)
 
-
-=======
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # Conversion from discrete to continuous
->>>>>>> optimise_c
+
                     SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                  
@@ -384,7 +381,6 @@ class Hybrid:
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list,)
 
                 old_time = t  # Update old_time
-<<<<<<< HEAD
                  # Update time by the time step
                 #Printing a barrier
 
@@ -420,8 +416,7 @@ class Hybrid:
                 # print("*" * 30)
                 # print("\n")  # Extra blank line for space between steps
 
-=======
->>>>>>> optimise_c
+
 
             else:  # Else we run the ODE step
                 PDE_list = self.crank_nicholson(PDE_list)
