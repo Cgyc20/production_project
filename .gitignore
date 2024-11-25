@@ -1,5 +1,5 @@
 data/*
-
+profiling_directory/*
 # But do not ignore .gitkeep
 !data/.gitkeep
 
