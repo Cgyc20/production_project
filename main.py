@@ -43,7 +43,7 @@ def main():
         print(f"degradation_rate: {degradation_rate}")
         print(f"diffusion_rate: {diffusion_rate}")
         print(f"number_particles_per_cell: {number_particles_per_cell}")
-        print(f"The steady state is: {production_rate/degradation_rate}")
+        # print(f"The steady state is: {production_rate/degradation_rate}")
 
     except ValueError as e:
         print("Error:", e)

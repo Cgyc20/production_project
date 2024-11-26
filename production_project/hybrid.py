@@ -27,7 +27,7 @@ class Hybrid:
         self.threshold = threshold #THe threshold (which is per compartment, the number of cells 
         self.gamma = gamma #The rate of conversion
         self.degradation_rate = degradation_rate
-    
+
         self.h = self.L / compartment_number #The size of each compartment
         self.diffusion_rate = diffusion_rate #Rate of diffusion
         self.production_rate_per_compartment = production_rate*self.h #THe
@@ -323,11 +323,11 @@ class Hybrid:
         SSA_list = SSA_grid[:, 0].astype(int)  # Starting SSA_list
         PDE_list = PDE_grid[:, 0].astype(float)  # Starting PDE_list
         ind_after = 0
-        while t < self.total_time:
+        alpha0 = 1
+        while t < self.total_time and alpha0 > 0:
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
-            if alpha0 == 0:  # Stop if no reactions can occur
-                break
+                
 
             r1, r2, r3 = np.random.rand(3)
             tau = (1 / alpha0) * np.log(1 / r1)  # Time until next reaction
@@ -400,28 +400,28 @@ class Hybrid:
                 # print(f"Mass conversion threshold: {self.threshold}")
                 # print("-" * 30)  # Separator line
 
-                # # Particle and mass details
-                # print(f"Stochastic particles in each box at time {t}:")
-                # print(f"  {SSA_list}")
-                # print(f"Continuous mass at time {t:.1f}:")
-                # print(f"  {PDE_list.round(1)}")
-                # print(f"Number of particles continuous")
-                # print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
-                # print(f"Approximate mass at time {t:.1f}:")
-                # print(f"  {approx_mass[:, min(ind_after+1, len(self.time_vector))-1]}")
-                # print("-" * 30)
+                # Particle and mass details
+                print(f"Stochastic particles in each box at time {t}:")
+                print(f"  {SSA_list}")
+                print(f"Continuous mass at time {t:.1f}:")
+                print(f"  {PDE_list.round(1)}")
+                print(f"Number of particles continuous") 
+                print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
+                print(f"Approximate mass at time {t:.1f}:")
+                print(f"  {approx_mass[:, min(ind_after+1, len(self.time_vector))-1]}")
+                print("-" * 30)
 
-                # # Propensity information
-                # print(f"{'Propensity Details':^30}")
-                # print(f"Index of reaction chosen: {index}")
-                # print("-" * 30)
-                # print(f"Movement propensity:           {total_propensity[:self.SSA_M]}")
-                # print(f"Production propensity:         {total_propensity[self.SSA_M:2*self.SSA_M]}")
-                # print(f"Degradation propensity:        {total_propensity[2*self.SSA_M:3*self.SSA_M]}")
-                # print(f"Conversion to discrete prop.:  {total_propensity[3*self.SSA_M:4*self.SSA_M]}")
-                # print(f"Conversion to continuous prop.: {total_propensity[4*self.SSA_M:]}")
-                # print("*" * 30)
-                # print("\n")  # Extra blank line for space between steps
+                # Propensity information
+                print(f"{'Propensity Details':^30}")
+                print(f"Index of reaction chosen: {index}")
+                print("-" * 30)
+                print(f"Movement propensity:           {total_propensity[:self.SSA_M]}")
+                print(f"Production propensity:         {total_propensity[self.SSA_M:2*self.SSA_M]}")
+                print(f"Degradation propensity:        {total_propensity[2*self.SSA_M:3*self.SSA_M]}")
+                print(f"Conversion to discrete prop.:  {total_propensity[3*self.SSA_M:4*self.SSA_M]}")
+                print(f"Conversion to continuous prop.: {total_propensity[4*self.SSA_M:]}")
+                print("*" * 30)
+                print("\n")  # Extra blank line for space between steps
 
 
 

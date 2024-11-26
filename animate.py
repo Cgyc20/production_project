@@ -155,6 +155,7 @@ def main():
 
     # Plot steady state line in gray
     plt.axhline(y=production_rate / degradation_rate, color='gray', linestyle='--', label='Steady State', linewidth=1.5)
+    #plt.axhline(y=150, color='gray', linestyle='--', label='Steady State', linewidth=1.5)
 
     # Plot concentration threshold in purple
     plt.axhline(y=concentration_threshold, color='purple', linestyle='--', label='Threshold', linewidth=1.5)
