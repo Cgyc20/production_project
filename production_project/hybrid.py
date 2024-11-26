@@ -324,18 +324,37 @@ class Hybrid:
         PDE_list = PDE_grid[:, 0].astype(float)  # Starting PDE_list
         ind_after = 0
         alpha0 = 1
-        while t < self.total_time and alpha0 > 0:
+        
+        while t < self.total_time:
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
+    
+            if alpha0 == 0:  # Check for zero propensity
+                # Go straight to the ODE step
+                PDE_list = self.crank_nicholson(PDE_list)
+                PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
+                t = copy(td)
+                td += self.timestep
+                ind_before = np.searchsorted(self.time_vector, old_time, 'right')
+                ind_after = np.searchsorted(self.time_vector, t, 'left')
+                for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
+                    PDE_grid[:, time_index] = PDE_list
+                    SSA_grid[:, time_index] = SSA_list
+                    approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
+                continue  # Skip the remaining stochastic loop logic and go to the next iteration
+                    
+            
                 
 
             r1, r2, r3 = np.random.rand(3)
+
             tau = (1 / alpha0) * np.log(1 / r1)  # Time until next reaction
+            
             alpha_cum = np.cumsum(total_propensity)  # Cumulative sum of propensities
             index = np.searchsorted(alpha_cum, r2 * alpha0)  # Determine which reaction occurs
 
             compartment_index = index % self.SSA_M  # The compartmental index is just the modulo of SSA. 
-            if t + tau <= td:  # Execute Gillespie
+            if t + tau <= td and alpha0>0:  # Execute Gillespie
                 """The diffusion reactions are executed here"""
                 if index <= self.SSA_M - 2 and index >= 1:
                     if r3 < 0.5:  # Move left
@@ -401,27 +420,27 @@ class Hybrid:
                 # print("-" * 30)  # Separator line
 
                 # Particle and mass details
-                print(f"Stochastic particles in each box at time {t}:")
-                print(f"  {SSA_list}")
-                print(f"Continuous mass at time {t:.1f}:")
-                print(f"  {PDE_list.round(1)}")
-                print(f"Number of particles continuous") 
-                print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
-                print(f"Approximate mass at time {t:.1f}:")
-                print(f"  {approx_mass[:, min(ind_after+1, len(self.time_vector))-1]}")
-                print("-" * 30)
+                # print(f"Stochastic particles in each box at time {t}:")
+                # print(f"  {SSA_list}")
+                # print(f"Continuous mass at time {t:.1f}:")
+                # print(f"  {PDE_list.round(1)}")
+                # print(f"Number of particles continuous") 
+                # print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
+                # print(f"Approximate mass at time {t:.1f}:")
+                # print(f"  {approx_mass[:, min(ind_after+1, len(self.time_vector))-1]}")
+                # print("-" * 30)
 
-                # Propensity information
-                print(f"{'Propensity Details':^30}")
-                print(f"Index of reaction chosen: {index}")
-                print("-" * 30)
-                print(f"Movement propensity:           {total_propensity[:self.SSA_M]}")
-                print(f"Production propensity:         {total_propensity[self.SSA_M:2*self.SSA_M]}")
-                print(f"Degradation propensity:        {total_propensity[2*self.SSA_M:3*self.SSA_M]}")
-                print(f"Conversion to discrete prop.:  {total_propensity[3*self.SSA_M:4*self.SSA_M]}")
-                print(f"Conversion to continuous prop.: {total_propensity[4*self.SSA_M:]}")
-                print("*" * 30)
-                print("\n")  # Extra blank line for space between steps
+                # # Propensity information
+                # print(f"{'Propensity Details':^30}")
+                # print(f"Index of reaction chosen: {index}")
+                # print("-" * 30)
+                # print(f"Movement propensity:           {total_propensity[:self.SSA_M]}")
+                # print(f"Production propensity:         {total_propensity[self.SSA_M:2*self.SSA_M]}")
+                # print(f"Degradation propensity:        {total_propensity[2*self.SSA_M:3*self.SSA_M]}")
+                # print(f"Conversion to discrete prop.:  {total_propensity[3*self.SSA_M:4*self.SSA_M]}")
+                # print(f"Conversion to continuous prop.: {total_propensity[4*self.SSA_M:]}")
+                # print("*" * 30)
+                # print("\n")  # Extra blank line for space between steps
 
 
 
