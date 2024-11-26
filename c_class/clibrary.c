@@ -65,8 +65,6 @@ void CalculatePropensity(int SSA_M, float *PDE_list, int *SSA_list, float *prope
     // Precompute commonly used values
     int two_SSA_M = 2 * SSA_M;
     int three_SSA_M = 3 * SSA_M;
-    int four_SSA_M = 4 * SSA_M;
-    int five_SSA_M = 5 * SSA_M;
 
     // Initialize all propensity values to zero
     for (int i = 0; i < five_SSA_M; i++) {
@@ -81,33 +79,23 @@ void CalculatePropensity(int SSA_M, float *PDE_list, int *SSA_list, float *prope
     }
     propensity_list[SSA_M - 1] = jump_rate_f * SSA_list[SSA_M - 1];
 
-    // Production rates (constant for each compartment)
-    for (int i = SSA_M; i < two_SSA_M; i++) {
-        propensity_list[i] = Production_rate_PC;
-    }
-
-    // Degradation rates (depends on SSA_list)
-    float degradation_rate_f = degradation_rate;
-    for (int i = two_SSA_M; i < three_SSA_M; i++) {
-        propensity_list[i] = degradation_rate_f * SSA_list[i - two_SSA_M];
-    }
-
+   
     // Conversion from continuous to discrete (below threshold)
     float threshold_f = threshold;
     float gamma_f = gamma;
-    for (int i = three_SSA_M; i < four_SSA_M; i++) {
-        float combined_mass = combined_mass_list[i - three_SSA_M];
-        float approx_mass = Approximate_PDE_Mass[i - three_SSA_M];
-        int boolean_mass = boolean_mass_list[i - three_SSA_M];
+    for (int i = SSA_M; i <two_SSA_M; i++) {
+        float combined_mass = combined_mass_list[i - SSA_M];
+        float approx_mass = Approximate_PDE_Mass[i - SSA_M];
+        int boolean_mass = boolean_mass_list[i - SSA_M];
         propensity_list[i] = (combined_mass < threshold_f) 
                               ? gamma_f * approx_mass * boolean_mass 
                               : 0.0f;
     }
 
     // Conversion from discrete to continuous (above threshold)
-    for (int i = four_SSA_M; i < five_SSA_M; i++) {
-        float combined_mass = combined_mass_list[i - four_SSA_M];
-        int SSA_mass = SSA_list[i - four_SSA_M];
+    for (int i = two_SSA_M; i < three_SSA_M; i++) {
+        float combined_mass = combined_mass_list[i - two_SSA_M];
+        int SSA_mass = SSA_list[i - two_SSA_M];
         propensity_list[i] = (combined_mass >= threshold_f) 
                               ? gamma_f * SSA_mass 
                               : 0.0f;

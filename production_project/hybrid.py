@@ -63,8 +63,10 @@ class Hybrid:
         """Creates the matrix used for crank nicholson method """
 
         H = self.create_finite_difference()
-        M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*self.degradation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
-        M2 = np.identity(H.shape[0]) *(1-0.5*self.timestep*self.degradation_rate) + 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
+        M1  = np.identity(H.shape[0])-(0.5*self.timestep*self.diffusion_rate)*H
+        M2 = np.identity(H.shape[0])+(0.5*self.timestep*self.diffusion_rate)*H
+        # M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*self.degradation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
+        # M2 = np.identity(H.shape[0]) *(1-0.5*self.timestep*self.degradation_rate) + 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
         M1_inverse = np.linalg.inv(M1)
         Crank_matrix = M1_inverse@M2
         
@@ -210,9 +212,6 @@ class Hybrid:
         movement_propensity = 2 * self.d * SSA_list  # The diffusion rates
         movement_propensity[0] = self.d * SSA_list[0]
         movement_propensity[-1] = self.d * SSA_list[-1]
-    
-        R1_propensity = self.production_rate_per_compartment * np.ones_like(SSA_list)  # The production propensity
-        R2_propensity = self.degradation_rate * SSA_list  # degredation propensity
 
         approximate_PDE_mass = np.zeros_like(SSA_list)
         combined_list = np.zeros_like(SSA_list)
@@ -233,7 +232,7 @@ class Hybrid:
         conversion_to_discrete *= boolean_SSA_threshold
         conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
         
-        combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
+        combined_propensity = np.concatenate((movement_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
     
 
@@ -344,15 +343,9 @@ class Hybrid:
                     SSA_list[index] = max(SSA_list[index] - 1, 0)
                     SSA_list[index - 1] += 1
 
-                    """Now the reaction kinetics"""
-                elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Production reaction
-                    SSA_list[compartment_index] += 1
-
-                elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Degradation reaction
-                    SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
-
+                
                     """Finally the conversion reactions here"""
-                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:  # Conversion from continuous to discrete
+                elif index >=  self.SSA_M and index <= 2 * self.SSA_M - 1:  # Conversion from continuous to discrete
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
                     PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
@@ -367,7 +360,7 @@ class Hybrid:
                     # print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
                     # print(f"*"*30)
 
-                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # Conversion from discrete to continuous
+                elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Conversion from discrete to continuous
 
                     SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h

@@ -53,6 +53,10 @@ def main():
     # np.random.seed(0)
     SSA_initial = np.ones((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
 
+    SSA_initial[0:3] = 0
+    SSA_initial[compartment_number-3:compartment_number] = 0
+
+
     # multiply_vector = np.arange(0, compartment_number)%2
     
     # SSA_initial = SSA_initial* multiply_vector
