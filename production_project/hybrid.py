@@ -64,6 +64,7 @@ class Hybrid:
 
         H = self.create_finite_difference()
         H = H/(self.deltax**2)
+        
         M1  = np.identity(H.shape[0])-(0.5*self.timestep*self.diffusion_rate)*H
         M2 = np.identity(H.shape[0])+(0.5*self.timestep*self.diffusion_rate)*H
         # M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*self.degradation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H

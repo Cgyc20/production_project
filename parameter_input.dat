@@ -7,5 +7,5 @@ particles_per_compartment_thresh 6
 gamma 0.5
 production_rate 2
 degradation_rate 0.05
-number_particles_per_cell 12
+number_particles_per_cell 40
 repeats 10
