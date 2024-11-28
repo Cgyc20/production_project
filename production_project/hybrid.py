@@ -63,6 +63,7 @@ class Hybrid:
         """Creates the matrix used for crank nicholson method """
 
         H = self.create_finite_difference()
+        H = H/(self.deltax**2)
         M1  = np.identity(H.shape[0])-(0.5*self.timestep*self.diffusion_rate)*H
         M2 = np.identity(H.shape[0])+(0.5*self.timestep*self.diffusion_rate)*H
         # M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*self.degradation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
@@ -318,14 +319,25 @@ class Hybrid:
         while t < self.total_time:
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
-            if alpha0 == 0:  # Stop if no reactions can occur
-                break
-
+            if alpha0 == 0:  # If no reactions can occur, execute PDE step
+                PDE_list = self.crank_nicholson(PDE_list)
+                PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
+                t = copy(td)
+                td += self.timestep
+                ind_before = np.searchsorted(self.time_vector, old_time, 'right')
+                ind_after = np.searchsorted(self.time_vector, t, 'left')
+                for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
+                    PDE_grid[:, time_index] = PDE_list
+                    SSA_grid[:, time_index] = SSA_list
+                    approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
+                old_time = t  # Update old_time
+                continue  # Skip the rest of the loop and continue with the next iteration
+    
             r1, r2, r3 = np.random.rand(3)
             tau = (1 / alpha0) * np.log(1 / r1)  # Time until next reaction
             alpha_cum = np.cumsum(total_propensity)  # Cumulative sum of propensities
             index = np.searchsorted(alpha_cum, r2 * alpha0)  # Determine which reaction occurs
-
+    
             compartment_index = index % self.SSA_M  # The compartmental index is just the modulo of SSA. 
             if t + tau <= td:  # Execute Gillespie
                 """The diffusion reactions are executed here"""
@@ -342,7 +354,7 @@ class Hybrid:
                 elif index == self.SSA_M - 1:  # Right boundary (can only move left)
                     SSA_list[index] = max(SSA_list[index] - 1, 0)
                     SSA_list[index - 1] += 1
-
+    
                 
                     """Finally the conversion reactions here"""
                 elif index >=  self.SSA_M and index <= 2 * self.SSA_M - 1:  # Conversion from continuous to discrete
@@ -359,12 +371,12 @@ class Hybrid:
                     # print(f"Number of particles continuous")
                     # print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
                     # print(f"*"*30)
-
+    
                 elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Conversion from discrete to continuous
-
+    
                     SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
-                 
+                    
                 t += tau 
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
@@ -372,20 +384,20 @@ class Hybrid:
                     SSA_grid[:, time_index] = SSA_list
                     PDE_grid[:, time_index] = PDE_list
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list,)
-
+    
                 old_time = t  # Update old_time
-                 # Update time by the time step
+                    # Update time by the time step
                 #Printing a barrier
-
-               
+    
+                
                 # print(f"{'Simulation Step':^30}")  # Centered title within the asterisks
                 # print("*" * 30)
-
+    
                 # # Time and mass information
                 # print(f"Time: {t:.2f}")
                 # print(f"Mass conversion threshold: {self.threshold}")
                 # print("-" * 30)  # Separator line
-
+    
                 # # Particle and mass details
                 # print(f"Stochastic particles in each box at time {t}:")
                 # print(f"  {SSA_list}")
@@ -396,7 +408,7 @@ class Hybrid:
                 # print(f"Approximate mass at time {t:.1f}:")
                 # print(f"  {approx_mass[:, min(ind_after+1, len(self.time_vector))-1]}")
                 # print("-" * 30)
-
+    
                 # # Propensity information
                 # print(f"{'Propensity Details':^30}")
                 # print(f"Index of reaction chosen: {index}")
@@ -408,9 +420,9 @@ class Hybrid:
                 # print(f"Conversion to continuous prop.: {total_propensity[4*self.SSA_M:]}")
                 # print("*" * 30)
                 # print("\n")  # Extra blank line for space between steps
-
-
-
+    
+    
+    
             else:  # Else we run the ODE step
                 PDE_list = self.crank_nicholson(PDE_list)
                 PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
@@ -422,8 +434,9 @@ class Hybrid:
                     PDE_grid[:, time_index] = PDE_list
                     SSA_grid[:, time_index] = SSA_list
                     approx_mass[:, time_index], PDE_particles[:, time_index]= self.calculate_total_mass(PDE_list, SSA_list)
-           
+            
         return SSA_grid, PDE_grid, approx_mass
+    
 
     def run_simulation(self, number_of_repeats: int) -> np.ndarray:
         """This will run the simulation with a total number of repeats"""
