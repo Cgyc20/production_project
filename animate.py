@@ -87,6 +87,21 @@ def plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pur
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.show()
 
+def calculate_relative_error(analytic_sol, combined_grid):
+    """Calculate the relative error between the analytic solution and the combined grid."""
+    return np.abs((combined_grid - analytic_sol) / analytic_sol)
+
+def plot_relative_error(time_vector, relative_error):
+    """Plot the relative error over time."""
+    plt.figure(figsize=(12, 6))
+    plt.plot(time_vector, relative_error.mean(axis=0), 'r', label='Relative Error', linewidth=2)
+    plt.xlabel('Time', fontsize=12)
+    plt.ylabel('Relative Error', fontsize=12)
+    plt.title('Relative Error over Time', fontsize=14)
+    plt.legend(fontsize=10)
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.show()
+
 def main():
     sns.set_theme(style="whitegrid")
     Hybrid_data, SSA_data, PDE_data, parameters = load_data()
@@ -141,6 +156,9 @@ def main():
     plt.show()
     
     plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pure_PDE_total_mass, Hybrid_SSA_mass, SSA_total_mass, production_rate, degradation_rate, concentration_threshold)
+    
+    relative_error = calculate_relative_error(analytic_sol, combined_grid)
+    plot_relative_error(time_vector, relative_error)
 
 if __name__ == "__main__":
     main()
