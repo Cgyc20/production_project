@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import json
 import seaborn as sns
+import os
 
 def load_data():
     """Load data from .npz files and JSON parameters."""
@@ -16,19 +17,25 @@ def initialize_analytic_solution(C_grid):
     """Initialize the analytical solution array."""
     return np.zeros_like(C_grid)
 
-def determine_coefficients(n, a, b, L, initial_conc):
-    """Calculate coefficients for the analytical solution."""
-    coef_list = [initial_conc*(b-a)/L]
-    for i in range(1, n):
-        coefficient = initial_conc * ((2/(i*np.pi*L)) * (np.sin(i*np.pi*b/L) - np.sin(i*np.pi*a/L)))
-        coef_list.append(coefficient)
-    return coef_list
+def save_coefficients(coefficients, filename="coefficients.npy"):
+    """Save coefficients to a .npy file."""
+    np.save(filename, coefficients)
 
-def determine_coefficients(n, a, b, L, initial_conc):
-    """Calculate coefficients for the analytical solution using vectorized operations."""
-    i = np.arange(1, n)
-    coefficients = initial_conc * ((2 / (i * np.pi * L)) * (np.sin(i * np.pi * b / L) - np.sin(i * np.pi * a / L)))
-    return np.concatenate(([(b - a) / L], coefficients))
+def load_coefficients(filename="coefficients.npy"):
+    """Load coefficients from a .npy file."""
+    if os.path.exists(filename):
+        return np.load(filename)
+    return None
+
+def determine_coefficients(n, a, b, L, initial_conc, filename="coefficients.npy"):
+    """Load coefficients if they exist; otherwise, calculate and save them."""
+    coefficients = load_coefficients(filename)
+    if coefficients is None:
+        i = np.arange(1, n)
+        coefficients = initial_conc * ((2 / (i * np.pi * L)) * (np.sin(i * np.pi * b / L) - np.sin(i * np.pi * a / L)))
+        coefficients = np.concatenate(([(b - a) / L], coefficients))
+        save_coefficients(coefficients, filename)
+    return coefficients
 
 def calculate_analytic_solution(analytic_sol, coefficients, a0, PDE_X, domain_length, diffusion_rate, time_vector):
     """Calculate the analytical solution over time."""
@@ -129,7 +136,11 @@ def main():
     b = 0.55
     a = 0.45
     a0 = initial_conc * (b - a) / domain_length
-    coefficients = determine_coefficients(5, a, b, domain_length, initial_conc)
+    
+    # Calculate and save coefficients
+    coefficients = determine_coefficients(50, a, b, domain_length, initial_conc)
+    
+    # Calculate the analytical solution
     analytic_sol = calculate_analytic_solution(analytic_sol, coefficients, a0, PDE_X, domain_length, diffusion_rate, time_vector)
     
     analytic_total_mass = calculate_mass_continuous(analytic_sol, deltax)
@@ -150,13 +161,13 @@ def main():
     steady_state_line = ax.axhline(y=steady_state_concentration, color='gray', linestyle='--', label='Steady State', linewidth=1.5)
     
     ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=40, fargs=(bar_SSA, D_grid, h, line_combined, combined_grid, line_PDE, C_grid, line_analytic, analytic_sol, time_text, time_vector))
-    
-    fig.subplots_adjust(right=0.8)
-    ax.legend(loc='center left', bbox_to_anchor=(1.05, 0.5), fontsize=10)
+    plt.xlabel("Position")
+    plt.ylabel("Concentration")
+    plt.title("Diffusion Process Over Time")
+    plt.legend(fontsize=8)
     plt.show()
     
     plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pure_PDE_total_mass, Hybrid_SSA_mass, SSA_total_mass, production_rate, degradation_rate, concentration_threshold)
-    
     relative_error = calculate_relative_error(analytic_sol, combined_grid)
     plot_relative_error(time_vector, relative_error)
 
