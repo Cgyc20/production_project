@@ -129,7 +129,7 @@ def main():
     b = 0.55
     a = 0.45
     a0 = initial_conc * (b - a) / domain_length
-    coefficients = determine_coefficients(50, a, b, domain_length, initial_conc)
+    coefficients = determine_coefficients(5, a, b, domain_length, initial_conc)
     analytic_sol = calculate_analytic_solution(analytic_sol, coefficients, a0, PDE_X, domain_length, diffusion_rate, time_vector)
     
     analytic_total_mass = calculate_mass_continuous(analytic_sol, deltax)
