@@ -64,7 +64,8 @@ def main():
     SSA_total_mass = calculate_mass_discrete(SSA_grid)
     Hybrid_SSA_mass = calculate_mass_discrete(D_grid)
 
-
+    # Calculate relative error for combined solution
+    relative_error_combined = np.abs((combined_total_mass - analytic_total_mass) / analytic_total_mass)
 
     # Plotting and Animation
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -140,28 +141,25 @@ def main():
 
     plt.plot(time_vector, combined_total_mass, 'k--', label='Combined (Dashed)', linewidth=2)
     plt.plot(time_vector, Hybrid_PDE_total_mass, 'g--', label='Hybrid PDE', linewidth=2)
-    # Plot pure PDE total mass in red
-    # plot SSA hybrid
     plt.plot(time_vector, Hybrid_SSA_mass, 'b--', label='Hybrid SSA', linewidth=2)
-    
-
-
     plt.plot(time_vector, pure_PDE_total_mass, 'g', label='Pure PDE', linewidth=2)
     plt.plot(time_vector, SSA_total_mass, 'b', label='Pure SSA', linewidth=2)
-
-    
-
-    # Plot hybrid total mass in dashed black (as requested)
-
-    # Plot steady state line in gray
     plt.axhline(y=production_rate / degradation_rate, color='gray', linestyle='--', label='Steady State', linewidth=1.5)
-
-    # Plot concentration threshold in purple
     plt.axhline(y=concentration_threshold, color='purple', linestyle='--', label='Threshold', linewidth=1.5)
 
     plt.xlabel('Time', fontsize=12)
     plt.ylabel('Total Mass', fontsize=12)
     plt.title('Total Mass over Time', fontsize=14)
+    plt.legend(fontsize=10)
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.show()
+
+    # Plot relative error for combined solution
+    plt.figure(figsize=(12, 6))
+    plt.plot(time_vector, relative_error_combined, 'k--', label='Relative Error (Combined)', linewidth=2)
+    plt.xlabel('Time', fontsize=12)
+    plt.ylabel('Relative Error', fontsize=12)
+    plt.title('Relative Error of Combined Solution over Time', fontsize=14)
     plt.legend(fontsize=10)
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.show()
