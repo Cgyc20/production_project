@@ -3,9 +3,9 @@ compartment_number 20
 PDE_multiple 8
 total_time 200
 timestep 0.05
-particles_per_compartment_thresh 6
+particles_per_compartment_thresh 2
 gamma 0.5
 production_rate 2
-degradation_rate 0.05
-number_particles_per_cell 40
-repeats 10
+degradation_rate 0.02
+number_particles_per_cell 1
+repeats 100
