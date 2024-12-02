@@ -21,7 +21,7 @@ class Hybrid:
         self.PDE_multiple = PDE_multiple #The number of PDE points per compartment
         self.production_rate = production_rate #The producti
         self.PDE_M = compartment_number * PDE_multiple+1
-        self.deltax = self.L / (self.PDE_M-1) #The PDE stepsize
+        self.deltax = self.L / (self.PDE_M) #The PDE stepsize
         self.total_time = total_time #total simulation time
         self.timestep = timestep #The timestep size
         self.threshold = threshold #THe threshold (which is per compartment, the number of cells 
@@ -332,16 +332,20 @@ class Hybrid:
                 """The diffusion reactions are executed here"""
                 if index <= self.SSA_M - 2 and index >= 1:
                     if r3 < 0.5:  # Move left
-                        SSA_list[index] = max(SSA_list[index] - 1, 0)
+                        SSA_list[index] = SSA_list[index] - 1
+                        # SSA_list[index] = max(SSA_list[index] - 1, 0)
                         SSA_list[index - 1] += 1
                     else:  # Move right
-                        SSA_list[index] = max(SSA_list[index] - 1, 0)
+
+                        # SSA_list[index] = max(SSA_list[index] - 1, 0)
+                        SSA_list[index] = SSA_list[index]-1
                         SSA_list[index + 1] += 1
                 elif index == 0:  # Left boundary (can only move right)
                     SSA_list[index] = max(SSA_list[index] - 1, 0)
                     SSA_list[index + 1] += 1
                 elif index == self.SSA_M - 1:  # Right boundary (can only move left)
-                    SSA_list[index] = max(SSA_list[index] - 1, 0)
+                    # SSA_list[index] = max(SSA_list[index] - 1, 0)
+                    SSA_list[index] = SSA_list[index]-1
                     SSA_list[index - 1] += 1
 
                     """Now the reaction kinetics"""
@@ -349,14 +353,15 @@ class Hybrid:
                     SSA_list[compartment_index] += 1
 
                 elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Degradation reaction
-                    SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
+                    #SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
+                    SSA_list[compartment_index] = SSA_list[compartment_index] - 1
 
                     """Finally the conversion reactions here"""
                 elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:  # Conversion from continuous to discrete
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
-                    PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
-                
+                    #PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
+                    
                 #elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
                     # print(f"*"*30)
                     # print(f"Checking conversion to PDE, given this occurs")
@@ -369,7 +374,8 @@ class Hybrid:
 
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # Conversion from discrete to continuous
 
-                    SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
+                    #SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
+                    SSA_list[compartment_index] = SSA_list[compartment_index]-1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                  
                 t += tau 
