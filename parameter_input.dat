@@ -5,7 +5,7 @@ total_time 9
 timestep 0.01
 particles_per_compartment_thresh 65
 gamma 10
-production_rate 20
+production_rate 200
 degradation_rate 1
 number_particles_per_cell 0
-repeats 10
+repeats 1

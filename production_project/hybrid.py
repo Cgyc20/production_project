@@ -53,19 +53,18 @@ class Hybrid:
         self.steady_state = production_rate / degradation_rate #Steady state of the system
         self.DX_NEW = self.create_finite_difference()  # Ensure DX_NEW is initialized here
         self.time_vector = np.arange(0, total_time, timestep)  # The time vector
-        self.Crank_matrix, self.M1_inverse = self.create_crank_nicholson() #The crank method respective matrices
-
+        
         self.use_c_functions = use_c_functions
         print("Successfully initialized the hybrid model")
 
         print(f"The threshold concentration is: {self.threshold_conc}")
 
-    def create_crank_nicholson(self) -> np.ndarray:
+    def create_crank_nicholson(self, degradation_rate: float) -> np.ndarray:
         """Creates the matrix used for crank nicholson method """
 
         H = self.create_finite_difference()
-        M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*self.degradation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
-        M2 = np.identity(H.shape[0]) *(1-0.5*self.timestep*self.degradation_rate) + 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
+        M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*degradation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
+        M2 = np.identity(H.shape[0]) *(1-0.5*self.timestep*degradation_rate) + 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
         M1_inverse = np.linalg.inv(M1)
         Crank_matrix = M1_inverse@M2
         
@@ -95,10 +94,11 @@ class Hybrid:
 
         return PDE_grid, SSA_grid 
         
-    def crank_nicholson(self, old_vector: np.ndarray) -> np.ndarray:
+    def crank_nicholson(self, old_vector: np.ndarray, degradation_rate) -> np.ndarray:
         """Returns the new vector using the crank nicholson matrix"""
+        Crank_matrix, M1_inverse = self.create_crank_nicholson(degradation_rate=degradation_rate)
         old_vector = old_vector.astype(float)
-        return self.Crank_matrix @ old_vector  # The new vector!
+        return Crank_matrix @ old_vector  # The new vector!
 
     def ApproximateLeftHandPython(self, PDE_list: np.ndarray) -> np.ndarray:
         """Works out the approximate mass of the PDE domain over each grid point. Using the left hand rule"""
@@ -211,8 +211,8 @@ class Hybrid:
         movement_propensity = 2 * self.d * SSA_list  # The diffusion rates
         movement_propensity[0] = self.d * SSA_list[0]
         movement_propensity[-1] = self.d * SSA_list[-1]
-    
-        R1_propensity = production_rate * np.ones_like(SSA_list)  # The production propensity
+        production_per_compartment = production_rate * self.h
+        R1_propensity = production_per_compartment * np.ones_like(SSA_list)  # The production propensity
         R2_propensity = degradation_rate * SSA_list  # degredation propensity
 
         approximate_PDE_mass = np.zeros_like(SSA_list)
@@ -328,7 +328,7 @@ class Hybrid:
             total_propensity = self.propensity_calculationPython(SSA_list, PDE_list, production_rate, degradation_rate)
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:  # Stop if no reactions can occur
-                PDE_list = self.crank_nicholson(PDE_list)
+                PDE_list = self.crank_nicholson(PDE_list,degradation_rate=degradation_rate)
                 PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
                 t = copy(td)
                 td += self.timestep
@@ -398,7 +398,13 @@ class Hybrid:
                 
 
             else:  # Else we run the ODE step
-                PDE_list = self.crank_nicholson(PDE_list)
+                if t>=4:
+                    production_rate = self.production_rate
+                    degradation_rate = 0
+                else:
+                    production_rate = 0
+                    degradation_rate = self.degradation_rate
+                PDE_list = self.crank_nicholson(PDE_list, degradation_rate)
                 PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
                 t = copy(td)
                 td += self.timestep
