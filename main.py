@@ -58,12 +58,12 @@ def main():
     # SSA_initial = SSA_initial* multiply_vector
 
 
-    Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=True) # Define the hybrid model
+    Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False) # Define the hybrid model
 
     Hybrid_SSA, Hybrid_PDE, Hybrid_combined = Model.run_simulation(number_of_repeats=repeats)
     Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data')
 
-    SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=True)
+    SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False)
     SSA_grid = SSA_model.run_simulation(number_of_repeats=repeats)
     SSA_model.save_simulation_data(SSA_grid, datadirectory='data') # ignore
 
