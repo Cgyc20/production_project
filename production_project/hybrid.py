@@ -325,9 +325,9 @@ class Hybrid:
         while t < self.total_time:
              
             combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
-            print(f"Combined list: {combined_list}")
+            # print(f"Combined list: {combined_list}")
             if np.sum(combined_list) > self.threshold_conc:
-                print(f"sum of combined list: {np.sum(combined_list),self.threshold_conc}")
+                # print(f"sum of combined list: {np.sum(combined_list),self.threshold_conc}")
                 production_PDE_boolean = True
                 production_rate_per_compartment = 0
             else:
