@@ -20,7 +20,8 @@ class Hybrid:
         self.SSA_M = compartment_number #The number of compartments
         self.PDE_multiple = PDE_multiple #The number of PDE points per compartment
         self.production_rate = production_rate #The producti
-        self.PDE_M = compartment_number * PDE_multiple+1
+        # self.PDE_M = compartment_number * PDE_multiple+1
+        self.PDE_M = compartment_number * PDE_multiple #Have changed this 02/12/2024 - The coimbined solution is slightly lower, maybe why?
         self.deltax = self.L / (self.PDE_M) #The PDE stepsize
         self.total_time = total_time #total simulation time
         self.timestep = timestep #The timestep size
