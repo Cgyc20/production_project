@@ -348,6 +348,7 @@ class Hybrid:
                     PDE_grid[:, time_index] = PDE_list
                     SSA_grid[:, time_index] = SSA_list
                     approx_mass[:, time_index], PDE_particles[:, time_index]= self.calculate_total_mass(PDE_list, SSA_list)
+                old_time = t
                 continue
 
             r1, r2, r3 = np.random.rand(3)
