@@ -65,7 +65,7 @@ def main():
     Hybrid_SSA_mass = calculate_mass_discrete(D_grid)
 
     # Calculate relative error for combined solution
-    relative_error_combined = np.abs((combined_total_mass - analytic_total_mass) / analytic_total_mass)
+    relative_error_combined = (combined_total_mass - analytic_total_mass) / analytic_total_mass
 
     # Plotting and Animation
     fig, ax = plt.subplots(figsize=(10, 6))
