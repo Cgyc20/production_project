@@ -161,6 +161,7 @@ def main():
     plt.ylabel('Relative Error', fontsize=12)
     plt.title('Relative Error of Combined Solution over Time', fontsize=14)
     plt.legend(fontsize=10)
+    plt.ylim(-0.02,0.04)
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.show()
 
