@@ -25,8 +25,8 @@ def main():
         repeats = int(parameters_dict.get('repeats', 0))
         # Ensure number_particles_per_cell is defined and not zero
         number_particles_per_cell = int(parameters_dict.get('number_particles_per_cell', 0))
-        if number_particles_per_cell == 0:
-            raise ValueError("number_particles_per_cell cannot be zero.")
+        # if number_particles_per_cell == 0:
+        #     raise ValueError("number_particles_per_cell cannot be zero.")
         
         # Calculate diffusion_rate using domain_length
         diffusion_rate = (domain_length ** 2) * (10e-3)
@@ -58,7 +58,7 @@ def main():
     # SSA_initial = SSA_initial* multiply_vector
 
 
-    Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=True) # Define the hybrid model
+    Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False) # Define the hybrid model
 
     Hybrid_SSA, Hybrid_PDE, Hybrid_combined = Model.run_simulation(number_of_repeats=repeats)
     Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data')
