@@ -66,6 +66,7 @@ def main():
 
     # Calculate relative error for combined solution
     relative_error_combined = np.abs((combined_total_mass - analytic_total_mass) / analytic_total_mass)
+    relative_error_SSA = np.abs((SSA_total_mass - analytic_total_mass) / analytic_total_mass)
 
     # Plotting and Animation
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -157,9 +158,10 @@ def main():
     # Plot relative error for combined solution
     plt.figure(figsize=(12, 6))
     plt.plot(time_vector, relative_error_combined, 'k--', label='Relative Error (Combined)', linewidth=2)
+    plt.plot(time_vector, relative_error_SSA, 'b--', label='Relative Error (SSA)', linewidth=2)
     plt.xlabel('Time', fontsize=12)
     plt.ylabel('Relative Error', fontsize=12)
-    plt.title('Relative Error of Combined Solution over Time', fontsize=14)
+    plt.title('Relative Error of Solutions over Time', fontsize=14)
     plt.legend(fontsize=10)
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.show()
