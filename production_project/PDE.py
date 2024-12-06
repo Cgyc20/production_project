@@ -14,7 +14,7 @@ class PDE:
         self.timestep = timestep
         self.diffusion_rate = diffusion_rate
         self.degradation_rate = degradation_rate
-        
+        self.production_rate = 100
         self.PDE_X = np.linspace(0, self.L,self.PDE_points)
         self.steady_state = production_rate / degradation_rate
         self.DX_NEW = self.create_finite_difference()
@@ -28,8 +28,10 @@ class PDE:
 
     def create_crank_nicholson(self):
         H = self.create_finite_difference()
-        M1 = np.identity(H.shape[0]) * (1 + 0.5 * self.timestep * self.degradation_rate) - 0.5 * (self.timestep * self.diffusion_rate / self.deltax**2) * H
-        M2 = np.identity(H.shape[0]) * (1 - 0.5 * self.timestep * self.degradation_rate) + 0.5 * (self.timestep * self.diffusion_rate / self.deltax**2) * H
+        nu = self.diffusion_rate*self.timestep/(self.deltax**2)
+
+        M1 = (np.identity(self.PDE_points)*((2+self.degradation_rate*self.timestep)/2) - nu*H/2)
+        M2 = (np.identity(self.PDE_points)*((2-self.degradation_rate*self.timestep)/2) + nu*H/2)
         M1_inverse = np.linalg.inv(M1)
         Crank_matrix = M1_inverse @ M2
         return Crank_matrix, M1_inverse
@@ -45,7 +47,10 @@ class PDE:
         return self.DX
 
     def crank_nicholson(self, old_vector):
-        return self.Crank_matrix @ old_vector + self.M1_inverse@ (self.production_rate * self.timestep*np.ones(self.PDE_points))
+        e1= np.zeros(self.PDE_points)
+        e1[0] = 1
+
+        return self.Crank_matrix @ old_vector + self.M1_inverse@ ((self.diffusion_rate*self.timestep*self.production_rate/self.deltax)*e1)
 
     def run_simulation(self):
         for i in range(len(self.time_vector) - 1):
