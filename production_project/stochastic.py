@@ -63,12 +63,11 @@ class Stochastic:
         movement_propensity = 2 * self.d * SSA_list
         movement_propensity[0] = self.d * SSA_list[0]  # Left boundary condition (only move right)
         movement_propensity[-1] = self.d * SSA_list[-1]  # Right boundary condition (only move left)
-        movement_propensity = np.maximum(movement_propensity, 0)
 
-        R1_propensity = self.production_rate_per_compartment * np.ones_like(SSA_list)  
+        R1_propensity = np.array([self.production_rate_per_compartment])
         R2_propensity = self.degradation_rate * SSA_list
 
-        combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity))
+        combined_propensity = np.concatenate((movement_propensity, R2_propensity, R1_propensity))
 
         return combined_propensity
     
@@ -116,7 +115,7 @@ class Stochastic:
         SSA_list = deepcopy(SSA_grid[:, 0])  # Starting SSA_list
         # print(f"SSA list = {SSA_list}")
         while t < self.total_time:
-            total_propensity = self.propensity_calculation(SSA_list)
+            total_propensity = self.propensity_calculationPython(SSA_list)
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:  # Stop if no reactions can occur
                 break
@@ -132,18 +131,18 @@ class Stochastic:
                     SSA_list[index] = SSA_list[index] - 1
                     SSA_list[index - 1] += 1
                 else:  # Move right
-                    SSA_list[index] = max(SSA_list[index] - 1, 0)
+                    SSA_list[index] -= 1
                     SSA_list[index + 1] += 1
             elif index == 0:  # Left boundary (can only move right)
-                SSA_list[index] = max(SSA_list[index] - 1, 0)
+                SSA_list[index] -= 1
                 SSA_list[index + 1] += 1
             elif index == self.SSA_M - 1:  # Right boundary (can only move left)
-                SSA_list[index] = max(SSA_list[index] - 1, 0)
+                SSA_list[index] -= 1
                 SSA_list[index - 1] += 1
-            elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Production reaction
-                SSA_list[compartment_index] += 1
-            elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Degradation reaction
-                SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
+            elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Deredation
+                SSA_list[compartment_index] -= 1
+            else:
+                SSA_list[0] += 1
 
                 
             ind_before = np.searchsorted(self.time_vector, old_time, 'right')
