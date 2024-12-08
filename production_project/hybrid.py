@@ -212,8 +212,9 @@ class Hybrid:
         movement_propensity[0] = self.d * SSA_list[0]
         movement_propensity[-1] = self.d * SSA_list[-1]
     
-        R1_propensity = self.production_rate_per_compartment * np.ones_like(SSA_list)  # The production propensity
+        
         R2_propensity = self.degradation_rate * SSA_list  # degredation propensity
+        R1_propensity = np.array([self.production_rate_per_compartment])  # The production propensity
 
         approximate_PDE_mass = np.zeros_like(SSA_list)
         combined_list = np.zeros_like(SSA_list)
@@ -234,7 +235,7 @@ class Hybrid:
         conversion_to_discrete *= boolean_SSA_threshold
         conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
         
-        combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
+        combined_propensity = np.concatenate((movement_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont, R1_propensity))
         return combined_propensity
     
 
@@ -303,10 +304,6 @@ class Hybrid:
         else:
             return self.propensity_calculationPython(SSA_list, PDE_list)
 
-        
-        # print(f"Propensity C: {propensity_c_list}")
-        # print(f"Propensity Python: {propensity_python_list}")
-
         return propensity_python_list
 
     def hybrid_simulation(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, approx_mass: np.ndarray) -> np.ndarray:
@@ -351,14 +348,11 @@ class Hybrid:
 
                     """Now the reaction kinetics"""
                 elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Production reaction
-                    SSA_list[compartment_index] += 1
-
-                elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Degradation reaction
-                    #SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
-                    SSA_list[compartment_index] = SSA_list[compartment_index] - 1
+                    
+                    SSA_list[compartment_index] -= 1  
 
                     """Finally the conversion reactions here"""
-                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:  # Conversion from continuous to discrete
+                elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Conversion from continuous to discrete
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
                     #PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
@@ -373,12 +367,15 @@ class Hybrid:
                     # print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
                     # print(f"*"*30)
 
-                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # Conversion from discrete to continuous
+                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:  # Conversion from discrete to continuous
 
                     #SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
                     SSA_list[compartment_index] = SSA_list[compartment_index]-1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                  
+                else:
+                    SSA_list[0] += 1
+
                 t += tau 
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
@@ -388,42 +385,7 @@ class Hybrid:
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list,)
 
                 old_time = t  # Update old_time
-                 # Update time by the time step
-                #Printing a barrier
-
-               
-                # print(f"{'Simulation Step':^30}")  # Centered title within the asterisks
-                # print("*" * 30)
-
-                # # Time and mass information
-                # print(f"Time: {t:.2f}")
-                # print(f"Mass conversion threshold: {self.threshold}")
-                # print("-" * 30)  # Separator line
-
-                # # Particle and mass details
-                # print(f"Stochastic particles in each box at time {t}:")
-                # print(f"  {SSA_list}")
-                # print(f"Continuous mass at time {t:.1f}:")
-                # print(f"  {PDE_list.round(1)}")
-                # print(f"Number of particles continuous")
-                # print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
-                # print(f"Approximate mass at time {t:.1f}:")
-                # print(f"  {approx_mass[:, min(ind_after+1, len(self.time_vector))-1]}")
-                # print("-" * 30)
-
-                # # Propensity information
-                # print(f"{'Propensity Details':^30}")
-                # print(f"Index of reaction chosen: {index}")
-                # print("-" * 30)
-                # print(f"Movement propensity:           {total_propensity[:self.SSA_M]}")
-                # print(f"Production propensity:         {total_propensity[self.SSA_M:2*self.SSA_M]}")
-                # print(f"Degradation propensity:        {total_propensity[2*self.SSA_M:3*self.SSA_M]}")
-                # print(f"Conversion to discrete prop.:  {total_propensity[3*self.SSA_M:4*self.SSA_M]}")
-                # print(f"Conversion to continuous prop.: {total_propensity[4*self.SSA_M:]}")
-                # print("*" * 30)
-                # print("\n")  # Extra blank line for space between steps
-
-
+                
 
             else:  # Else we run the ODE step
                 PDE_list = self.crank_nicholson(PDE_list)

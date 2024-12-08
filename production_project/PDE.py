@@ -7,14 +7,13 @@ class PDE:
     def __init__(self, domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial):
         self.L = domain_length
         self.PDE_points = PDE_points
-        self.production_rate = production_rate
+        self.production_rate = production_rate*10
         self.deltax = self.L / self.PDE_points
         self.total_time = total_time
         self.PDE_initial_conditions = PDE_initial
         self.timestep = timestep
         self.diffusion_rate = diffusion_rate
         self.degradation_rate = degradation_rate
-        self.production_rate = 100
         self.PDE_X = np.linspace(0, self.L,self.PDE_points)
         self.steady_state = production_rate / degradation_rate
         self.DX_NEW = self.create_finite_difference()
