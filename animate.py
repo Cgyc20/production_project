@@ -96,7 +96,7 @@ def plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pur
 
 def calculate_relative_error(analytic_sol, combined_grid):
     """Calculate the relative error between the analytic solution and the combined grid."""
-    return np.abs((combined_grid - analytic_sol) / analytic_sol)
+    return (combined_grid - analytic_sol)/ analytic_sol
 
 def plot_relative_error(time_vector, relative_error):
     """Plot the relative error over time."""
