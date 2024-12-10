@@ -38,21 +38,31 @@ def main():
     initial_SSA = parameters["initial_SSA"]
     concentration_threshold = parameters["threshold_conc"]
     domain_length = parameters["domain_length"]
+    diffusion_rate = parameters["diffusion_rate"]
+
+    # Number of Fourier coefficients
+    number_coef = 1
+
+    # Calculate Fourier coefficients
+    bn_terms = []
+    for n in range(1, number_coef + 1):
+        term = 1*((-2 * production_rate) / (1 + degradation_rate / (diffusion_rate * (n * np.pi / domain_length) ** 2)))
+        bn_terms.append(term)
 
     # Calculate analytical solution
     initial_conc = initial_SSA[0] / h
+    alpha = np.sqrt(diffusion_rate / degradation_rate)
     for i in range(analytic_sol.shape[1]):
-        analytic_sol[:, i] = (
-            production_rate / degradation_rate
-            + (initial_conc - production_rate / degradation_rate) * np.exp(-degradation_rate * time_vector[i])
-        )
+        for n in range(len(bn_terms)):
+            analytic_sol[:, i] += bn_terms[n] * np.cos(n * np.pi * PDE_X) * np.exp(-(degradation_rate + diffusion_rate * (n * np.pi / domain_length) ** 2) * time_vector[i])
+        analytic_sol[:, i] += production_rate * alpha * (np.cosh((1/alpha) * (PDE_X - 1)) / np.sinh((1/alpha))) + 400
 
     # Function to calculate total mass for continuous data
     def calculate_mass_continuous(data_grid, deltax):
         return np.sum(data_grid, axis=0) * deltax
     
     def calculate_mass_discrete(data_grid):
-        return np.sum(data_grid,axis=0)
+        return np.sum(data_grid, axis=0)
 
     # Calculate total mass for all solutions
     analytic_total_mass = calculate_mass_continuous(analytic_sol, deltax)
@@ -123,7 +133,7 @@ def main():
         # Update the timestamp
         time_text.set_text(f'Time: {time_vector[frame]:.2f}')
         
-        return (*bar_SSA, line_combined, line_PDE, line_analytic,line_pure_PDE, time_text, threshold_line, steady_state_line)
+        return (*bar_SSA, line_combined, line_PDE, line_analytic, line_pure_PDE, time_text, threshold_line, steady_state_line)
 
     # Create animation
     ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=20)
