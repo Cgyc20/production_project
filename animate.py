@@ -42,21 +42,41 @@ def main():
 
     # Number of Fourier coefficients
     number_coef = 1
+    initial_SSA = [400]  # Initial SSA value
+    alpha = np.sqrt(degradation_rate / diffusion_rate)
 
+# Initialize solution array
+    analytic_sol = np.zeros((len(PDE_X), len(time_vector))) 
     # Calculate Fourier coefficients
+# Pre-compute bn terms
     bn_terms = []
     for n in range(1, number_coef + 1):
-        term = 1*((-2 * production_rate) / (1 + degradation_rate / (diffusion_rate * (n * np.pi / domain_length) ** 2)))
+        term = 1 / (diffusion_rate * n**2 * np.pi**2 + domain_length**2 + degradation_rate)
         bn_terms.append(term)
 
     # Calculate analytical solution
-    initial_conc = initial_SSA[0] / h
-    alpha = np.sqrt(diffusion_rate / degradation_rate)
-    for i in range(analytic_sol.shape[1]):
-        for n in range(len(bn_terms)):
-            analytic_sol[:, i] += bn_terms[n] * np.cos(n * np.pi * PDE_X) * np.exp(-(degradation_rate + diffusion_rate * (n * np.pi / domain_length) ** 2) * time_vector[i])
-        analytic_sol[:, i] += production_rate * alpha * (np.cosh((1/alpha) * (PDE_X - 1)) / np.sinh((1/alpha))) + 400
+    initial_conc = initial_SSA[0]/h   # Initial concentration scaling
+    print(f"Initial conc is {initial_conc}")
+    print(f"{production_rate*diffusion_rate/degradation_rate}")
 
+    for i, t in enumerate(time_vector):
+        rhs_term = np.zeros_like(PDE_X)  # Reset for each time step
+        for n in range(1, number_coef + 1):
+            bn = bn_terms[n - 1]
+            rhs_term += (
+                bn
+                * np.cos(n * np.pi * PDE_X / domain_length)
+                * np.exp(
+                    -(degradation_rate + diffusion_rate * (n * np.pi / domain_length) ** 2) * t
+                )
+            )
+        steady_state = (
+            production_rate
+            * alpha
+            * (np.cosh(alpha * (PDE_X - domain_length)) / np.sinh(alpha * domain_length))
+        )
+        # analytic_sol[:, i] = steady_state*np.exp(-degradation_rate*t) -2*diffusion_rate * domain_length*production_rate* rhs_term
+        analytic_sol[:, i] = initial_conc -2*diffusion_rate * domain_length*production_rate* rhs_term
     # Function to calculate total mass for continuous data
     def calculate_mass_continuous(data_grid, deltax):
         return np.sum(data_grid, axis=0) * deltax
@@ -87,12 +107,12 @@ def main():
     )
 
     # Continuous plots
-    line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g', label='PDE', linewidth=2)
-    line_combined, = ax.plot(PDE_X, combined_grid[:, 0], 'k--', label='Combined', linewidth=2)
+    # line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g', label='PDE', linewidth=2)
+    # line_combined, = ax.plot(PDE_X, combined_grid[:, 0], 'k--', label='Combined', linewidth=2)
     line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic', color='red', linewidth=2)
     line_pure_PDE, = ax.plot(PDE_X, PDE_grid[:, 0], 'g--', label='Pure PDE', linewidth=2)
     # Threshold line
-    threshold_line = ax.axhline(y=concentration_threshold, color='purple', linestyle='--', label='Threshold', linewidth=1.5)
+    # threshold_line = ax.axhline(y=concentration_threshold, color='purple', linestyle='--', label='Threshold', linewidth=1.5)
 
     # Axis labels and title
     ax.set_xlabel('Spatial Domain', fontsize=12)
@@ -125,15 +145,17 @@ def main():
     def update(frame):
         for bar, height in zip(bar_SSA, D_grid[:, frame] / h):
             bar.set_height(height)
-        line_combined.set_ydata(combined_grid[:, frame])
-        line_PDE.set_ydata(C_grid[:, frame])
+        # line_combined.set_ydata(combined_grid[:, frame])
+        # line_PDE.set_ydata(C_grid[:, frame])
         line_analytic.set_ydata(analytic_sol[:, frame])
         line_pure_PDE.set_ydata(PDE_grid[:, frame])
         
         # Update the timestamp
         time_text.set_text(f'Time: {time_vector[frame]:.2f}')
         
-        return (*bar_SSA, line_combined, line_PDE, line_analytic, line_pure_PDE, time_text, threshold_line, steady_state_line)
+        return (*bar_SSA, line_analytic, line_pure_PDE, time_text, steady_state_line)
+
+        # return (*bar_SSA, line_combined, line_PDE, line_analytic, line_pure_PDE, time_text, threshold_line, steady_state_line)
 
     # Create animation
     ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=20)
