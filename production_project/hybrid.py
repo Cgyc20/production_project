@@ -114,20 +114,6 @@ class Hybrid:
 
         return approximation_number_cont
     
-    def ApproximateLeftHandC(self, PDE_list):
-        # Assuming the C library has been loaded and has a function `ApproxMassLeftHand`
-        # which expects the arguments as C pointers to the arrays
-        approximate_PDE_mass = np.zeros(self.SSA_M)
-        PDE_list = np.array(PDE_list, dtype=np.float32)
-        PDE_list_Ctypes = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-
-        approximate_PDE_mass_Ctypes = approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-        # Call the C function
-        clibrary.ApproximateMassLeftHand(self.SSA_M, self.PDE_multiple, PDE_list_Ctypes, approximate_PDE_mass_Ctypes, self.deltax)
-
-        # Convert the result back into a NumPy array
-        approximate_PDE_mass = np.ctypeslib.as_array(approximate_PDE_mass_Ctypes, shape=approximate_PDE_mass.shape)
-        return approximate_PDE_mass
 
     def calculate_total_mass(self, PDE_list: np.ndarray, SSA_list: np.ndarray) -> np.ndarray:
         """This will calculate the total mass of discrete + continuous"""
@@ -141,22 +127,7 @@ class Hybrid:
         approximate_PDE_mass = mass_solver(PDE_list)
         combined_list = np.add(SSA_list, approximate_PDE_mass) 
         return combined_list, approximate_PDE_mass
-    
 
-    def booleanMassC(self, PDE_list: np.ndarray) -> np.ndarray:
-        """Calculate boolean mass using c-type function"""
-        PDE_list = PDE_list.astype(np.float32)
-        boolean_PDE_list = np.zeros_like(PDE_list, dtype=np.int32)
-        boolean_SSA_list = np.zeros(self.SSA_M, dtype=np.int32)
-
-        PDE_list_Ctypes = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-        boolean_PDE_list_Ctypes = boolean_PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
-        boolean_SSA_list_Ctypes = boolean_SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
-
-        clibrary.BooleanMass(self.SSA_M, self.PDE_M, self.PDE_multiple, PDE_list_Ctypes, boolean_PDE_list_Ctypes, boolean_SSA_list_Ctypes, self.h)
-
-        boolean_SSA_list = np.ctypeslib.as_array(boolean_SSA_list_Ctypes, shape=boolean_SSA_list.shape)
-        return boolean_SSA_list
 
     def booleanMassPython(self, PDE_list: np.ndarray) -> np.ndarray:
         """Calculate mass using python function"""
@@ -242,52 +213,8 @@ class Hybrid:
 
         # Assuming the C library is already loaded (e.g., clibrary = ctypes.CDLL('./path_to_your_c_library.so'))
 
-    def propensity_calculationC(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
-        """
-        Calculates the propensity functions for each reaction using the C library.
-
-        Args:
-            SSA_list (np.ndarray): Discrete molecules list.
-            PDE_list (np.ndarray): Continuous mass list.
-
-        Returns:
-            np.ndarray: Combined propensity list.
-        """
-        SSA_list = np.ascontiguousarray(SSA_list, dtype=np.int32)
-        PDE_list = np.ascontiguousarray(PDE_list, dtype=np.float32)
-        
-
-        # Initialize propensity_list and other arrays
-        propensity_list = np.zeros(5 * self.SSA_M, dtype=np.float32)
-        combined_mass_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
-        boolean_SSA_threshold = self.boolean_if_less_mass(PDE_list).astype(int)
-        boolean_SSA_threshold = np.ascontiguousarray(boolean_SSA_threshold, dtype=np.int32)
-        combined_mass_list = np.ascontiguousarray(combined_mass_list, dtype=np.float32)
-        approximate_PDE_mass = np.ascontiguousarray(approximate_PDE_mass, dtype=np.float32)
-
-      
-        # Call the C function to calculate propensities
-        clibrary.CalculatePropensity(
-            self.SSA_M,
-            PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-            SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
-            propensity_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-            combined_mass_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-            approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-            boolean_SSA_threshold.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
-            self.degradation_rate,
-            self.threshold,
-            self.production_rate_per_compartment,
-            self.gamma,
-            self.d
-        )
-
-        # Convert propensity list back into numpy floats
-        propensity_list = np.ctypeslib.as_array(propensity_list, shape=propensity_list.shape)
-        return propensity_list
         
     
-
     def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
         """
         Wrapper function to choose between Python and C implementation of propensity calculation.
