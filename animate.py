@@ -51,7 +51,7 @@ def main():
 # Pre-compute bn terms
     bn_terms = []
     for n in range(1, number_coef + 1):
-        term = 1 / (diffusion_rate * n**2 * np.pi**2 + domain_length**2 + degradation_rate)
+        term = 1 / (diffusion_rate * n**2 * np.pi**2 + domain_length**2 + degradation_rate**2)
         bn_terms.append(term)
 
     # Calculate analytical solution
@@ -64,19 +64,18 @@ def main():
         for n in range(1, number_coef + 1):
             bn = bn_terms[n - 1]
             rhs_term += (
-                bn
+                2*diffusion_rate*np.pi*domain_length*bn
                 * np.cos(n * np.pi * PDE_X / domain_length)
                 * np.exp(
-                    -(degradation_rate + diffusion_rate * (n * np.pi / domain_length) ** 2) * t
-                )
+                    -(degradation_rate + diffusion_rate * (n * np.pi / domain_length) ** 2) * t)    
             )
         steady_state = (
             production_rate
             * alpha
-            * (np.cosh(alpha * (PDE_X - domain_length)) / np.sinh(alpha * domain_length))
+            * (np.cosh(alpha * (PDE_X - domain_length)) / np.sinh(alpha * domain_length))+300
         )
         # analytic_sol[:, i] = steady_state*np.exp(-degradation_rate*t) -2*diffusion_rate * domain_length*production_rate* rhs_term
-        analytic_sol[:, i] = initial_conc -2*diffusion_rate * domain_length*production_rate* rhs_term
+        analytic_sol[:, i] = steady_states+rhs_term
     # Function to calculate total mass for continuous data
     def calculate_mass_continuous(data_grid, deltax):
         return np.sum(data_grid, axis=0) * deltax
