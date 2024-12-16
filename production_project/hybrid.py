@@ -86,10 +86,11 @@ class Hybrid:
         return PDE_grid, SSA_grid 
         
     def RHS_derivative(self,old_vector):
-        """The RHS, ie du/dt approximation"""
+        """The RHS, ie du/dt approximation. Note there is no production term here."""
+
         dudt = np.zeros_like(old_vector)
         nabla = self.DX_NEW
-        dudt = self.diffusion_rate/(self.deltax**2)*nabla@old_vector+self.production_rate*old_vector-self.degradation_rate*old_vector**2
+        dudt = self.diffusion_rate/(self.deltax**2)*nabla@old_vector-self.degradation_rate*old_vector**2
         return dudt
     
     def RK4(self,old_vector):
@@ -213,8 +214,8 @@ class Hybrid:
         movement_propensity[0] = self.d * SSA_list[0]
         movement_propensity[-1] = self.d * SSA_list[-1]
     
-        R1_propensity = self.production_rate_per_compartment * np.ones_like(SSA_list)  # The production propensity
-        R2_propensity = self.degradation_rate * SSA_list*(SSA_list-1)  # degredation propensity
+        R1_propensity = self.production_rate_per_compartment*SSA_list  # The production propensity
+        R2_propensity = self.degradation_rate *SSA_list*(SSA_list-1)  # degredation propensity
 
         
         approximate_PDE_mass = np.zeros_like(SSA_list)
@@ -223,8 +224,11 @@ class Hybrid:
         #approximate_PDE_mass = self.ApproximateLeftHandC(PDE_list)
         combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
         
-        R3_propensity = self.degradation_rate*approximate_PDE_mass*SSA_list  # The degradation
-        R4_propensity = self.degradation_rate*approximate_PDE_mass*SSA_list 
+        R3_propensity = self.degradation_rate*approximate_PDE_mass*(SSA_list)  # The degradation
+        R4_propensity = self.degradation_rate*approximate_PDE_mass*(SSA_list)
+
+        R3_propensity = np.maximum(R3_propensity, 0)
+        R4_propensity = np.maximum(R4_propensity, 0) 
         conversion_to_discrete = np.zeros_like(SSA_list)  # length of SSA_m
         conversion_to_cont = np.zeros_like(approximate_PDE_mass)  # length as SSA_m 
 
@@ -238,12 +242,9 @@ class Hybrid:
         conversion_to_discrete *= boolean_SSA_threshold
         conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
         
-        combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity,R3_propensity,R4_propensity, conversion_to_discrete, conversion_to_cont))
+        combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, R3_propensity, R4_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
     
-
-
-        # Assuming the C library is already loaded (e.g., clibrary = ctypes.CDLL('./path_to_your_c_library.so'))
 
     def propensity_calculationC(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
         """
@@ -368,28 +369,17 @@ class Hybrid:
 
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # R4 occurs here (D+C -> D)
 
-                    SSA_list[compartment_index] = SSA_list[compartment_index] - 1
+                    PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
                 
-                elif index >= 5 * self.SSA_M and index <= 6 * self.SSA_M - 1:  # Conversion from discrete to continuous
-                    
-                    #PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
-                    
-                #elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
-                    # print(f"*"*30)
-                    # print(f"Checking conversion to PDE, given this occurs")
-                    # print(f"  {SSA_list}")
-                    # print(f"Continuous mass at time {t:.1f}:")
-                    # print(f"  {PDE_list.round(1)}")
-                    # print(f"Number of particles continuous")
-                    # print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
-                    # print(f"*"*30)
+                elif index >= 5 * self.SSA_M and index <= 6 * self.SSA_M - 1:  # Conversion to discrete
+                    SSA_list[compartment_index] += 1
+                    PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
 
-                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # Conversion from discrete to continuous
-
-                    #SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
-                    SSA_list[compartment_index] = SSA_list[compartment_index]-1
+                else: #Conversion to continuous
+                    SSA_list[compartment_index] = SSA_list[compartment_index] - 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
-                 
+                    
+            
                 t += tau 
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
