@@ -53,27 +53,26 @@ def main():
     # np.random.seed(0)
     SSA_initial = np.ones((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
 
-    SSA_initial[compartment_number//2:-1] = 0
+    SSA_initial[compartment_number//2:] = 0
     # multiply_vector = np.arange(0, compartment_number)%2
     
     # SSA_initial = SSA_initial* multiply_vector
 
 
-    Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=True) # Define the hybrid model
+    Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False) # Define the hybrid model
 
     Hybrid_SSA, Hybrid_PDE, Hybrid_combined = Model.run_simulation(number_of_repeats=repeats)
     Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data')
 
-    SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=True)
+    SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False)
     SSA_grid = SSA_model.run_simulation(number_of_repeats=repeats)
     SSA_model.save_simulation_data(SSA_grid, datadirectory='data') # ignore
 
 
     PDE_points = Model.PDE_M
-    print(PDE_points//2)
     PDE_initial = (np.ones(PDE_points) * number_particles_per_cell / Model.h)
 
-    PDE_initial[PDE_points//2:-1] = 0
+    PDE_initial[PDE_points//2:] = 0
     print(PDE_initial)
     PDE_Model = PDE(domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial)
     PDE_grid = PDE_Model.run_simulation()

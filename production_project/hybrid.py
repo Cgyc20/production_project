@@ -53,23 +53,13 @@ class Hybrid:
         self.steady_state = production_rate / degradation_rate #Steady state of the system
         self.DX_NEW = self.create_finite_difference()  # Ensure DX_NEW is initialized here
         self.time_vector = np.arange(0, total_time, timestep)  # The time vector
-        self.Crank_matrix, self.M1_inverse = self.create_crank_nicholson() #The crank method respective matrices
-
+   
         self.use_c_functions = use_c_functions
         print("Successfully initialized the hybrid model")
 
         print(f"The threshold concentration is: {self.threshold_conc}")
 
-    def create_crank_nicholson(self) -> np.ndarray:
-        """Creates the matrix used for crank nicholson method """
-
-        H = self.create_finite_difference()
-        M1 = np.identity(H.shape[0]) *(1+0.5*self.timestep*self.degradation_rate) - 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
-        M2 = np.identity(H.shape[0]) *(1-0.5*self.timestep*self.degradation_rate) + 0.5*(self.timestep*self.diffusion_rate/self.deltax**2)*H
-        M1_inverse = np.linalg.inv(M1)
-        Crank_matrix = M1_inverse@M2
-        
-        return Crank_matrix, M1_inverse
+    
 
     def create_finite_difference(self) -> np.ndarray:
         """Creates finite difference matrix"""
@@ -95,10 +85,21 @@ class Hybrid:
 
         return PDE_grid, SSA_grid 
         
-    def crank_nicholson(self, old_vector: np.ndarray) -> np.ndarray:
-        """Returns the new vector using the crank nicholson matrix"""
-        old_vector = old_vector.astype(float)
-        return self.Crank_matrix @ old_vector  # The new vector!
+    def RHS_derivative(self,old_vector):
+        """The RHS, ie du/dt approximation"""
+        dudt = np.zeros_like(old_vector)
+        nabla = self.DX_NEW
+        dudt = self.diffusion_rate/(self.deltax**2)*nabla@old_vector+self.production_rate*old_vector-self.degradation_rate*old_vector**2
+        return dudt
+    
+    def RK4(self,old_vector):
+        """The Runge-Kutta 4th order method"""
+        k1 = self.RHS_derivative(old_vector)
+        k2 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k1)
+        k3 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k2)
+        k4 = self.RHS_derivative(old_vector + self.timestep * k3)
+        return old_vector + self.timestep * (k1 + 2 * k2 + 2 * k3 + k4) / 6
+    
 
     def ApproximateLeftHandPython(self, PDE_list: np.ndarray) -> np.ndarray:
         """Works out the approximate mass of the PDE domain over each grid point. Using the left hand rule"""
@@ -213,14 +214,17 @@ class Hybrid:
         movement_propensity[-1] = self.d * SSA_list[-1]
     
         R1_propensity = self.production_rate_per_compartment * np.ones_like(SSA_list)  # The production propensity
-        R2_propensity = self.degradation_rate * SSA_list  # degredation propensity
+        R2_propensity = self.degradation_rate * SSA_list*(SSA_list-1)  # degredation propensity
 
+        
         approximate_PDE_mass = np.zeros_like(SSA_list)
         combined_list = np.zeros_like(SSA_list)
 
         #approximate_PDE_mass = self.ApproximateLeftHandC(PDE_list)
         combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
         
+        R3_propensity = self.degradation_rate*approximate_PDE_mass*SSA_list  # The degradation
+        R4_propensity = self.degradation_rate*approximate_PDE_mass*SSA_list 
         conversion_to_discrete = np.zeros_like(SSA_list)  # length of SSA_m
         conversion_to_cont = np.zeros_like(approximate_PDE_mass)  # length as SSA_m 
 
@@ -234,7 +238,7 @@ class Hybrid:
         conversion_to_discrete *= boolean_SSA_threshold
         conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
         
-        combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
+        combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity,R3_propensity,R4_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
     
 
@@ -342,7 +346,7 @@ class Hybrid:
                         SSA_list[index] = SSA_list[index]-1
                         SSA_list[index + 1] += 1
                 elif index == 0:  # Left boundary (can only move right)
-                    SSA_list[index] = max(SSA_list[index] - 1, 0)
+                    SSA_list[index] = SSA_list[index] - 1
                     SSA_list[index + 1] += 1
                 elif index == self.SSA_M - 1:  # Right boundary (can only move left)
                     # SSA_list[index] = max(SSA_list[index] - 1, 0)
@@ -350,17 +354,24 @@ class Hybrid:
                     SSA_list[index - 1] += 1
 
                     """Now the reaction kinetics"""
-                elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Production reaction
+                elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Production reaction (R1)
                     SSA_list[compartment_index] += 1
 
-                elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Degradation reaction
+                elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Degradation reaction (R2)
                     #SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
                     SSA_list[compartment_index] = SSA_list[compartment_index] - 1
 
                     """Finally the conversion reactions here"""
-                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:  # Conversion from continuous to discrete
-                    SSA_list[compartment_index] += 1
+                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:  # R3 occurs here (D+C -> C)
+        
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
+
+                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # R4 occurs here (D+C -> D)
+
+                    SSA_list[compartment_index] = SSA_list[compartment_index] - 1
+                
+                elif index >= 5 * self.SSA_M and index <= 6 * self.SSA_M - 1:  # Conversion from discrete to continuous
+                    
                     #PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
                     
                 #elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
@@ -426,8 +437,7 @@ class Hybrid:
 
 
             else:  # Else we run the ODE step
-                PDE_list = self.crank_nicholson(PDE_list)
-                PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
+                PDE_list = self.RK4(PDE_list)  # Ensure non-negativity after RK4 step
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
