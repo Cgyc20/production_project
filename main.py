@@ -53,6 +53,7 @@ def main():
     # np.random.seed(0)
     SSA_initial = np.ones((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
 
+    SSA_initial[compartment_number//2:-1] = 0
     # multiply_vector = np.arange(0, compartment_number)%2
     
     # SSA_initial = SSA_initial* multiply_vector
@@ -69,7 +70,10 @@ def main():
 
 
     PDE_points = Model.PDE_M
-    PDE_initial = np.ones_like(PDE_points) * number_particles_per_cell / Model.h 
+    print(PDE_points//2)
+    PDE_initial = (np.ones(PDE_points) * number_particles_per_cell / Model.h)
+
+    PDE_initial[PDE_points//2:-1] = 0
     print(PDE_initial)
     PDE_Model = PDE(domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial)
     PDE_grid = PDE_Model.run_simulation()

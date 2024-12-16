@@ -19,20 +19,14 @@ class PDE:
         self.steady_state = production_rate / degradation_rate
         self.DX_NEW = self.create_finite_difference()
         self.time_vector = np.arange(0, total_time, timestep)
-        self.Crank_matrix, self.M1_inverse = self.create_crank_nicholson()
+    
 
         self.PDE_grid = np.zeros((self.PDE_points, len(self.time_vector)))
         self.PDE_grid[:, 0] = self.PDE_initial_conditions
 
         print("Successfully initialized the hybrid model")
 
-    def create_crank_nicholson(self):
-        H = self.create_finite_difference()
-        M1 = np.identity(H.shape[0]) * (1 + 0.5 * self.timestep * self.degradation_rate) - 0.5 * (self.timestep * self.diffusion_rate / self.deltax**2) * H
-        M2 = np.identity(H.shape[0]) * (1 - 0.5 * self.timestep * self.degradation_rate) + 0.5 * (self.timestep * self.diffusion_rate / self.deltax**2) * H
-        M1_inverse = np.linalg.inv(M1)
-        Crank_matrix = M1_inverse @ M2
-        return Crank_matrix, M1_inverse
+
 
     def create_finite_difference(self):
         self.DX = np.zeros((self.PDE_points, self.PDE_points), dtype=int)
@@ -44,12 +38,25 @@ class PDE:
             self.DX[i, (i - 1)] = 1
         return self.DX
 
-    def crank_nicholson(self, old_vector):
-        return self.Crank_matrix @ old_vector + self.M1_inverse@ (self.production_rate * self.timestep*np.ones(self.PDE_points))
-
+    def RHS_derivative(self,old_vector):
+        """The RHS, ie du/dt approximation"""
+        dudt = np.zeros_like(old_vector)
+        nabla = self.DX_NEW
+        dudt = self.diffusion_rate/(self.deltax**2)*nabla@old_vector+self.production_rate*old_vector-self.degradation_rate*old_vector**2
+        return dudt
+    
+    def RK4(self,old_vector):
+        """The Runge-Kutta 4th order method"""
+        k1 = self.RHS_derivative(old_vector)
+        k2 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k1)
+        k3 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k2)
+        k4 = self.RHS_derivative(old_vector + self.timestep * k3)
+        return old_vector + self.timestep * (k1 + 2 * k2 + 2 * k3 + k4) / 6
+    
+ 
     def run_simulation(self):
         for i in range(len(self.time_vector) - 1):
-            self.PDE_grid[:, i + 1] = self.crank_nicholson(self.PDE_grid[:, i])
+            self.PDE_grid[:,i+1] = self.RK4(self.PDE_grid[:, i])
         print("Simulation completed")
         return self.PDE_grid
 

@@ -80,6 +80,7 @@ def main():
     line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g', label='PDE', linewidth=2)
     line_combined, = ax.plot(PDE_X, combined_grid[:, 0], 'k--', label='Combined', linewidth=2)
     line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic', color='red', linewidth=2)
+    line_pure_PDE, = ax.plot(PDE_X, PDE_grid[:, 0], 'm', label='Pure PDE', linewidth=2)
 
     # Threshold line
     threshold_line = ax.axhline(y=concentration_threshold, color='purple', linestyle='--', label='Threshold', linewidth=1.5)
@@ -118,11 +119,12 @@ def main():
         line_combined.set_ydata(combined_grid[:, frame])
         line_PDE.set_ydata(C_grid[:, frame])
         line_analytic.set_ydata(analytic_sol[:, frame])
+        line_pure_PDE.set_ydata(PDE_grid[:, frame])
         
         # Update the timestamp
         time_text.set_text(f'Time: {time_vector[frame]:.2f}')
         
-        return (*bar_SSA, line_combined, line_PDE, line_analytic, time_text, threshold_line, steady_state_line)
+        return (*bar_SSA, line_combined, line_PDE, line_analytic, line_pure_PDE, time_text, threshold_line, steady_state_line)
 
     # Create animation
     ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=10)
