@@ -215,6 +215,8 @@ class Hybrid:
         movement_propensity[-1] = self.d * SSA_list[-1]
     
         R1_propensity = self.production_rate_per_compartment*SSA_list  # The production propensity
+
+
         R2_propensity = self.degradation_rate *SSA_list*(SSA_list-1)  # degredation propensity
 
         
@@ -225,10 +227,9 @@ class Hybrid:
         combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
         
         R3_propensity = self.degradation_rate*approximate_PDE_mass*(SSA_list)  # The degradation
-        R4_propensity = self.degradation_rate*approximate_PDE_mass*(SSA_list)
+        # R4_propensity = self.degradation_rate*approximate_PDE_mass*(SSA_list)
 
-        R3_propensity = np.maximum(R3_propensity, 0)
-        R4_propensity = np.maximum(R4_propensity, 0) 
+        # R4_propensity = np.maximum(R4_propensity, 0) 
         conversion_to_discrete = np.zeros_like(SSA_list)  # length of SSA_m
         conversion_to_cont = np.zeros_like(approximate_PDE_mass)  # length as SSA_m 
 
@@ -242,7 +243,7 @@ class Hybrid:
         conversion_to_discrete *= boolean_SSA_threshold
         conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
         
-        combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, R3_propensity, R4_propensity, conversion_to_discrete, conversion_to_cont))
+        combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, R3_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
     
 
@@ -367,11 +368,11 @@ class Hybrid:
         
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
 
-                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # R4 occurs here (D+C -> D)
+                # elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # R4 occurs here (D+C -> D)
 
-                    PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
+                #     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
                 
-                elif index >= 5 * self.SSA_M and index <= 6 * self.SSA_M - 1:  # Conversion to discrete
+                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # Conversion to discrete
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
 
