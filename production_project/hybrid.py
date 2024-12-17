@@ -436,7 +436,7 @@ class Hybrid:
                     PDE_grid[:, time_index] = PDE_list
                     SSA_grid[:, time_index] = SSA_list
                     approx_mass[:, time_index], PDE_particles[:, time_index]= self.calculate_total_mass(PDE_list, SSA_list)
-           
+                old_time = t
         return SSA_grid, PDE_grid, approx_mass
 
     def run_simulation(self, number_of_repeats: int) -> np.ndarray:
