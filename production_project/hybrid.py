@@ -336,8 +336,9 @@ class Hybrid:
                     PDE_grid[:, time_index] = PDE_list
                     SSA_grid[:, time_index] = SSA_list
                     approx_mass[:, time_index], PDE_particles[:, time_index]= self.calculate_total_mass(PDE_list, SSA_list)
-
+                
                 old_time = t 
+                continue 
 
             r1, r2, r3 = np.random.rand(3)
             tau = (1 / alpha0) * np.log(1 / r1)  # Time until next reaction
@@ -377,17 +378,14 @@ class Hybrid:
                 elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:  # R3 occurs here (D+C -> C)
         
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
-
-                # elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # R4 occurs here (D+C -> D)
-
-                #     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
                 
+
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # Conversion to discrete
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
 
                 else: #Conversion to continuous
-                    SSA_list[compartment_index] = SSA_list[compartment_index] - 1
+                    SSA_list[compartment_index] -= 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                     
             
@@ -411,7 +409,7 @@ class Hybrid:
                     PDE_grid[:, time_index] = PDE_list
                     SSA_grid[:, time_index] = SSA_list
                     approx_mass[:, time_index], PDE_particles[:, time_index]= self.calculate_total_mass(PDE_list, SSA_list)
-           
+                old_time = t 
         return SSA_grid, PDE_grid, approx_mass
 
     def run_simulation(self, number_of_repeats: int) -> np.ndarray:
