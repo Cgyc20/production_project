@@ -13,6 +13,7 @@ class Hybrid:
         self.production_rate = production_rate
         self.PDE_M = compartment_number * PDE_multiple
         self.deltax = self.L / (self.PDE_M)
+        
         self.total_time = total_time
         self.timestep = timestep
         self.threshold = threshold
@@ -21,7 +22,9 @@ class Hybrid:
         self.h = self.L / compartment_number
         self.diffusion_rate = diffusion_rate
         self.production_rate_per_compartment = production_rate * self.h
-        self.d = diffusion_rate / (self.h ** 2)
+        self.degradation_rate_per_compartment = degradation_rate * self.h
+        # self.d = diffusion_rate / (self.h ** 2)
+        self.d = diffusion_rate / (self.deltax**2*self.h ** 2)
         self.threshold_conc = threshold / self.h
         self.SSA_X = np.linspace(0, self.L - self.h, self.SSA_M)
         self.PDE_X = np.linspace(0, self.L, self.PDE_M)
@@ -63,7 +66,7 @@ class Hybrid:
     def RHS_derivative(self, old_vector):
         dudt = np.zeros_like(old_vector)
         nabla = self.DX_NEW
-        dudt = self.diffusion_rate / (self.deltax ** 2) * nabla @ old_vector - self.degradation_rate * old_vector ** 2 + self.production_rate * old_vector
+        dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * old_vector ** 2 + self.production_rate * old_vector
         return dudt
     
     def RK4(self, old_vector):
@@ -117,10 +120,16 @@ class Hybrid:
         movement_propensity = 2 * self.d * SSA_list
         movement_propensity[0] = self.d * SSA_list[0]
         movement_propensity[-1] = self.d * SSA_list[-1]
+
+
         R1_propensity = self.production_rate_per_compartment * SSA_list
         R2_propensity = self.degradation_rate * SSA_list * (SSA_list - 1)
+
+
         combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
-        R3_propensity = 2 * self.degradation_rate * approximate_PDE_mass * SSA_list
+
+        R3_propensity = self.degradation_rate * approximate_PDE_mass * SSA_list
+
         conversion_to_discrete = np.zeros_like(SSA_list)
         conversion_to_cont = np.zeros_like(approximate_PDE_mass)
         boolean_SSA_threshold = self.boolean_if_less_mass(PDE_list).astype(int)
@@ -175,16 +184,17 @@ class Hybrid:
                 elif index == self.SSA_M - 1:
                     SSA_list[index] = SSA_list[index] - 1
                     SSA_list[index - 1] += 1
-                elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:
+                elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1: #D -> D+D
                     SSA_list[compartment_index] += 1
-                elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:
-                    SSA_list[compartment_index] = SSA_list[compartment_index] - 1
-                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:
+                elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1: # D+D -> D
+                    SSA_list[compartment_index] -= 1
+
+                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1: #D+C -> D
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
-                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:
+                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: # C -> D
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
-                else:
+                else: #D-> C
                     SSA_list[compartment_index] -= 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                 t += tau 

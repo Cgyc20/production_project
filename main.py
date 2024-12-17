@@ -66,7 +66,7 @@ def main():
 
     print(f"Production rate: {production_rate}")
     print(f"Degradation rate: {degradation_rate}")
-    SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False)
+    SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial)
     SSA_grid = SSA_model.run_simulation(number_of_repeats=repeats)
     SSA_model.save_simulation_data(SSA_grid, datadirectory='data') # ignore
 

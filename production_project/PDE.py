@@ -42,7 +42,7 @@ class PDE:
         """The RHS, ie du/dt approximation"""
         dudt = np.zeros_like(old_vector)
         nabla = self.DX_NEW
-        dudt = self.diffusion_rate/(self.deltax**2)*nabla@old_vector+self.production_rate*old_vector-self.degradation_rate*old_vector**2
+        dudt = self.diffusion_rate*(1/self.deltax)**2*nabla@old_vector+self.production_rate*old_vector-self.degradation_rate*old_vector**2
         return dudt
     
     def RK4(self,old_vector):
