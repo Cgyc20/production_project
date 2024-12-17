@@ -5,4 +5,5 @@ profiling_directory/*
 
 debug.md
 PDE_analytic.py
-log.txt
+log.txt__pycache__/
+*.pyc
