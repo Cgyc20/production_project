@@ -66,7 +66,8 @@ class Hybrid:
     def RHS_derivative(self, old_vector):
         dudt = np.zeros_like(old_vector)
         nabla = self.DX_NEW
-        dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * old_vector ** 2 + self.production_rate * old_vector
+        dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + self.production_rate * old_vector
+        dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector 
         return dudt
     
     def RK4(self, old_vector):
@@ -165,12 +166,14 @@ class Hybrid:
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
                 old_time = t 
                 continue 
+
             r1, r2, r3 = np.random.rand(3)
             tau = (1 / alpha0) * np.log(1 / r1)
             alpha_cum = np.cumsum(total_propensity)
             index = np.searchsorted(alpha_cum, r2 * alpha0)
             compartment_index = index % self.SSA_M
             if t + tau <= td:
+                """The first will be the diffusion reactions"""
                 if index <= self.SSA_M - 2 and index >= 1:
                     if r3 < 0.5:
                         SSA_list[index] = SSA_list[index] - 1
@@ -184,20 +187,27 @@ class Hybrid:
                 elif index == self.SSA_M - 1:
                     SSA_list[index] = SSA_list[index] - 1
                     SSA_list[index - 1] += 1
+                    
+                    """Now the reaction kinetics will occur"""
                 elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1: #D -> D+D
                     SSA_list[compartment_index] += 1
+
                 elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1: # D+D -> D
                     SSA_list[compartment_index] -= 1
 
                 elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1: #D+C -> D
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
-                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: # C -> D
+
+                    """The conversion reactions are next"""
+                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: # C -> D The conversion from continous to discrete mass
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
-                else: #D-> C
-                    SSA_list[compartment_index] -= 1
+
+                else: #D-> C #From discrete to continious
+                    SSA_list[compartment_index] -= 1 
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
-                t += tau 
+
+                t += tau #Update time
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
@@ -205,7 +215,7 @@ class Hybrid:
                     PDE_grid[:, time_index] = PDE_list
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
                 old_time = t  
-            else:
+            else: #Else if the next timestep will be the PDE type, then we execute the PDE.
                 PDE_list = self.RK4(PDE_list)
                 t = copy(td)
                 td += self.timestep
