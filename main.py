@@ -61,8 +61,8 @@ def main():
 
     Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False) # Define the hybrid model
 
-    Hybrid_SSA, Hybrid_PDE, Hybrid_combined = Model.run_simulation(number_of_repeats=repeats)
-    Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data')
+    # Hybrid_SSA, Hybrid_PDE, Hybrid_combined = Model.run_simulation(number_of_repeats=repeats)
+    # Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data')
 
     print(f"Production rate: {production_rate}")
     print(f"Degradation rate: {degradation_rate}")
@@ -82,7 +82,7 @@ def main():
 
     print(f"PDE grid at timestep one: {PDE_grid[:,0]}")
     print(f"Stochastic grid at timestep 1: {SSA_grid[:,0]}")
-    print(f"SSA in hybrid model at timestep 1: {Hybrid_SSA[:,0]}")
+    # print(f"SSA in hybrid model at timestep 1: {Hybrid_SSA[:,0]}")
 
 def plot():
     subprocess.run(['python', 'animate.py'])
