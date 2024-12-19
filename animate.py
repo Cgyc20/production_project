@@ -19,7 +19,7 @@ def main():
 
     SSA_data = np.load("Data/Pure_SSA_data.npz")
     SSA_grid = SSA_data["SSA_grid"]
-
+    time_vector = SSA_data["time_vector"]
     PDE_data = np.load("Data/PDE_data.npz")
     PDE_grid = PDE_data["PDE_grid"]
 
@@ -72,14 +72,14 @@ def main():
     fig, ax = plt.subplots(figsize=(10, 6))
 
     # Initial SSA bar plot
-    bar_SSA = ax.bar(
-        bar_positions, D_grid[:, 0] / h, width=h, color='blue', align='edge', label='Hybrid SSA (Bar Chart)', alpha=0.7
-    )
+    # bar_SSA = ax.bar(
+    #     bar_positions, D_grid[:, 0] / h, width=h, color='blue', align='edge', label='Hybrid SSA (Bar Chart)', alpha=0.7
+    # )
 
     # Initial pure SSA bar plot
-    # bar_pure_SSA = ax.bar(
-    #     bar_positions, SSA_grid[:, 0] / h, width=h, color='cyan', align='edge', label='Pure SSA (Bar Chart)', alpha=0.5
-    # )
+    bar_pure_SSA = ax.bar(
+        bar_positions, SSA_grid[:, 0] / h, width=h, color='cyan', align='edge', label='Pure SSA (Bar Chart)', alpha=0.5
+    )
 
     # Continuous plots
     #line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g', label='PDE', linewidth=2)
@@ -119,10 +119,10 @@ def main():
 
     # Update function for animation
     def update(frame):
-        for bar, height in zip(bar_SSA, D_grid[:, frame] / h):
-            bar.set_height(height)
-        # for bar, height in zip(bar_pure_SSA, SSA_grid[:, frame] / h):
+        # for bar, height in zip(bar_SSA, D_grid[:, frame] / h):
         #     bar.set_height(height)
+        for bar, height in zip(bar_pure_SSA, SSA_grid[:, frame] / h):
+            bar.set_height(height)
         #line_combined.set_ydata(combined_grid[:, frame])
         #line_PDE.set_ydata(C_grid[:, frame])
         
@@ -132,7 +132,7 @@ def main():
         time_text.set_text(f'Time: {time_vector[frame]:.2f}')
         
         #return (*bar_SSA, *bar_pure_SSA, line_combined, line_PDE, line_pure_PDE, time_text, threshold_line, steady_state_line)
-        return (*bar_SSA, line_pure_PDE, time_text, threshold_line, steady_state_line)
+        return (*bar_pure_SSA, line_pure_PDE, time_text, threshold_line, steady_state_line)
 
     # Create animation
     ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=1)
