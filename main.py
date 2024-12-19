@@ -51,8 +51,11 @@ def main():
 
     """Initialise the hybrid model"""
     # np.random.seed(0)
+
+    print(f"compartment number is {compartment_number}")
     SSA_initial = np.ones((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
 
+    print(f"Number of particles per cell is {number_particles_per_cell}")
     SSA_initial[compartment_number//2:] = 0
     # multiply_vector = np.arange(0, compartment_number)%2
     
@@ -70,12 +73,15 @@ def main():
     SSA_grid = SSA_model.run_simulation(number_of_repeats=repeats)
     SSA_model.save_simulation_data(SSA_grid, datadirectory='data') # ignore
 
-
+    h = domain_length / compartment_number
     PDE_points = Model.PDE_M
-    PDE_initial = (np.ones(PDE_points) * number_particles_per_cell / Model.h)
+    PDE_initial = (np.ones(PDE_points) * number_particles_per_cell / h)
 
     PDE_initial[PDE_points//2:] = 0
     print(PDE_initial)
+    print(f"Production rate is {production_rate}")
+    print(f"Degradation rate is {degradation_rate}")
+    
     PDE_Model = PDE(domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial)
     PDE_grid = PDE_Model.run_simulation()
     PDE_Model.save_simulation_data(PDE_grid, datadirectory='data')

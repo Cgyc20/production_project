@@ -7,14 +7,14 @@ class PDE:
     def __init__(self, domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial):
         self.L = domain_length
         self.PDE_points = PDE_points
-        self.production_rate = production_rate
+        
         self.deltax = self.L / self.PDE_points
         self.total_time = total_time
         self.PDE_initial_conditions = PDE_initial
         self.timestep = timestep
         self.diffusion_rate = diffusion_rate
         self.degradation_rate = degradation_rate
-        
+        self.production_rate = production_rate
         self.PDE_X = np.linspace(0, self.L,self.PDE_points)
         self.steady_state = production_rate / degradation_rate
         self.DX_NEW = self.create_finite_difference()
@@ -42,7 +42,7 @@ class PDE:
         """The RHS, ie du/dt approximation"""
         dudt = np.zeros_like(old_vector)
         nabla = self.DX_NEW
-        print(f"deltax is {self.deltax}")
+        
         dudt = self.diffusion_rate*(1/self.deltax)**2*nabla@old_vector+self.production_rate*old_vector-self.degradation_rate*old_vector**2
         return dudt
     
@@ -73,6 +73,6 @@ class PDE:
             'degradation_rate': self.degradation_rate,
             'diffusion_rate': self.diffusion_rate,
         }
-        np.savez(os.path.join(datadirectory, "PDE_data.npz"), PDE_grid=PDE_grid, PDE_X=self.PDE_X, time_vector=self.time_vector, parameters=params)
+        np.savez(os.path.join(datadirectory, "PDE_data.npz"), PDE_grid=PDE_grid, PDE_X=self.PDE_X, deltax = self.deltax, time_vector=self.time_vector, parameters=params)
         print("Data saved successfully")
 

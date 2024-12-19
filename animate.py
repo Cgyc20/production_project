@@ -19,14 +19,17 @@ def main():
 
     SSA_data = np.load("Data/Pure_SSA_data.npz")
     SSA_grid = SSA_data["SSA_grid"]
+    SSA_X = SSA_data["SSA_X"]
     time_vector = SSA_data["time_vector"]
     PDE_data = np.load("Data/PDE_data.npz")
     PDE_grid = PDE_data["PDE_grid"]
+    PDE_X = PDE_data["PDE_X"]
+    deltax = PDE_data["deltax"]
 
     # Load simulation parameters from JSON file
     parameters = json.load(open("data/parameters.json"))
     h = parameters["h"]
-    deltax = parameters["deltax"]
+    # deltax = parameters["deltax"]
     bar_positions = SSA_X
 
     # Initialize analytical solution array
@@ -56,25 +59,16 @@ def main():
 
     # Calculate total mass for all solutions
     analytic_total_mass = calculate_mass_continuous(analytic_sol, deltax)
-    Hybrid_PDE_total_mass = calculate_mass_continuous(C_grid, deltax)
     pure_PDE_total_mass = calculate_mass_continuous(PDE_grid, deltax)
-    combined_total_mass = calculate_mass_continuous(combined_grid, deltax)
-
-    # Calculate total mass for pure SSA and pure PDE
+    print(f"Pure PDE total mass: {pure_PDE_total_mass}")
+    # Calculate total mass for pure SSA
     SSA_total_mass = calculate_mass_discrete(SSA_grid)
-    Hybrid_SSA_mass = calculate_mass_discrete(D_grid)
 
-    # Calculate relative error for combined solution
-    relative_error_combined = np.abs((combined_total_mass - analytic_total_mass) / analytic_total_mass)
-    #relative_error_SSA = np.abs((SSA_total_mass - analytic_total_mass) / analytic_total_mass)
+    # # Calculate relative error for combined solution
+    # relative_error_combined = np.abs((combined_total_mass - analytic_total_mass) / analytic_total_mass)
 
     # Plotting and Animation
     fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Initial SSA bar plot
-    # bar_SSA = ax.bar(
-    #     bar_positions, D_grid[:, 0] / h, width=h, color='blue', align='edge', label='Hybrid SSA (Bar Chart)', alpha=0.7
-    # )
 
     # Initial pure SSA bar plot
     bar_pure_SSA = ax.bar(
@@ -82,9 +76,6 @@ def main():
     )
 
     # Continuous plots
-    #line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g', label='PDE', linewidth=2)
-    #line_combined, = ax.plot(PDE_X, combined_grid[:, 0], 'k--', label='Combined', linewidth=2)
-    # line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic', color='red', linewidth=2)
     line_pure_PDE, = ax.plot(PDE_X, PDE_grid[:, 0], 'm', label='Pure PDE', linewidth=2)
 
     # Threshold line
@@ -119,19 +110,13 @@ def main():
 
     # Update function for animation
     def update(frame):
-        # for bar, height in zip(bar_SSA, D_grid[:, frame] / h):
-        #     bar.set_height(height)
         for bar, height in zip(bar_pure_SSA, SSA_grid[:, frame] / h):
             bar.set_height(height)
-        #line_combined.set_ydata(combined_grid[:, frame])
-        #line_PDE.set_ydata(C_grid[:, frame])
-        
         line_pure_PDE.set_ydata(PDE_grid[:, frame])
         
         # Update the timestamp
         time_text.set_text(f'Time: {time_vector[frame]:.2f}')
         
-        #return (*bar_SSA, *bar_pure_SSA, line_combined, line_PDE, line_pure_PDE, time_text, threshold_line, steady_state_line)
         return (*bar_pure_SSA, line_pure_PDE, time_text, threshold_line, steady_state_line)
 
     # Create animation
@@ -150,9 +135,6 @@ def main():
     # Additional plot: Total mass over time
     plt.figure(figsize=(12, 6))
 
-    plt.plot(time_vector, combined_total_mass, 'k--', label='Combined (Dashed)', linewidth=2)
-    plt.plot(time_vector, Hybrid_PDE_total_mass, 'g--', label='Hybrid PDE', linewidth=2)
-    plt.plot(time_vector, Hybrid_SSA_mass, 'b--', label='Hybrid SSA', linewidth=2)
     plt.plot(time_vector, pure_PDE_total_mass, 'g', label='Pure PDE', linewidth=2)
     plt.plot(time_vector, SSA_total_mass, 'b', label='Pure SSA', linewidth=2)
     plt.axhline(y=production_rate / degradation_rate, color='gray', linestyle='--', label='Steady State', linewidth=1.5)
@@ -165,16 +147,15 @@ def main():
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.show()
 
-    # Plot relative error for combined solution
-    plt.figure(figsize=(12, 6))
-    plt.plot(time_vector, relative_error_combined, 'k--', label='Relative Error (Combined)', linewidth=2)
-    #plt.plot(time_vector, relative_error_SSA, 'b--', label='Relative Error (SSA)', linewidth=2)
-    plt.xlabel('Time', fontsize=12)
-    plt.ylabel('Relative Error', fontsize=12)
-    plt.title('Relative Error of Solutions over Time', fontsize=14)
-    plt.legend(fontsize=10)
-    plt.grid(True, linestyle='--', alpha=0.6)
-    plt.show()
+    # # Plot relative error for combined solution
+    # plt.figure(figsize=(12, 6))
+    # plt.plot(time_vector, relative_error_combined, 'k--', label='Relative Error (Combined)', linewidth=2)
+    # plt.xlabel('Time', fontsize=12)
+    # plt.ylabel('Relative Error', fontsize=12)
+    # plt.title('Relative Error of Solutions over Time', fontsize=14)
+    # plt.legend(fontsize=10)
+    # plt.grid(True, linestyle='--', alpha=0.6)
+    # plt.show()
 
 if __name__ == "__main__":
     main()
