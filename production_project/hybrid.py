@@ -83,23 +83,23 @@ class Hybrid:
         k4 = self.RHS_derivative(old_vector + self.timestep * k3)
         return old_vector + self.timestep * (k1 + 2 * k2 + 2 * k3 + k4) / 6
     
-    # def ApproximateLeftHandPython(self, PDE_list: np.ndarray) -> np.ndarray:
-    #     PDE_list = PDE_list.astype(float)
-    #     approximation_number_cont = np.zeros(self.SSA_M)
-    #     for i in range(self.SSA_M):
-    #         start_index = self.PDE_multiple * i
-    #         end_index = self.PDE_multiple * (i + 1)
-    #         sum_value = np.sum(PDE_list[start_index:end_index]) * self.deltax
-    #         approximation_number_cont[i] = sum_value
-    #     return approximation_number_cont
-    
     def ApproximateLeftHandPython(self, PDE_list: np.ndarray) -> np.ndarray:
         PDE_list = PDE_list.astype(float)
-        # Reshape PDE_list to a 2D array where each row corresponds to a compartment
-        reshaped_PDE_list = PDE_list.reshape(self.SSA_M, self.PDE_multiple)
-        # Sum along the second axis (within each compartment) and multiply by deltax
-        approximation_number_cont = np.sum(reshaped_PDE_list, axis=1) * self.deltax
+        approximation_number_cont = np.zeros(self.SSA_M)
+        for i in range(self.SSA_M):
+            start_index = self.PDE_multiple * i
+            end_index = self.PDE_multiple * (i + 1)
+            sum_value = np.sum(PDE_list[start_index:end_index]) * self.deltax
+            approximation_number_cont[i] = sum_value
         return approximation_number_cont
+    
+    # def ApproximateLeftHandPython(self, PDE_list: np.ndarray) -> np.ndarray:
+    #     PDE_list = PDE_list.astype(float)
+    #     # Reshape PDE_list to a 2D array where each row corresponds to a compartment
+    #     reshaped_PDE_list = PDE_list.reshape(self.SSA_M, self.PDE_multiple)
+    #     # Sum along the second axis (within each compartment) and multiply by deltax
+    #     approximation_number_cont = np.sum(reshaped_PDE_list, axis=1) * self.deltax
+    #     return approximation_number_cont
     
     def ApproximateLeftHandC(self, PDE_list):
         # Assuming the C library has been loaded and has a function `ApproxMassLeftHand`
@@ -312,9 +312,14 @@ class Hybrid:
 
                     """The conversion reactions are next"""
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: # C -> D The conversion from continous to discrete mass
+                    PDE_mass_before, total_mass_before  = self.calculate_total_mass(PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)], SSA_list[compartment_index])
+
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
 
+                    PDE_mass_after, total_mass_after = self.calculate_total_mass(PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)], SSA_list[compartment_index])
+
+                    print(f"Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
                 else: #D-> C #From discrete to continious
                     SSA_list[compartment_index] -= 1 
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
