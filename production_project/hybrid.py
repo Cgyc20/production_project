@@ -164,7 +164,7 @@ class Hybrid:
         
 
         # Initialize propensity_list and other arrays
-        propensity_list = np.zeros(5 * self.SSA_M, dtype=np.float32)
+        propensity_list = np.zeros(6 * self.SSA_M, dtype=np.float32)
         combined_mass_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
         boolean_SSA_threshold = self.boolean_if_less_mass(PDE_list).astype(int)
         boolean_SSA_threshold = np.ascontiguousarray(boolean_SSA_threshold, dtype=np.int32)
@@ -181,9 +181,9 @@ class Hybrid:
             combined_mass_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
             approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
             boolean_SSA_threshold.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
-            self.degradation_rate,
+            self.degradation_rate/self.h,
             self.threshold,
-            self.production_rate_per_compartment,
+            self.production_rate,
             self.gamma,
             self.d
         )
@@ -226,7 +226,7 @@ class Hybrid:
         PDE_list = PDE_grid[:, 0].astype(float)
         ind_after = 0
         while t < self.total_time:
-            total_propensity = self.propensity_calculationPython(SSA_list, PDE_list)
+            total_propensity = self.propensity_calculationC(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
                 PDE_list = self.RK4(PDE_list)
