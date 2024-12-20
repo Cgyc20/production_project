@@ -71,7 +71,7 @@ void CalculatePropensity(int SSA_M, float *PDE_list, int *SSA_list, float *prope
     int six_SSA_M = 6 * SSA_M;
 
     // Initialize all propensity values to zero
-    for (int i = 0; i < five_SSA_M; i++) {
+    for (int i = 0; i < six_SSA_M; i++) {
         propensity_list[i] = 0.0f;
     }
 
@@ -83,19 +83,24 @@ void CalculatePropensity(int SSA_M, float *PDE_list, int *SSA_list, float *prope
     }
     propensity_list[SSA_M - 1] = jump_rate_f * SSA_list[SSA_M - 1];
 
+    float production_rate_f = Production_rate;
+    
     // Production rates (constant for each compartment)
     for (int i = SSA_M; i < two_SSA_M; i++) {
-        propensity_list[i] = Production_rate*SSA_list[1];
+        propensity_list[i] = production_rate_f*SSA_list[1];
     }
+
+    float degradation_rate_hf = degradation_rate_h;
 
     // First one here is D + D -> D
     for (int i = two_SSA_M; i < three_SSA_M; i++) {
-        propensity_list[i] = degradation_rate_h * SSA_list[i - two_SSA_M]*(SSA_list[i - two_SSA_M]-1);
+        propensity_list[i] = degradation_rate_hf * SSA_list[i - two_SSA_M]*(SSA_list[i - two_SSA_M]-1);
     }
 
+    
     // THis one is D+C -> D (So we lose a continuous particle)
     for (int i = three_SSA_M; i < four_SSA_M; i++) {
-        propensity_list[i] = degradation_rate_h * SSA_list[i - two_SSA_M]*Approximate_PDE_Mass[i - two_SSA_M];
+        propensity_list[i] = degradation_rate_hf * SSA_list[i - two_SSA_M]*Approximate_PDE_Mass[i - two_SSA_M];
     }
 
     // Conversion from continuous to discrete (below threshold)

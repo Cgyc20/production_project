@@ -171,7 +171,7 @@ class Hybrid:
         combined_mass_list = np.ascontiguousarray(combined_mass_list, dtype=np.float32)
         approximate_PDE_mass = np.ascontiguousarray(approximate_PDE_mass, dtype=np.float32)
 
-      
+        degradation_rate_h = self.degradation_rate / self.h
         # Call the C function to calculate propensities
         clibrary.CalculatePropensity(
             self.SSA_M,
@@ -181,7 +181,7 @@ class Hybrid:
             combined_mass_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
             approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
             boolean_SSA_threshold.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
-            self.degradation_rate/self.h,
+            degradation_rate_h,
             self.threshold,
             self.production_rate,
             self.gamma,
@@ -210,9 +210,7 @@ class Hybrid:
         else:
             return self.propensity_calculationPython(SSA_list, PDE_list)
 
-        
-        # print(f"Propensity C: {propensity_c_list}")
-        # print(f"Propensity Python: {propensity_python_list}")
+    
 
         return propensity_python_list
 
