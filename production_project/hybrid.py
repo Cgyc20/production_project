@@ -148,9 +148,73 @@ class Hybrid:
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, R3_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
 
-    def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
-        return self.propensity_calculationPython(SSA_list, PDE_list)
+    def propensity_calculationC(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
+        """
+        Calculates the propensity functions for each reaction using the C library.
 
+        Args:
+            SSA_list (np.ndarray): Discrete molecules list.
+            PDE_list (np.ndarray): Continuous mass list.
+
+        Returns:
+            np.ndarray: Combined propensity list.
+        """
+        SSA_list = np.ascontiguousarray(SSA_list, dtype=np.int32)
+        PDE_list = np.ascontiguousarray(PDE_list, dtype=np.float32)
+        
+
+        # Initialize propensity_list and other arrays
+        propensity_list = np.zeros(5 * self.SSA_M, dtype=np.float32)
+        combined_mass_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
+        boolean_SSA_threshold = self.boolean_if_less_mass(PDE_list).astype(int)
+        boolean_SSA_threshold = np.ascontiguousarray(boolean_SSA_threshold, dtype=np.int32)
+        combined_mass_list = np.ascontiguousarray(combined_mass_list, dtype=np.float32)
+        approximate_PDE_mass = np.ascontiguousarray(approximate_PDE_mass, dtype=np.float32)
+
+      
+        # Call the C function to calculate propensities
+        clibrary.CalculatePropensity(
+            self.SSA_M,
+            PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
+            propensity_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            combined_mass_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+            boolean_SSA_threshold.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
+            self.degradation_rate,
+            self.threshold,
+            self.production_rate_per_compartment,
+            self.gamma,
+            self.d
+        )
+
+        # Convert propensity list back into numpy floats
+        propensity_list = np.ctypeslib.as_array(propensity_list, shape=propensity_list.shape)
+        return propensity_list
+        
+    
+
+    def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
+        """
+        Wrapper function to choose between Python and C implementation of propensity calculation.
+
+        Args:
+            SSA_list (np.ndarray): Discrete molecules list.
+            PDE_list (np.ndarray): Continuous mass list.
+
+        Returns:
+            np.ndarray: Combined propensity list.
+        """
+        if self.use_c_functions:
+            return self.propensity_calculationC(SSA_list, PDE_list)
+        else:
+            return self.propensity_calculationPython(SSA_list, PDE_list)
+
+        
+        # print(f"Propensity C: {propensity_c_list}")
+        # print(f"Propensity Python: {propensity_python_list}")
+
+        return propensity_python_list
 
 
     def hybrid_simulation(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, approx_mass: np.ndarray) -> np.ndarray:

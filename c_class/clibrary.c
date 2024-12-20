@@ -60,13 +60,15 @@ void BooleanMass(int SSA_m, int PDE_m, int PDE_multiple, float *PDE_list, int *b
 
 void CalculatePropensity(int SSA_M, float *PDE_list, int *SSA_list, float *propensity_list, 
                          float *combined_mass_list, float *Approximate_PDE_Mass, 
-                         int *boolean_mass_list, float degradation_rate, float threshold, 
-                         float Production_rate_PC, float gamma, float jump_rate) {
+                         int *boolean_mass_list, float degradation_rate_h, float threshold, 
+                         float Production_rate, float gamma, float jump_rate) {
     // Precompute commonly used values
+    // Note we divide the degradation rate through by h as we are looking at 2nd order reaction
     int two_SSA_M = 2 * SSA_M;
     int three_SSA_M = 3 * SSA_M;
     int four_SSA_M = 4 * SSA_M;
     int five_SSA_M = 5 * SSA_M;
+    int six_SSA_M = 6 * SSA_M;
 
     // Initialize all propensity values to zero
     for (int i = 0; i < five_SSA_M; i++) {
@@ -83,31 +85,35 @@ void CalculatePropensity(int SSA_M, float *PDE_list, int *SSA_list, float *prope
 
     // Production rates (constant for each compartment)
     for (int i = SSA_M; i < two_SSA_M; i++) {
-        propensity_list[i] = Production_rate_PC;
+        propensity_list[i] = Production_rate*SSA_list[1];
     }
 
-    // Degradation rates (depends on SSA_list)
-    float degradation_rate_f = degradation_rate;
+    // First one here is D + D -> D
     for (int i = two_SSA_M; i < three_SSA_M; i++) {
-        propensity_list[i] = degradation_rate_f * SSA_list[i - two_SSA_M];
+        propensity_list[i] = degradation_rate_h * SSA_list[i - two_SSA_M]*(SSA_list[i - two_SSA_M]-1);
+    }
+
+    // THis one is D+C -> D (So we lose a continuous particle)
+    for (int i = three_SSA_M; i < four_SSA_M; i++) {
+        propensity_list[i] = degradation_rate_h * SSA_list[i - two_SSA_M]*Approximate_PDE_Mass[i - two_SSA_M];
     }
 
     // Conversion from continuous to discrete (below threshold)
     float threshold_f = threshold;
     float gamma_f = gamma;
-    for (int i = three_SSA_M; i < four_SSA_M; i++) {
-        float combined_mass = combined_mass_list[i - three_SSA_M];
-        float approx_mass = Approximate_PDE_Mass[i - three_SSA_M];
-        int boolean_mass = boolean_mass_list[i - three_SSA_M];
+    for (int i = four_SSA_M; i < five_SSA_M; i++) {
+        float combined_mass = combined_mass_list[i - four_SSA_M];
+        float approx_mass = Approximate_PDE_Mass[i - four_SSA_M];
+        int boolean_mass = boolean_mass_list[i - four_SSA_M];
         propensity_list[i] = (combined_mass < threshold_f) 
                               ? gamma_f * approx_mass * boolean_mass 
                               : 0.0f;
     }
 
     // Conversion from discrete to continuous (above threshold)
-    for (int i = four_SSA_M; i < five_SSA_M; i++) {
-        float combined_mass = combined_mass_list[i - four_SSA_M];
-        int SSA_mass = SSA_list[i - four_SSA_M];
+    for (int i = five_SSA_M; i < six_SSA_M; i++) {
+        float combined_mass = combined_mass_list[i - five_SSA_M];
+        int SSA_mass = SSA_list[i - five_SSA_M];
         propensity_list[i] = (combined_mass >= threshold_f) 
                               ? gamma_f * SSA_mass 
                               : 0.0f;
