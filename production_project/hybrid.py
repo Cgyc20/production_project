@@ -67,7 +67,7 @@ class Hybrid:
         dudt = np.zeros_like(old_vector)
         nabla = self.DX_NEW
         dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + self.production_rate * old_vector
-        dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector 
+        # dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector 
         return dudt
     
     def RK4(self, old_vector):
@@ -122,9 +122,9 @@ class Hybrid:
         movement_propensity[0] = self.d * SSA_list[0]
         movement_propensity[-1] = self.d * SSA_list[-1]
 
-
-        R1_propensity = self.production_rate_per_compartment * SSA_list
-        R2_propensity = self.degradation_rate * SSA_list * (SSA_list - 1)
+    
+        R1_propensity = self.production_rate* SSA_list
+        R2_propensity = self.degradation_rate*(1/self.h) * SSA_list * (SSA_list - 1)
 
 
         combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)

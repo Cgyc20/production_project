@@ -45,8 +45,8 @@ class Stochastic:
         movement_propensity[0] = self.d * SSA_list[0]  # Left boundary condition (only move right)
         movement_propensity[-1] = self.d * SSA_list[-1]  # Right boundary condition (only move left)
 
-        production_propensity = self.production_rate_per_compartment * SSA_list
-        degradation_propensity = self.degradation_rate * SSA_list * (SSA_list - 1)
+        production_propensity = self.production_rate * SSA_list
+        degradation_propensity = self.degradation_rate/self.h * SSA_list * (SSA_list - 1)
 
         combined_propensity = np.concatenate((movement_propensity, production_propensity, degradation_propensity))
 
