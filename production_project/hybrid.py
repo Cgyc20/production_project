@@ -32,7 +32,7 @@ class Hybrid:
         self.production_rate_per_compartment = production_rate * self.h
         self.degradation_rate_per_compartment = degradation_rate * self.h
         # self.d = diffusion_rate / (self.h ** 2)
-        self.d = diffusion_rate / (self.deltax**2*self.h ** 2)
+        self.d = diffusion_rate / (self.h**2)
         self.threshold_conc = threshold / self.h
         self.SSA_X = np.linspace(0, self.L - self.h, self.SSA_M)
         self.PDE_X = np.linspace(0, self.L, self.PDE_M)
@@ -85,20 +85,46 @@ class Hybrid:
         k4 = self.RHS_derivative(old_vector + self.timestep * k3)
         return old_vector + self.timestep * (k1 + 2 * k2 + 2 * k3 + k4) / 6
     
+    # def ApproximateLeftHandPython(self, PDE_list: np.ndarray) -> np.ndarray:
+    #     PDE_list = PDE_list.astype(float)
+    #     approximation_number_cont = np.zeros(self.SSA_M)
+    #     for i in range(self.SSA_M):
+    #         start_index = self.PDE_multiple * i
+    #         end_index = self.PDE_multiple * (i + 1)
+    #         sum_value = np.sum(PDE_list[start_index:end_index]) * self.deltax
+    #         approximation_number_cont[i] = sum_value
+    #     return approximation_number_cont
+    
     def ApproximateLeftHandPython(self, PDE_list: np.ndarray) -> np.ndarray:
         PDE_list = PDE_list.astype(float)
-        approximation_number_cont = np.zeros(self.SSA_M)
-        for i in range(self.SSA_M):
-            start_index = self.PDE_multiple * i
-            end_index = self.PDE_multiple * (i + 1)
-            sum_value = np.sum(PDE_list[start_index:end_index]) * self.deltax
-            approximation_number_cont[i] = sum_value
+        # Reshape PDE_list to a 2D array where each row corresponds to a compartment
+        reshaped_PDE_list = PDE_list.reshape(self.SSA_M, self.PDE_multiple)
+        # Sum along the second axis (within each compartment) and multiply by deltax
+        approximation_number_cont = np.sum(reshaped_PDE_list, axis=1) * self.deltax
         return approximation_number_cont
+    
+    def ApproximateLeftHandC(self, PDE_list):
+        # Assuming the C library has been loaded and has a function `ApproxMassLeftHand`
+        # which expects the arguments as C pointers to the arrays
+        approximate_PDE_mass = np.zeros(self.SSA_M)
+        PDE_list = np.array(PDE_list, dtype=np.float32)
+        PDE_list_Ctypes = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+
+        approximate_PDE_mass_Ctypes = approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+        # Call the C function
+        clibrary.ApproximateMassLeftHand(self.SSA_M, self.PDE_multiple, PDE_list_Ctypes, approximate_PDE_mass_Ctypes, self.deltax)
+
+        # Convert the result back into a NumPy array
+        approximate_PDE_mass = np.ctypeslib.as_array(approximate_PDE_mass_Ctypes, shape=approximate_PDE_mass.shape)
+        return approximate_PDE_mass
 
     def calculate_total_mass(self, PDE_list: np.ndarray, SSA_list: np.ndarray) -> np.ndarray:
         PDE_list = PDE_list.astype(float)
         SSA_list = SSA_list.astype(int)
-        approximate_PDE_mass = self.ApproximateLeftHandPython(PDE_list)
+        if self.use_c_functions:
+            approximate_PDE_mass = self.ApproximateLeftHandC(PDE_list)
+        else:
+            approximate_PDE_mass = self.ApproximateLeftHandPython(PDE_list)
         combined_list = np.add(SSA_list, approximate_PDE_mass)
         return combined_list, approximate_PDE_mass
 
@@ -119,9 +145,27 @@ class Hybrid:
             else:
                 boolean_threshold_SSA[i] = 0
         return boolean_threshold_SSA
+    
+    def booleanMassC(self, PDE_list: np.ndarray) -> np.ndarray:
+        """Calculate boolean mass using c-type function"""
+        PDE_list = PDE_list.astype(np.float32)
+        boolean_PDE_list = np.zeros_like(PDE_list, dtype=np.int32)
+        boolean_SSA_list = np.zeros(self.SSA_M, dtype=np.int32)
+
+        PDE_list_Ctypes = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+        boolean_PDE_list_Ctypes = boolean_PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+        boolean_SSA_list_Ctypes = boolean_SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+
+        clibrary.BooleanMass(self.SSA_M, self.PDE_M, self.PDE_multiple, PDE_list_Ctypes, boolean_PDE_list_Ctypes, boolean_SSA_list_Ctypes, self.h)
+
+        boolean_SSA_list = np.ctypeslib.as_array(boolean_SSA_list_Ctypes, shape=boolean_SSA_list.shape)
+        return boolean_SSA_list
 
     def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray:
-        return self.booleanMassPython(PDE_list)
+        if self.use_c_functions:
+            return self.booleanMassC(PDE_list)
+        else:
+            return self.booleanMassPython(PDE_list)
         
     def propensity_calculationPython(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
         SSA_list = SSA_list.astype(int)
@@ -212,8 +256,6 @@ class Hybrid:
 
     
 
-        return propensity_python_list
-
 
     def hybrid_simulation(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, approx_mass: np.ndarray) -> np.ndarray:
         t = 0
@@ -224,7 +266,7 @@ class Hybrid:
         PDE_list = PDE_grid[:, 0].astype(float)
         ind_after = 0
         while t < self.total_time:
-            total_propensity = self.propensity_calculationC(SSA_list, PDE_list)
+            total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
                 PDE_list = self.RK4(PDE_list)

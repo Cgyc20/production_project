@@ -51,9 +51,10 @@ def main():
 
     """Initialise the hybrid model"""
     # np.random.seed(0)
-    SSA_initial = np.ones((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
+    SSA_initial = np.zeros((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
 
-    SSA_initial[compartment_number//2:] = 0
+    # SSA_initial[compartment_number//2:] = 0
+    SSA_initial[0] = number_particles_per_cell
     # multiply_vector = np.arange(0, compartment_number)%2
     
     # SSA_initial = SSA_initial* multiply_vector
