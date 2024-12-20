@@ -3,6 +3,14 @@ from tqdm import tqdm
 import os
 import json
 from copy import deepcopy, copy
+import ctypes
+from production_project.clibrary_argtypes import set_clibrary_argtypes #Each data type for the c functions
+
+
+clibrary = ctypes.CDLL("c_class/clibrary.so") #import the c library
+
+set_clibrary_argtypes(clibrary) #Import the data types for each c function
+
 
 class Hybrid:
     
@@ -142,6 +150,8 @@ class Hybrid:
 
     def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
         return self.propensity_calculationPython(SSA_list, PDE_list)
+
+
 
     def hybrid_simulation(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, approx_mass: np.ndarray) -> np.ndarray:
         t = 0
