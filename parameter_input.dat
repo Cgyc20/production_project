@@ -8,4 +8,4 @@ gamma 2
 production_rate 1
 degradation_rate 0.01
 number_particles_per_cell 2
-repeats 100
+repeats 1

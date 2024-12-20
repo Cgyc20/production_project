@@ -264,6 +264,7 @@ class Hybrid:
         PDE_list = PDE_grid[:, 0].astype(float)
         ind_after = 0
         while t < self.total_time:
+
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
@@ -311,19 +312,40 @@ class Hybrid:
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
 
                     """The conversion reactions are next"""
-                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: # C -> D The conversion from continous to discrete mass
-                    PDE_mass_before, total_mass_before  = self.calculate_total_mass(PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)], SSA_list[compartment_index])
+                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: # C -> D The conversion from continuous to discrete mass
+                    # Calculate total mass before transfer
+                    print(f"The compartment is {compartment_index}")
+                    total_mass_before, PDE_mass_before = self.calculate_total_mass(
+                        PDE_list, 
+                        SSA_list
+                     )
 
+                    print(f"PDE list at that compartment: {PDE_list[compartment_index * self.PDE_multiple : (compartment_index + 1) * self.PDE_multiple]}")
+                    print(f"Total propensity {total_propensity[compartment_index]}")
+                    # Perform the mass transfer
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
 
-                    PDE_mass_after, total_mass_after = self.calculate_total_mass(PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)], SSA_list[compartment_index])
+                    # # Calculate total mass after transfer
+                    total_mass_after, PDE_mass_after = self.calculate_total_mass(
+                        PDE_list, 
+                        SSA_list
+                    )
 
-                    print(f"Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
+                    print(f"Cont -> Discrete: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
+                    print(f"The PDE mass before: {PDE_mass_before}")
+                    print(f"The PDE mass after: {PDE_mass_after}")
+                    print(f"The discrete mass: {SSA_list[compartment_index] - 1}")
+                 
                 else: #D-> C #From discrete to continious
+
+                    total_mass_before, PDE_mass_before  = self.calculate_total_mass(PDE_list, SSA_list)
+
                     SSA_list[compartment_index] -= 1 
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
+                    total_mass_after, PDE_Mass_after = self.calculate_total_mass(PDE_list, SSA_list)
 
+                    print(f"Discrete -> cont: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
                 t += tau #Update time
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
