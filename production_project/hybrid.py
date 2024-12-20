@@ -29,8 +29,6 @@ class Hybrid:
         self.degradation_rate = degradation_rate
         self.h = self.L / compartment_number
         self.diffusion_rate = diffusion_rate
-        self.production_rate_per_compartment = production_rate * self.h
-        self.degradation_rate_per_compartment = degradation_rate * self.h
         # self.d = diffusion_rate / (self.h ** 2)
         self.d = diffusion_rate / (self.h**2)
         self.threshold_conc = threshold / self.h
@@ -266,7 +264,7 @@ class Hybrid:
         PDE_list = PDE_grid[:, 0].astype(float)
         ind_after = 0
         while t < self.total_time:
-            total_propensity = self.propensity_calculation(SSA_list, PDE_list)
+            total_propensity = self.propensity_calculationC(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
                 PDE_list = self.RK4(PDE_list)
