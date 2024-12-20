@@ -264,7 +264,7 @@ class Hybrid:
         PDE_list = PDE_grid[:, 0].astype(float)
         ind_after = 0
         while t < self.total_time:
-            total_propensity = self.propensity_calculationC(SSA_list, PDE_list)
+            total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
                 PDE_list = self.RK4(PDE_list)
