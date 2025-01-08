@@ -48,7 +48,7 @@ class Hybrid:
         self.steady_state = production_rate / degradation_rate
         self.DX_NEW = self.create_finite_difference()
         self.time_vector = np.arange(0, total_time, timestep)
-        self.use_c_functions = use_c_functions
+        self.use_c_functions = False
         print("Successfully initialized the hybrid model")
         print(f"The threshold concentration is: {self.threshold_conc}")
 
@@ -93,28 +93,21 @@ class Hybrid:
             approximation_number_cont[i] = sum_value
         return approximation_number_cont
     
-    # def ApproximateLeftHandPython(self, PDE_list: np.ndarray) -> np.ndarray:
-    #     PDE_list = PDE_list.astype(float)
-    #     # Reshape PDE_list to a 2D array where each row corresponds to a compartment
-    #     reshaped_PDE_list = PDE_list.reshape(self.SSA_M, self.PDE_multiple)
-    #     # Sum along the second axis (within each compartment) and multiply by deltax
-    #     approximation_number_cont = np.sum(reshaped_PDE_list, axis=1) * self.deltax
-    #     return approximation_number_cont
-    
-    def ApproximateLeftHandC(self, PDE_list):
-        # Assuming the C library has been loaded and has a function `ApproxMassLeftHand`
-        # which expects the arguments as C pointers to the arrays
-        approximate_PDE_mass = np.zeros(self.SSA_M)
-        PDE_list = np.array(PDE_list, dtype=np.float32)
-        PDE_list_Ctypes = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
 
-        approximate_PDE_mass_Ctypes = approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-        # Call the C function
-        clibrary.ApproximateMassLeftHand(self.SSA_M, self.PDE_multiple, PDE_list_Ctypes, approximate_PDE_mass_Ctypes, self.deltax)
+    # def ApproximateLeftHandC(self, PDE_list):
+    #     # Assuming the C library has been loaded and has a function `ApproxMassLeftHand`
+    #     # which expects the arguments as C pointers to the arrays
+    #     approximate_PDE_mass = np.zeros(self.SSA_M)
+    #     PDE_list = np.array(PDE_list, dtype=np.float32)
+    #     PDE_list_Ctypes = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
 
-        # Convert the result back into a NumPy array
-        approximate_PDE_mass = np.ctypeslib.as_array(approximate_PDE_mass_Ctypes, shape=approximate_PDE_mass.shape)
-        return approximate_PDE_mass
+    #     approximate_PDE_mass_Ctypes = approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+    #     # Call the C function
+    #     clibrary.ApproximateMassLeftHand(self.SSA_M, self.PDE_multiple, PDE_list_Ctypes, approximate_PDE_mass_Ctypes, self.deltax)
+
+    #     # Convert the result back into a NumPy array
+    #     approximate_PDE_mass = np.ctypeslib.as_array(approximate_PDE_mass_Ctypes, shape=approximate_PDE_mass.shape)
+    #     return approximate_PDE_mass
 
     def calculate_total_mass(self, PDE_list: np.ndarray, SSA_list: np.ndarray) -> np.ndarray:
         PDE_list = PDE_list.astype(float)
@@ -252,7 +245,6 @@ class Hybrid:
         else:
             return self.propensity_calculationPython(SSA_list, PDE_list)
 
-    
 
 
     def hybrid_simulation(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, approx_mass: np.ndarray) -> np.ndarray:
@@ -320,8 +312,8 @@ class Hybrid:
                         SSA_list
                      )
 
-                    print(f"PDE list at that compartment: {PDE_list[compartment_index * self.PDE_multiple : (compartment_index + 1) * self.PDE_multiple]}")
-                    print(f"Total propensity {total_propensity[compartment_index]}")
+                    # print(f"PDE list at that compartment: {PDE_list[compartment_index * self.PDE_multiple : (compartment_index + 1) * self.PDE_multiple]}")
+                    # print(f"Total propensity {total_propensity[compartment_index]}")
                     # Perform the mass transfer
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
@@ -332,10 +324,10 @@ class Hybrid:
                         SSA_list
                     )
 
-                    print(f"Cont -> Discrete: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
-                    print(f"The PDE mass before: {PDE_mass_before}")
-                    print(f"The PDE mass after: {PDE_mass_after}")
-                    print(f"The discrete mass: {SSA_list[compartment_index] - 1}")
+                    # print(f"Cont -> Discrete: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
+                    # print(f"The PDE mass before: {PDE_mass_before}")
+                    # print(f"The PDE mass after: {PDE_mass_after}")
+                    # print(f"The discrete mass: {SSA_list[compartment_index] - 1}")
                  
                 else: #D-> C #From discrete to continious
 
@@ -345,7 +337,7 @@ class Hybrid:
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                     total_mass_after, PDE_Mass_after = self.calculate_total_mass(PDE_list, SSA_list)
 
-                    print(f"Discrete -> cont: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
+                    # print(f"Discrete -> cont: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
                 t += tau #Update time
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
