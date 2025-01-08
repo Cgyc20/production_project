@@ -7,14 +7,12 @@ import ctypes
 from production_project.clibrary_argtypes import set_clibrary_argtypes #Each data type for the c functions
 
 
-clibrary = ctypes.CDLL("c_class/clibrary.so") #import the c library
 
-set_clibrary_argtypes(clibrary) #Import the data types for each c function
 
 
 class Hybrid:
     
-    def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False):
+    def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial):
         self.L = domain_length
         self.SSA_M = compartment_number
         self.PDE_multiple = PDE_multiple
@@ -48,7 +46,6 @@ class Hybrid:
         self.steady_state = production_rate / degradation_rate
         self.DX_NEW = self.create_finite_difference()
         self.time_vector = np.arange(0, total_time, timestep)
-        self.use_c_functions = False
         print("Successfully initialized the hybrid model")
         print(f"The threshold concentration is: {self.threshold_conc}")
 
@@ -94,32 +91,15 @@ class Hybrid:
         return approximation_number_cont
     
 
-    # def ApproximateLeftHandC(self, PDE_list):
-    #     # Assuming the C library has been loaded and has a function `ApproxMassLeftHand`
-    #     # which expects the arguments as C pointers to the arrays
-    #     approximate_PDE_mass = np.zeros(self.SSA_M)
-    #     PDE_list = np.array(PDE_list, dtype=np.float32)
-    #     PDE_list_Ctypes = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-
-    #     approximate_PDE_mass_Ctypes = approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-    #     # Call the C function
-    #     clibrary.ApproximateMassLeftHand(self.SSA_M, self.PDE_multiple, PDE_list_Ctypes, approximate_PDE_mass_Ctypes, self.deltax)
-
-    #     # Convert the result back into a NumPy array
-    #     approximate_PDE_mass = np.ctypeslib.as_array(approximate_PDE_mass_Ctypes, shape=approximate_PDE_mass.shape)
-    #     return approximate_PDE_mass
-
     def calculate_total_mass(self, PDE_list: np.ndarray, SSA_list: np.ndarray) -> np.ndarray:
         PDE_list = PDE_list.astype(float)
         SSA_list = SSA_list.astype(int)
-        if self.use_c_functions:
-            approximate_PDE_mass = self.ApproximateLeftHandC(PDE_list)
-        else:
-            approximate_PDE_mass = self.ApproximateLeftHandPython(PDE_list)
+        
+        approximate_PDE_mass = self.ApproximateLeftHandPython(PDE_list)
         combined_list = np.add(SSA_list, approximate_PDE_mass)
         return combined_list, approximate_PDE_mass
 
-    def booleanMassPython(self, PDE_list: np.ndarray) -> np.ndarray:
+    def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray:
         PDE_list = PDE_list.astype(float)
         boolean_PDE_list = np.zeros_like(PDE_list)
         boolean_PDE_list[PDE_list > 1 / self.h] = 1
@@ -136,29 +116,8 @@ class Hybrid:
             else:
                 boolean_threshold_SSA[i] = 0
         return boolean_threshold_SSA
-    
-    def booleanMassC(self, PDE_list: np.ndarray) -> np.ndarray:
-        """Calculate boolean mass using c-type function"""
-        PDE_list = PDE_list.astype(np.float32)
-        boolean_PDE_list = np.zeros_like(PDE_list, dtype=np.int32)
-        boolean_SSA_list = np.zeros(self.SSA_M, dtype=np.int32)
 
-        PDE_list_Ctypes = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
-        boolean_PDE_list_Ctypes = boolean_PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
-        boolean_SSA_list_Ctypes = boolean_SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
-
-        clibrary.BooleanMass(self.SSA_M, self.PDE_M, self.PDE_multiple, PDE_list_Ctypes, boolean_PDE_list_Ctypes, boolean_SSA_list_Ctypes, self.h)
-
-        boolean_SSA_list = np.ctypeslib.as_array(boolean_SSA_list_Ctypes, shape=boolean_SSA_list.shape)
-        return boolean_SSA_list
-
-    def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray:
-        if self.use_c_functions:
-            return self.booleanMassC(PDE_list)
-        else:
-            return self.booleanMassPython(PDE_list)
-        
-    def propensity_calculationPython(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
+    def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
         SSA_list = SSA_list.astype(int)
         PDE_list = PDE_list.astype(float)
         movement_propensity = 2 * self.d * SSA_list
