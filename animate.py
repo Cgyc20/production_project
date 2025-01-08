@@ -41,36 +41,32 @@ def main():
     diffusion_rate = parameters["diffusion_rate"]
 
     # Number of Fourier coefficients
-    number_coef = 100
+    number_coef = 10
     initial_SSA = [40]  # Initial SSA value
     alpha = np.sqrt(degradation_rate / diffusion_rate)
 
-# Initialize solution array
+    # Initialize solution array
     analytic_sol = np.zeros((len(PDE_X), len(time_vector))) 
     # Calculate Fourier coefficients
-# Pre-compute bn terms
+    # Pre-compute bn terms
     bn_terms = []
-    for n in range(0, number_coef + 1):
-        term = 1 / (diffusion_rate * n**2 * np.pi**2 + domain_length**2 * degradation_rate**2)
+    for n in range(1, number_coef + 1):
+        term = 2 * production_rate * ((domain_length * degradation_rate / diffusion_rate) + (n ** 2 * np.pi ** 2 / domain_length)) ** (-1)
         bn_terms.append(term)
 
     # Calculate analytical solution
-    initial_conc = initial_SSA[0]/h   # Initial concentration scaling
+    initial_conc = initial_SSA[0] / h   # Initial concentration scaling
     print(f"Initial conc is {initial_conc}")
-    print(f"{production_rate*diffusion_rate/degradation_rate}")
-    steady_state = production_rate* (alpha*(-1))* (np.cosh(alpha * (PDE_X - domain_length)) / np.sinh(alpha * domain_length))+initial_conc-production_rate*diffusion_rate/degradation_rate
-        
-    
+    print(f"{production_rate * diffusion_rate / degradation_rate}")
+    steady_state = production_rate * (alpha * (-1)) * (np.cosh(alpha * (PDE_X - domain_length)) / np.sinh(alpha * domain_length))
 
     for i, t in enumerate(time_vector):
-        rhs_term = np.zeros_like(PDE_X)*300  # Reset for each time step
-        for n in range(0, number_coef + 1):
-            bn = bn_terms[n]
-            rhs_term += 2*diffusion_rate*np.pi*domain_length*bn* np.cos(n * np.pi * PDE_X / domain_length)* np.exp(-(degradation_rate + diffusion_rate * (n * np.pi / domain_length) ** 2) * t)    
-
-
-        # analytic_sol[:, i] = steady_state*np.exp(-degradation_rate*t) -2*diffusion_rate * domain_length*production_rate* rhs_term
-        analytic_sol[:, i] = steady_state+rhs_term
+        rhs_term = np.zeros_like(PDE_X)   # Reset for each time step
+        for n in range(1, number_coef + 1):
+            bn = bn_terms[n - 1]  # Adjust indexing to access bn_terms correctly
+            rhs_term += bn * np.exp(-(degradation_rate + diffusion_rate * (n * np.pi / domain_length) ** 2) * t) * np.cos(n * np.pi * PDE_X / domain_length)
+        b0 = (initial_conc-production_rate*diffusion_rate/(domain_length*degradation_rate))
+        analytic_sol[:, i] = steady_state + b0*np.exp(-degradation_rate*t)+rhs_term
     # Function to calculate total mass for continuous data
     def calculate_mass_continuous(data_grid, deltax):
         return np.sum(data_grid, axis=0) * deltax
@@ -147,7 +143,7 @@ def main():
         # Update the timestamp
         time_text.set_text(f'Time: {time_vector[frame]:.2f}')
         
-        return (*bar_SSA, line_analytic, line_pure_PDE,line_combined, time_text, steady_state_line)
+        return (*bar_SSA, line_analytic, line_pure_PDE, line_combined, time_text, steady_state_line)
 
         # return (*bar_SSA, line_combined, line_PDE, line_analytic, line_pure_PDE, time_text, threshold_line, steady_state_line)
 
