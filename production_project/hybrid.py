@@ -188,21 +188,19 @@ class Hybrid:
         
     
 
-    def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
-        """
-        Wrapper function to choose between Python and C implementation of propensity calculation.
+    # def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
+    #     """
+    #     Wrapper function to choose between Python and C implementation of propensity calculation.
 
-        Args:
-            SSA_list (np.ndarray): Discrete molecules list.
-            PDE_list (np.ndarray): Continuous mass list.
+    #     Args:
+    #         SSA_list (np.ndarray): Discrete molecules list.
+    #         PDE_list (np.ndarray): Continuous mass list.
 
-        Returns:
-            np.ndarray: Combined propensity list.
-        """
-        if self.use_c_functions:
-            return self.propensity_calculationC(SSA_list, PDE_list)
-        else:
-            return self.propensity_calculationPython(SSA_list, PDE_list)
+    #     Returns:
+    #         np.ndarray: Combined propensity list.
+    #     """
+        
+    #     return self.propensity_calculationPython(SSA_list, PDE_list)
 
 
 
