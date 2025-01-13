@@ -6,6 +6,7 @@ from copy import deepcopy, copy
 import ctypes
 from production_project.clibrary_argtypes import set_clibrary_argtypes #Each data type for the c functions
 
+np.random.seed(2)
 
 
 
@@ -131,7 +132,7 @@ class Hybrid:
 
         combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
 
-        R3_propensity = self.degradation_rate * approximate_PDE_mass * SSA_list
+        R3_propensity = 2*self.degradation_rate *(1/self.h)*approximate_PDE_mass * SSA_list
 
         conversion_to_discrete = np.zeros_like(SSA_list)
         conversion_to_cont = np.zeros_like(approximate_PDE_mass)
@@ -142,49 +143,49 @@ class Hybrid:
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, R3_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
 
-    def propensity_calculationC(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
-        """
-        Calculates the propensity functions for each reaction using the C library.
+    # def propensity_calculationC(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
+    #     """
+    #     Calculates the propensity functions for each reaction using the C library.
 
-        Args:
-            SSA_list (np.ndarray): Discrete molecules list.
-            PDE_list (np.ndarray): Continuous mass list.
+    #     Args:
+    #         SSA_list (np.ndarray): Discrete molecules list.
+    #         PDE_list (np.ndarray): Continuous mass list.
 
-        Returns:
-            np.ndarray: Combined propensity list.
-        """
-        SSA_list = np.ascontiguousarray(SSA_list, dtype=np.int32)
-        PDE_list = np.ascontiguousarray(PDE_list, dtype=np.float32)
+    #     Returns:
+    #         np.ndarray: Combined propensity list.
+    #     """
+    #     SSA_list = np.ascontiguousarray(SSA_list, dtype=np.int32)
+    #     PDE_list = np.ascontiguousarray(PDE_list, dtype=np.float32)
         
 
-        # Initialize propensity_list and other arrays
-        propensity_list = np.zeros(6 * self.SSA_M, dtype=np.float32)
-        combined_mass_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
-        boolean_SSA_threshold = self.boolean_if_less_mass(PDE_list).astype(int)
-        boolean_SSA_threshold = np.ascontiguousarray(boolean_SSA_threshold, dtype=np.int32)
-        combined_mass_list = np.ascontiguousarray(combined_mass_list, dtype=np.float32)
-        approximate_PDE_mass = np.ascontiguousarray(approximate_PDE_mass, dtype=np.float32)
+    #     # Initialize propensity_list and other arrays
+    #     propensity_list = np.zeros(6 * self.SSA_M, dtype=np.float32)
+    #     combined_mass_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
+    #     boolean_SSA_threshold = self.boolean_if_less_mass(PDE_list).astype(int)
+    #     boolean_SSA_threshold = np.ascontiguousarray(boolean_SSA_threshold, dtype=np.int32)
+    #     combined_mass_list = np.ascontiguousarray(combined_mass_list, dtype=np.float32)
+    #     approximate_PDE_mass = np.ascontiguousarray(approximate_PDE_mass, dtype=np.float32)
 
-        degradation_rate_h = self.degradation_rate / self.h
-        # Call the C function to calculate propensities
-        clibrary.CalculatePropensity(
-            self.SSA_M,
-            PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-            SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
-            propensity_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-            combined_mass_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-            approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-            boolean_SSA_threshold.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
-            degradation_rate_h,
-            self.threshold,
-            self.production_rate,
-            self.gamma,
-            self.d
-        )
+    #     degradation_rate_h = self.degradation_rate / self.h
+    #     # Call the C function to calculate propensities
+    #     clibrary.CalculatePropensity(
+    #         self.SSA_M,
+    #         PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+    #         SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
+    #         propensity_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+    #         combined_mass_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+    #         approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+    #         boolean_SSA_threshold.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
+    #         degradation_rate_h,
+    #         self.threshold,
+    #         self.production_rate,
+    #         self.gamma,
+    #         self.d
+    #     )
 
-        # Convert propensity list back into numpy floats
-        propensity_list = np.ctypeslib.as_array(propensity_list, shape=propensity_list.shape)
-        return propensity_list
+    #     # Convert propensity list back into numpy floats
+    #     propensity_list = np.ctypeslib.as_array(propensity_list, shape=propensity_list.shape)
+    #     return propensity_list
         
     
 
@@ -231,6 +232,11 @@ class Hybrid:
 
             r1, r2, r3 = np.random.rand(3)
             tau = (1 / alpha0) * np.log(1 / r1)
+            if tau<0:
+                print(f"Tau is : {tau}")
+                print(f"The PDE list: {PDE_list}")
+                print(f"alpha_0 is : {alpha0}")
+                print(f"SSA list: {SSA_list}")
             alpha_cum = np.cumsum(total_propensity)
             index = np.searchsorted(alpha_cum, r2 * alpha0)
             compartment_index = index % self.SSA_M
@@ -258,12 +264,13 @@ class Hybrid:
                     SSA_list[compartment_index] -= 1
 
                 elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1: #D+C -> D
-                    PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
+                    #PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
+                    SSA_list[compartment_index] -= 1
 
                     """The conversion reactions are next"""
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: # C -> D The conversion from continuous to discrete mass
                     # Calculate total mass before transfer
-                    print(f"The compartment is {compartment_index}")
+                    #print(f"The compartment is {compartment_index}")
                     total_mass_before, PDE_mass_before = self.calculate_total_mass(
                         PDE_list, 
                         SSA_list
