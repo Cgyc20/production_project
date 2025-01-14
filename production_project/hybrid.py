@@ -100,7 +100,26 @@ class Hybrid:
         combined_list = np.add(SSA_list, approximate_PDE_mass)
         return combined_list, approximate_PDE_mass
 
-    def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray:
+    # def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray:
+    #     PDE_list = PDE_list.astype(float)
+    #     boolean_PDE_list = np.zeros_like(PDE_list)
+    #     boolean_PDE_list[PDE_list > 1 / self.h] = 1
+    #     boolean_threshold_SSA = np.zeros(self.SSA_M)
+    #     for i in range(self.SSA_M):
+    #         start_index = i * self.PDE_multiple
+    #         BOOL_VALUE = True
+    #         for j in range(self.PDE_multiple):
+    #             current_index = start_index + j
+    #             if boolean_PDE_list[j] == 0:
+    #                 BOOL_VALUE = False
+    #         if BOOL_VALUE:
+    #             boolean_threshold_SSA[i] = 1 
+    #         else:
+    #             boolean_threshold_SSA[i] = 0
+    #     return boolean_threshold_SSA
+
+    """A fixed version of boolean_if_less_mass"""
+    def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray: 
         PDE_list = PDE_list.astype(float)
         boolean_PDE_list = np.zeros_like(PDE_list)
         boolean_PDE_list[PDE_list > 1 / self.h] = 1
@@ -110,8 +129,9 @@ class Hybrid:
             BOOL_VALUE = True
             for j in range(self.PDE_multiple):
                 current_index = start_index + j
-                if boolean_PDE_list[j] == 0:
+                if boolean_PDE_list[current_index] == 0:
                     BOOL_VALUE = False
+                    break  # Exit the loop early if any value is less than 1/h
             if BOOL_VALUE:
                 boolean_threshold_SSA[i] = 1 
             else:
@@ -143,7 +163,6 @@ class Hybrid:
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, R3_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
 
-    
     def check_negative_values(self, vector: np.ndarray, vector_name: str):
         """
         Checks if a vector has negative values and raises an error if any are found.
@@ -155,8 +174,10 @@ class Hybrid:
         Raises:
             ValueError: If the vector contains negative values below the machine error threshold.
         """
-        machine_error = 2
-        if np.any(vector < -machine_error):
+        machine_error = 10e-5
+        negative_indices = np.where(vector < -machine_error)[0]
+        if negative_indices.size > 0:
+            print(f"Negative values found at indices: {negative_indices}")
             print(vector)
             raise ValueError(f"The vector named '{vector_name}' has negative values.")
         return None
@@ -227,30 +248,34 @@ class Hybrid:
                     """The conversion reactions are next"""
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: # C -> D The conversion from continuous to discrete mass
                     # Calculate total mass before transfer
-                    #print(f"The compartment is {compartment_index}")
-                    # total_mass_before, PDE_mass_before = self.calculate_total_mass(
-                    #     PDE_list, 
-                    #     SSA_list
-                    #  )
 
-                    # print(f"PDE list at that compartment: {PDE_list[compartment_index * self.PDE_multiple : (compartment_index + 1) * self.PDE_multiple]}")
-                    # print(f"Total propensity {total_propensity[compartment_index]}")
+                    print(f"Start of analysis")
+                    print(f"The compartment is {compartment_index}")
+                    total_mass_before, PDE_mass_before = self.calculate_total_mass(
+                        PDE_list, 
+                        SSA_list
+                     )
+                    print(f"The PDE list before the transfer: {PDE_list}")
+                    print(f"PDE list at that compartment: {PDE_list[compartment_index * self.PDE_multiple : (compartment_index + 1) * self.PDE_multiple]}")
+                    print(f"Total propensity {total_propensity[compartment_index]}")
                     # Perform the mass transfer
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
 
+                    
+                    # Calculate total mass after transfer
+                    total_mass_after, PDE_mass_after = self.calculate_total_mass(
+                        PDE_list, 
+                        SSA_list
+                    )
+
+                    print(f"Cont -> Discrete: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
+                    print(f"The PDE mass before: {PDE_mass_before}")
+                    print(f"The PDE mass after: {PDE_mass_after}")
+                    print(f"The discrete mass: {SSA_list[compartment_index] - 1}")
+                    print(f"The PDE list after the transfer: {PDE_list}")
                     self.check_negative_values(PDE_list, "PDE_list") #This is where the PDE mass goes negative
 
-                    # # Calculate total mass after transfer
-                    # total_mass_after, PDE_mass_after = self.calculate_total_mass(
-                    #     PDE_list, 
-                    #     SSA_list
-                    # )
-
-                    # print(f"Cont -> Discrete: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
-                    # print(f"The PDE mass before: {PDE_mass_before}")
-                    # print(f"The PDE mass after: {PDE_mass_after}")
-                    # print(f"The discrete mass: {SSA_list[compartment_index] - 1}")
                  
                 else: #D-> C #From discrete to continious
 
