@@ -106,7 +106,7 @@ def main():
 
     # Adjust y-axis limit to ensure steady state is included
     y_max = max(np.max(combined_grid) * 1.1, steady_state_concentration * 1.1, concentration_threshold * 1.1)
-    ax.set_ylim(0, y_max)
+    ax.set_ylim(-20, y_max)
 
     # Add a steady-state line
     steady_state_line = ax.axhline(
@@ -164,16 +164,16 @@ def main():
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.show()
 
-    # Plot relative error for combined solution
-    plt.figure(figsize=(12, 6))
-    plt.plot(time_vector, relative_error_combined, 'k--', label='Relative Error (Combined)', linewidth=2)
-    plt.plot(time_vector, relative_error_SSA, 'b--', label='Relative Error (SSA)', linewidth=2)
-    plt.xlabel('Time', fontsize=12)
-    plt.ylabel('Relative Error', fontsize=12)
-    plt.title('Relative Error of Solutions over Time', fontsize=14)
-    plt.legend(fontsize=10)
-    plt.grid(True, linestyle='--', alpha=0.6)
-    plt.show()
+    # # Plot relative error for combined solution
+    # plt.figure(figsize=(12, 6))
+    # plt.plot(time_vector, relative_error_combined, 'k--', label='Relative Error (Combined)', linewidth=2)
+    # plt.plot(time_vector, relative_error_SSA, 'b--', label='Relative Error (SSA)', linewidth=2)
+    # plt.xlabel('Time', fontsize=12)
+    # plt.ylabel('Relative Error', fontsize=12)
+    # plt.title('Relative Error of Solutions over Time', fontsize=14)
+    # plt.legend(fontsize=10)
+    # plt.grid(True, linestyle='--', alpha=0.6)
+    # plt.show()
 
 if __name__ == "__main__":
     main()

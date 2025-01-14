@@ -204,6 +204,24 @@ class Hybrid:
     #     return self.propensity_calculationPython(SSA_list, PDE_list)
 
 
+    def check_negative_values(self, vector: np.ndarray, vector_name: str):
+        """
+        Checks if a vector has negative values and raises an error if any are found.
+
+        Args:
+            vector (np.ndarray): The input vector to check.
+            vector_name (str): The name of the vector (for error message context).
+
+        Raises:
+            ValueError: If the vector contains negative values below the machine error threshold.
+        """
+        machine_error = 20
+        if np.any(vector < -machine_error):
+            print(vector)
+            raise ValueError(f"The vector named '{vector_name}' has negative values.")
+        
+        return None
+    
 
     def hybrid_simulation(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, approx_mass: np.ndarray) -> np.ndarray:
         t = 0
@@ -226,17 +244,14 @@ class Hybrid:
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
                     PDE_grid[:, time_index] = PDE_list
                     SSA_grid[:, time_index] = SSA_list
+                    self.check_negative_values(PDE_list, "PDE_list")
+                    self.check_negative_values(SSA_grid, "SSA_list")
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
                 old_time = t 
                 continue 
 
             r1, r2, r3 = np.random.rand(3)
             tau = (1 / alpha0) * np.log(1 / r1)
-            if tau<0:
-                print(f"Tau is : {tau}")
-                print(f"The PDE list: {PDE_list}")
-                print(f"alpha_0 is : {alpha0}")
-                print(f"SSA list: {SSA_list}")
             alpha_cum = np.cumsum(total_propensity)
             index = np.searchsorted(alpha_cum, r2 * alpha0)
             compartment_index = index % self.SSA_M
@@ -263,7 +278,10 @@ class Hybrid:
                 elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1: # D+D -> D
                     SSA_list[compartment_index] -= 1
 
-                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1: #D+C -> D
+                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1: #D+C -> D, 
+
+                    """Actually this has been changed from D+C -> D, to D+C->C, so we are in fact destroying the continous particle."""
+
                     #PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
                     SSA_list[compartment_index] -= 1
 
@@ -271,10 +289,10 @@ class Hybrid:
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: # C -> D The conversion from continuous to discrete mass
                     # Calculate total mass before transfer
                     #print(f"The compartment is {compartment_index}")
-                    total_mass_before, PDE_mass_before = self.calculate_total_mass(
-                        PDE_list, 
-                        SSA_list
-                     )
+                    # total_mass_before, PDE_mass_before = self.calculate_total_mass(
+                    #     PDE_list, 
+                    #     SSA_list
+                    #  )
 
                     # print(f"PDE list at that compartment: {PDE_list[compartment_index * self.PDE_multiple : (compartment_index + 1) * self.PDE_multiple]}")
                     # print(f"Total propensity {total_propensity[compartment_index]}")
@@ -283,10 +301,10 @@ class Hybrid:
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
 
                     # # Calculate total mass after transfer
-                    total_mass_after, PDE_mass_after = self.calculate_total_mass(
-                        PDE_list, 
-                        SSA_list
-                    )
+                    # total_mass_after, PDE_mass_after = self.calculate_total_mass(
+                    #     PDE_list, 
+                    #     SSA_list
+                    # )
 
                     # print(f"Cont -> Discrete: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
                     # print(f"The PDE mass before: {PDE_mass_before}")
@@ -295,11 +313,11 @@ class Hybrid:
                  
                 else: #D-> C #From discrete to continious
 
-                    total_mass_before, PDE_mass_before  = self.calculate_total_mass(PDE_list, SSA_list)
+                    # total_mass_before, PDE_mass_before  = self.calculate_total_mass(PDE_list, SSA_list)
 
                     SSA_list[compartment_index] -= 1 
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
-                    total_mass_after, PDE_Mass_after = self.calculate_total_mass(PDE_list, SSA_list)
+                    #total_mass_after, PDE_Mass_after = self.calculate_total_mass(PDE_list, SSA_list)
 
                     # print(f"Discrete -> cont: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
                 t += tau #Update time
@@ -308,6 +326,8 @@ class Hybrid:
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
                     SSA_grid[:, time_index] = SSA_list
                     PDE_grid[:, time_index] = PDE_list
+                    self.check_negative_values(PDE_list, "PDE_list")
+                    self.check_negative_values(SSA_list, "SSA_list")
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
                 old_time = t  
             else: #Else if the next timestep will be the PDE type, then we execute the PDE.
@@ -319,6 +339,8 @@ class Hybrid:
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
                     PDE_grid[:, time_index] = PDE_list
                     SSA_grid[:, time_index] = SSA_list
+                    self.check_negative_values(PDE_list, "PDE_list")
+                    self.check_negative_values(SSA_list, "SSA_list")
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
                 old_time = t 
         return SSA_grid, PDE_grid, approx_mass
