@@ -164,6 +164,35 @@ def main():
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.show()
 
+
+    """Working out the average wave speed for each one"""
+
+    #wavespeed_PDE = k_2/k_1 dM/dt
+    
+    def workout_wavespeed(total_mass_vector):
+        """works out he wavespeed"""
+        deriv = np.gradient(total_mass_vector, time_vector)
+        wavespeed_vector= (1/steady_state_concentration)*deriv
+        return wavespeed_vector
+
+    wavespeed_PDE = workout_wavespeed(pure_PDE_total_mass)
+    wavespeed_SSA = workout_wavespeed(SSA_total_mass)
+    wavespeed_hybrid = workout_wavespeed(combined_total_mass)
+
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(time_vector, wavespeed_PDE, 'g', label='PDE', linewidth=2)
+    plt.plot(time_vector, wavespeed_SSA, 'b', label='SSA', linewidth=2)
+    plt.plot(time_vector, wavespeed_hybrid, 'r', label='Hybrid', linewidth=2)
+    plt.xlabel('Time', fontsize=12)
+    plt.ylabel('Wave Speed', fontsize=12)
+    plt.title('Wave Speed over Time', fontsize=14)
+    plt.legend(fontsize=10)
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.show()
+
+
+
     # # Plot relative error for combined solution
     # plt.figure(figsize=(12, 6))
     # plt.plot(time_vector, relative_error_combined, 'k--', label='Relative Error (Combined)', linewidth=2)

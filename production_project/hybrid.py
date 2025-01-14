@@ -249,32 +249,32 @@ class Hybrid:
                 elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: # C -> D The conversion from continuous to discrete mass
                     # Calculate total mass before transfer
 
-                    print(f"Start of analysis")
-                    print(f"The compartment is {compartment_index}")
-                    total_mass_before, PDE_mass_before = self.calculate_total_mass(
-                        PDE_list, 
-                        SSA_list
-                     )
-                    print(f"The PDE list before the transfer: {PDE_list}")
-                    print(f"PDE list at that compartment: {PDE_list[compartment_index * self.PDE_multiple : (compartment_index + 1) * self.PDE_multiple]}")
-                    print(f"Total propensity {total_propensity[compartment_index]}")
-                    # Perform the mass transfer
+                    # print(f"Start of analysis")
+                    # print(f"The compartment is {compartment_index}")
+                    # total_mass_before, PDE_mass_before = self.calculate_total_mass(
+                    #     PDE_list, 
+                    #     SSA_list
+                    #  )
+                    # print(f"The PDE list before the transfer: {PDE_list}")
+                    # print(f"PDE list at that compartment: {PDE_list[compartment_index * self.PDE_multiple : (compartment_index + 1) * self.PDE_multiple]}")
+                    # print(f"Total propensity {total_propensity[compartment_index]}")
+                    # # Perform the mass transfer
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
 
                     
-                    # Calculate total mass after transfer
-                    total_mass_after, PDE_mass_after = self.calculate_total_mass(
-                        PDE_list, 
-                        SSA_list
-                    )
+                    # # Calculate total mass after transfer
+                    # total_mass_after, PDE_mass_after = self.calculate_total_mass(
+                    #     PDE_list, 
+                    #     SSA_list
+                    # )
 
-                    print(f"Cont -> Discrete: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
-                    print(f"The PDE mass before: {PDE_mass_before}")
-                    print(f"The PDE mass after: {PDE_mass_after}")
-                    print(f"The discrete mass: {SSA_list[compartment_index] - 1}")
-                    print(f"The PDE list after the transfer: {PDE_list}")
-                    self.check_negative_values(PDE_list, "PDE_list") #This is where the PDE mass goes negative
+                    # print(f"Cont -> Discrete: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
+                    # print(f"The PDE mass before: {PDE_mass_before}")
+                    # print(f"The PDE mass after: {PDE_mass_after}")
+                    # print(f"The discrete mass: {SSA_list[compartment_index] - 1}")
+                    # print(f"The PDE list after the transfer: {PDE_list}")
+                    # self.check_negative_values(PDE_list, "PDE_list") #This is where the PDE mass goes negative
 
                  
                 else: #D-> C #From discrete to continious
