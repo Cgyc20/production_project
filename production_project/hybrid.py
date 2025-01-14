@@ -143,67 +143,7 @@ class Hybrid:
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, R3_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
 
-    # def propensity_calculationC(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
-    #     """
-    #     Calculates the propensity functions for each reaction using the C library.
-
-    #     Args:
-    #         SSA_list (np.ndarray): Discrete molecules list.
-    #         PDE_list (np.ndarray): Continuous mass list.
-
-    #     Returns:
-    #         np.ndarray: Combined propensity list.
-    #     """
-    #     SSA_list = np.ascontiguousarray(SSA_list, dtype=np.int32)
-    #     PDE_list = np.ascontiguousarray(PDE_list, dtype=np.float32)
-        
-
-    #     # Initialize propensity_list and other arrays
-    #     propensity_list = np.zeros(6 * self.SSA_M, dtype=np.float32)
-    #     combined_mass_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
-    #     boolean_SSA_threshold = self.boolean_if_less_mass(PDE_list).astype(int)
-    #     boolean_SSA_threshold = np.ascontiguousarray(boolean_SSA_threshold, dtype=np.int32)
-    #     combined_mass_list = np.ascontiguousarray(combined_mass_list, dtype=np.float32)
-    #     approximate_PDE_mass = np.ascontiguousarray(approximate_PDE_mass, dtype=np.float32)
-
-    #     degradation_rate_h = self.degradation_rate / self.h
-    #     # Call the C function to calculate propensities
-    #     clibrary.CalculatePropensity(
-    #         self.SSA_M,
-    #         PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-    #         SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
-    #         propensity_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-    #         combined_mass_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-    #         approximate_PDE_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
-    #         boolean_SSA_threshold.ctypes.data_as(ctypes.POINTER(ctypes.c_int)),
-    #         degradation_rate_h,
-    #         self.threshold,
-    #         self.production_rate,
-    #         self.gamma,
-    #         self.d
-    #     )
-
-    #     # Convert propensity list back into numpy floats
-    #     propensity_list = np.ctypeslib.as_array(propensity_list, shape=propensity_list.shape)
-    #     return propensity_list
-        
     
-
-    # def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
-    #     """
-    #     Wrapper function to choose between Python and C implementation of propensity calculation.
-
-    #     Args:
-    #         SSA_list (np.ndarray): Discrete molecules list.
-    #         PDE_list (np.ndarray): Continuous mass list.
-
-    #     Returns:
-    #         np.ndarray: Combined propensity list.
-    #     """
-        
-    #     return self.propensity_calculationPython(SSA_list, PDE_list)
-
-
     def check_negative_values(self, vector: np.ndarray, vector_name: str):
         """
         Checks if a vector has negative values and raises an error if any are found.
@@ -215,13 +155,11 @@ class Hybrid:
         Raises:
             ValueError: If the vector contains negative values below the machine error threshold.
         """
-        machine_error = 20
+        machine_error = 2
         if np.any(vector < -machine_error):
             print(vector)
             raise ValueError(f"The vector named '{vector_name}' has negative values.")
-        
         return None
-    
 
     def hybrid_simulation(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, approx_mass: np.ndarray) -> np.ndarray:
         t = 0
@@ -246,6 +184,7 @@ class Hybrid:
                     SSA_grid[:, time_index] = SSA_list
                     self.check_negative_values(PDE_list, "PDE_list")
                     self.check_negative_values(SSA_grid, "SSA_list")
+
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
                 old_time = t 
                 continue 
@@ -299,6 +238,8 @@ class Hybrid:
                     # Perform the mass transfer
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
+
+                    self.check_negative_values(PDE_list, "PDE_list") #This is where the PDE mass goes negative
 
                     # # Calculate total mass after transfer
                     # total_mass_after, PDE_mass_after = self.calculate_total_mass(
