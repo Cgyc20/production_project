@@ -170,29 +170,57 @@ def main():
     #wavespeed_PDE = k_2/k_1 dM/dt
     
     def workout_wavespeed(total_mass_vector):
-        """works out he wavespeed"""
+        """Works out the wave speed."""
         deriv = np.gradient(total_mass_vector, time_vector)
-        wavespeed_vector= (1/steady_state_concentration)*deriv
+        wavespeed_vector = (1 / steady_state_concentration) * deriv
         return wavespeed_vector
 
+    def moving_average(data, window_size):
+        """Computes the moving average of the input data."""
+        return np.convolve(data, np.ones(window_size) / window_size, mode='valid')
+
+    # Calculate wave speeds
     wavespeed_PDE = workout_wavespeed(pure_PDE_total_mass)
     wavespeed_SSA = workout_wavespeed(SSA_total_mass)
     wavespeed_hybrid = workout_wavespeed(combined_total_mass)
 
+    # Apply moving average to smooth the wave speeds
+    window_size = 10  # Adjust window size for desired smoothing
+    wavespeed_PDE_smooth = moving_average(wavespeed_PDE, window_size)
+    wavespeed_SSA_smooth = moving_average(wavespeed_SSA, window_size)
+    wavespeed_hybrid_smooth = moving_average(wavespeed_hybrid, window_size)
 
-    plt.figure(figsize=(12, 6))
+    # Adjust time_vector for the moving average (because it's shorter after smoothing)
+    time_vector_smooth = time_vector[:len(wavespeed_PDE_smooth)]
+
+    # Create the side-by-side plots
+    plt.figure(figsize=(16, 6))
+
+    # Plot 1: Original Wave Speeds
+    plt.subplot(1, 2, 1)
     plt.plot(time_vector, wavespeed_PDE, 'g', label='PDE', linewidth=2)
     plt.plot(time_vector, wavespeed_SSA, 'b', label='SSA', linewidth=2)
     plt.plot(time_vector, wavespeed_hybrid, 'r', label='Hybrid', linewidth=2)
     plt.xlabel('Time', fontsize=12)
     plt.ylabel('Wave Speed', fontsize=12)
-    plt.title('Wave Speed over Time', fontsize=14)
+    plt.title('Original Wave Speeds', fontsize=14)
     plt.legend(fontsize=10)
     plt.grid(True, linestyle='--', alpha=0.6)
+
+    # Plot 2: Smoothed Wave Speeds
+    plt.subplot(1, 2, 2)
+    plt.plot(time_vector_smooth, wavespeed_PDE_smooth, 'g', label='PDE (Smoothed)', linewidth=2)
+    plt.plot(time_vector_smooth, wavespeed_SSA_smooth, 'b', label='SSA (Smoothed)', linewidth=2)
+    plt.plot(time_vector_smooth, wavespeed_hybrid_smooth, 'r', label='Hybrid (Smoothed)', linewidth=2)
+    plt.xlabel('Time', fontsize=12)
+    plt.ylabel('Wave Speed', fontsize=12)
+    plt.title('Smoothed Wave Speeds', fontsize=14)
+    plt.legend(fontsize=10)
+    plt.grid(True, linestyle='--', alpha=0.6)
+
+    # Adjust layout and display the plots
+    plt.tight_layout()
     plt.show()
-
-
-
     # # Plot relative error for combined solution
     # plt.figure(figsize=(12, 6))
     # plt.plot(time_vector, relative_error_combined, 'k--', label='Relative Error (Combined)', linewidth=2)
