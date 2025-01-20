@@ -69,7 +69,7 @@ def main():
     relative_error_SSA = np.abs((SSA_total_mass - analytic_total_mass) / analytic_total_mass)
 
     # Plotting and Animation
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(8, 6)) 
 
     # Initial SSA bar plot
     bar_SSA = ax.bar(
@@ -82,7 +82,7 @@ def main():
     )
 
     # Continuous plots
-    line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g', label='PDE', linewidth=2)
+    line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g', label='Hybrid PDE', linewidth=2)
     line_combined, = ax.plot(PDE_X, combined_grid[:, 0], 'k--', label='Combined', linewidth=2)
     # line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic', color='red', linewidth=2)
     line_pure_PDE, = ax.plot(PDE_X, PDE_grid[:, 0], 'm', label='Pure PDE', linewidth=2)
@@ -147,7 +147,7 @@ def main():
     plt.show()
 
     # Additional plot: Total mass over time
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(8, 6))
 
     plt.plot(time_vector, combined_total_mass, 'k--', label='Combined (Dashed)', linewidth=2)
     plt.plot(time_vector, Hybrid_PDE_total_mass, 'g--', label='Hybrid PDE', linewidth=2)
@@ -172,7 +172,7 @@ def main():
     def workout_wavespeed(total_mass_vector):
         """Works out the wave speed."""
         deriv = np.gradient(total_mass_vector, time_vector)
-        wavespeed_vector = (1 / steady_state_concentration) * deriv
+        wavespeed_vector = (1 / 1000) * deriv
         return wavespeed_vector
 
     def moving_average(data, window_size):
@@ -194,7 +194,14 @@ def main():
     time_vector_smooth = time_vector[:len(wavespeed_PDE_smooth)]
 
     # Create the side-by-side plots
+   # Create the side-by-side plots
     plt.figure(figsize=(16, 6))
+
+    # Find the common y-axis limits
+    min_y = min(wavespeed_PDE.min(), wavespeed_SSA.min(), wavespeed_hybrid.min(),
+                wavespeed_PDE_smooth.min(), wavespeed_SSA_smooth.min(), wavespeed_hybrid_smooth.min())
+    max_y = max(wavespeed_PDE.max(), wavespeed_SSA.max(), wavespeed_hybrid.max(),
+                wavespeed_PDE_smooth.max(), wavespeed_SSA_smooth.max(), wavespeed_hybrid_smooth.max())
 
     # Plot 1: Original Wave Speeds
     plt.subplot(1, 2, 1)
@@ -206,6 +213,7 @@ def main():
     plt.title('Original Wave Speeds', fontsize=14)
     plt.legend(fontsize=10)
     plt.grid(True, linestyle='--', alpha=0.6)
+    plt.ylim(min_y, max_y)  # Set the same y-axis limits
 
     # Plot 2: Smoothed Wave Speeds
     plt.subplot(1, 2, 2)
@@ -217,20 +225,11 @@ def main():
     plt.title('Smoothed Wave Speeds', fontsize=14)
     plt.legend(fontsize=10)
     plt.grid(True, linestyle='--', alpha=0.6)
+    plt.ylim(min_y, max_y)  # Set the same y-axis limits
 
     # Adjust layout and display the plots
     plt.tight_layout()
     plt.show()
-    # # Plot relative error for combined solution
-    # plt.figure(figsize=(12, 6))
-    # plt.plot(time_vector, relative_error_combined, 'k--', label='Relative Error (Combined)', linewidth=2)
-    # plt.plot(time_vector, relative_error_SSA, 'b--', label='Relative Error (SSA)', linewidth=2)
-    # plt.xlabel('Time', fontsize=12)
-    # plt.ylabel('Relative Error', fontsize=12)
-    # plt.title('Relative Error of Solutions over Time', fontsize=14)
-    # plt.legend(fontsize=10)
-    # plt.grid(True, linestyle='--', alpha=0.6)
-    # plt.show()
 
 if __name__ == "__main__":
     main()

@@ -29,7 +29,8 @@ def main():
             raise ValueError("number_particles_per_cell cannot be zero.")
         
         # Calculate diffusion_rate using domain_length
-        diffusion_rate = (domain_length ** 2) * (10e-3)
+        diffusion_rate = (domain_length ** 2) * (10e-3) #This is a check
+        diffusion_rate = 10e-3
 
         # Print the values to confirm
         print(f"domain_length: {domain_length}")
