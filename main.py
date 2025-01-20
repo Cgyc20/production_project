@@ -11,7 +11,12 @@ def main():
     # Convert values to the appropriate types, with error handling
     try:
         domain_length = float(parameters_dict.get('domain_length', 0))
-        compartment_number = int(parameters_dict.get('compartment_number', 0))
+        h = float(parameters_dict.get('compartment_length', 0))
+
+        compartment_number = domain_length/h
+        if compartment_number % 1 != 0:
+            raise ValueError("The domain length must be divisible by h.")
+        compartment_number = int(compartment_number)
         if compartment_number == 0:
             raise ValueError("compartment_number cannot be zero.")
         
@@ -25,13 +30,11 @@ def main():
         repeats = int(parameters_dict.get('repeats', 0))
         # Ensure number_particles_per_cell is defined and not zero
         number_particles_per_cell = int(parameters_dict.get('number_particles_per_cell', 0))
+        diffusion_rate = float(parameters_dict.get('diffusion_rate', 0))
         if number_particles_per_cell == 0:
             raise ValueError("number_particles_per_cell cannot be zero.")
         
-        # Calculate diffusion_rate using domain_length
-        diffusion_rate = (domain_length ** 2) * (10e-3) #This is a check
-        diffusion_rate = 10e-3
-
+       
         # Print the values to confirm
         print(f"domain_length: {domain_length}")
         print(f"compartment_number: {compartment_number}")

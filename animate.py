@@ -172,7 +172,7 @@ def main():
     def workout_wavespeed(total_mass_vector):
         """Works out the wave speed."""
         deriv = np.gradient(total_mass_vector, time_vector)
-        wavespeed_vector = (1 / 1000) * deriv
+        wavespeed_vector = (1 / 1000) * deriv*np.sqrt(h)
         return wavespeed_vector
 
     def moving_average(data, window_size):
@@ -194,7 +194,6 @@ def main():
     time_vector_smooth = time_vector[:len(wavespeed_PDE_smooth)]
 
     # Create the side-by-side plots
-   # Create the side-by-side plots
     plt.figure(figsize=(16, 6))
 
     # Find the common y-axis limits
