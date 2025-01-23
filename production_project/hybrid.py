@@ -4,9 +4,8 @@ import os
 import json
 from copy import deepcopy, copy
 import ctypes
-from production_project.clibrary_argtypes import set_clibrary_argtypes #Each data type for the c functions
 
-np.random.seed(2)
+#np.random.seed(2)
 
 
 
@@ -100,23 +99,7 @@ class Hybrid:
         combined_list = np.add(SSA_list, approximate_PDE_mass)
         return combined_list, approximate_PDE_mass
 
-    # def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray:
-    #     PDE_list = PDE_list.astype(float)
-    #     boolean_PDE_list = np.zeros_like(PDE_list)
-    #     boolean_PDE_list[PDE_list > 1 / self.h] = 1
-    #     boolean_threshold_SSA = np.zeros(self.SSA_M)
-    #     for i in range(self.SSA_M):
-    #         start_index = i * self.PDE_multiple
-    #         BOOL_VALUE = True
-    #         for j in range(self.PDE_multiple):
-    #             current_index = start_index + j
-    #             if boolean_PDE_list[j] == 0:
-    #                 BOOL_VALUE = False
-    #         if BOOL_VALUE:
-    #             boolean_threshold_SSA[i] = 1 
-    #         else:
-    #             boolean_threshold_SSA[i] = 0
-    #     return boolean_threshold_SSA
+
 
     """A fixed version of boolean_if_less_mass"""
     def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray: 

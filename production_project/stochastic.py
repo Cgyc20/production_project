@@ -16,8 +16,7 @@ class Stochastic:
         self.h = self.L / compartment_number
         print(f"h in the stochastic method is: {self.h}")
         self.diffusion_rate = diffusion_rate
-        self.d = diffusion_rate / (self.h ** 2)  # Jump rate in SSA
-        self.production_rate_per_compartment = production_rate 
+        self.d = diffusion_rate / (self.h ** 2)  # Jump rate in SSA 
         self.SSA_X = np.linspace(0, self.L - self.h, self.SSA_M)
 
         if not isinstance(SSA_initial, np.ndarray):
@@ -52,6 +51,16 @@ class Stochastic:
         combined_propensity = np.concatenate((movement_propensity, production_propensity, degradation_propensity))
 
         return combined_propensity
+    
+    def propensity_calculationPython(self, SSA_list):
+        movement_propensity = 2 * self.d * SSA_list
+        movement_propensity[0] = self.d * SSA_list[0]
+        movement_propensity[-1] = self.d * SSA_list[-1]
+
+        production_propensity = self.production_rate * SSA_list
+        degradation_propensity = self.degradation_rate / self.h * SSA_list * (SSA_list - 1)
+
+        return np.hstack((movement_propensity, production_propensity, degradation_propensity))
 
     def propensity_calculation(self, SSA_list):
         return self.propensity_calculationPython(SSA_list)

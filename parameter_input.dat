@@ -1,4 +1,4 @@
-domain_length 10
+domain_length 1
 compartment_length 0.1
 PDE_multiple 5
 total_time 10

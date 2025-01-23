@@ -27,6 +27,7 @@ def main():
     parameters = json.load(open("data/parameters.json"))
     h = parameters["h"]
     deltax = parameters["deltax"]
+    diffusion_rate = parameters["diffusion_rate"]
     bar_positions = SSA_X
 
     # Initialize analytical solution array
@@ -172,7 +173,7 @@ def main():
     def workout_wavespeed(total_mass_vector):
         """Works out the wave speed."""
         deriv = np.gradient(total_mass_vector, time_vector)
-        wavespeed_vector = (1 / 1000) * deriv
+        wavespeed_vector = (degradation_rate / production_rate) * deriv
         return wavespeed_vector
 
     def moving_average(data, window_size):
@@ -184,6 +185,7 @@ def main():
     wavespeed_SSA = workout_wavespeed(SSA_total_mass)
     wavespeed_hybrid = workout_wavespeed(combined_total_mass)
 
+
     # Apply moving average to smooth the wave speeds
     window_size = 10  # Adjust window size for desired smoothing
     wavespeed_PDE_smooth = moving_average(wavespeed_PDE, window_size)
@@ -192,6 +194,8 @@ def main():
 
     # Adjust time_vector for the moving average (because it's shorter after smoothing)
     time_vector_smooth = time_vector[:len(wavespeed_PDE_smooth)]
+
+    max_wave_speed = np.ones_like(time_vector_smooth) * 2*np.sqrt(diffusion_rate*production_rate) #Theorical max
 
     # Create the side-by-side plots
     plt.figure(figsize=(16, 6))
@@ -215,10 +219,12 @@ def main():
     plt.ylim(min_y, max_y)  # Set the same y-axis limits
 
     # Plot 2: Smoothed Wave Speeds
+    
     plt.subplot(1, 2, 2)
     plt.plot(time_vector_smooth, wavespeed_PDE_smooth, 'g', label='PDE (Smoothed)', linewidth=2)
     plt.plot(time_vector_smooth, wavespeed_SSA_smooth, 'b', label='SSA (Smoothed)', linewidth=2)
     plt.plot(time_vector_smooth, wavespeed_hybrid_smooth, 'r', label='Hybrid (Smoothed)', linewidth=2)
+    plt.plot(time_vector_smooth,max_wave_speed,'k--', label = 'Max theoretical wavespeed')
     plt.xlabel('Time', fontsize=12)
     plt.ylabel('Wave Speed', fontsize=12)
     plt.title('Smoothed Wave Speeds', fontsize=14)
