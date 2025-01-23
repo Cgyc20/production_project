@@ -172,7 +172,7 @@ def main():
     def workout_wavespeed(total_mass_vector):
         """Works out the wave speed."""
         deriv = np.gradient(total_mass_vector, time_vector)
-        wavespeed_vector = (1 / 1000) * deriv*np.sqrt(h)
+        wavespeed_vector = (1 / 1000) * deriv
         return wavespeed_vector
 
     def moving_average(data, window_size):
@@ -229,6 +229,8 @@ def main():
     # Adjust layout and display the plots
     plt.tight_layout()
     plt.show()
+
+    print(f"The wavespeed PDE_smooth: {wavespeed_PDE_smooth}")
 
 if __name__ == "__main__":
     main()

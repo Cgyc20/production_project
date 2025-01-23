@@ -14,6 +14,7 @@ class Stochastic:
         self.timestep = timestep
         
         self.h = self.L / compartment_number
+        print(f"h in the stochastic method is: {self.h}")
         self.diffusion_rate = diffusion_rate
         self.d = diffusion_rate / (self.h ** 2)  # Jump rate in SSA
         self.production_rate_per_compartment = production_rate 
