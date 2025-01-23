@@ -26,6 +26,7 @@ def main():
     # Load simulation parameters from JSON file
     parameters = json.load(open("data/parameters.json"))
     h = parameters["h"]
+    print(f"the h value in animation: {h}")
     deltax = parameters["deltax"]
     diffusion_rate = parameters["diffusion_rate"]
     bar_positions = SSA_X
@@ -155,8 +156,8 @@ def main():
     plt.plot(time_vector, Hybrid_SSA_mass, 'b--', label='Hybrid SSA', linewidth=2)
     plt.plot(time_vector, pure_PDE_total_mass, 'g', label='Pure PDE', linewidth=2)
     plt.plot(time_vector, SSA_total_mass, 'b', label='Pure SSA', linewidth=2)
-    plt.axhline(y=production_rate / degradation_rate, color='gray', linestyle='--', label='Steady State', linewidth=1.5)
-    plt.axhline(y=concentration_threshold, color='purple', linestyle='--', label='Threshold', linewidth=1.5)
+    plt.axhline(y=domain_length*(production_rate / degradation_rate), color='gray', linestyle='--', label='Steady State', linewidth=1.5)
+    plt.axhline(y=domain_length*concentration_threshold, color='purple', linestyle='--', label='Threshold', linewidth=1.5)
 
     plt.xlabel('Time', fontsize=12)
     plt.ylabel('Total Mass', fontsize=12)
