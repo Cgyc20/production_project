@@ -83,7 +83,7 @@ def main():
 
     PDE_initial[start_index*PDE_multiple:end_index*PDE_multiple] = number_particles_per_cell / Model.h
 
-
+    
 
     print(PDE_initial)
     PDE_Model = PDE(domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial)

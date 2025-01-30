@@ -1,4 +1,4 @@
-domain_length 5
+domain_length 1
 compartment_length 0.1
 PDE_multiple 4
 total_time 10
@@ -8,5 +8,5 @@ gamma 5
 production_rate 10
 degradation_rate 0.01
 number_particles_per_cell 2
-repeats 200
+repeats 2
 diffusion_rate 1e-2

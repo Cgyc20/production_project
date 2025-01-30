@@ -146,7 +146,7 @@ def main():
     ax.legend(loc='center left', bbox_to_anchor=(1.05, 0.5), fontsize=10)
 
     # Display the animation
-    plt.show()
+    # plt.show()
 
     # Additional plot: Total mass over time
     plt.figure(figsize=(8, 6))
@@ -164,7 +164,7 @@ def main():
     plt.title('Total Mass over Time', fontsize=14)
     plt.legend(fontsize=10)
     plt.grid(True, linestyle='--', alpha=0.6)
-    plt.show()
+    # plt.show()
 
 
     """Working out the average wave speed for each one"""

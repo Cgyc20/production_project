@@ -69,8 +69,8 @@ class Hybrid:
     def RHS_derivative(self, old_vector):
         dudt = np.zeros_like(old_vector)
         nabla = self.DX_NEW
-        dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + self.production_rate * old_vector
-        # dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector 
+        #dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + self.production_rate * old_vector
+        dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2)
         return dudt
     
     def RK4(self, old_vector):
@@ -124,16 +124,19 @@ class Hybrid:
     def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
         SSA_list = SSA_list.astype(int)
         PDE_list = PDE_list.astype(float)
+
+        combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
+        
         movement_propensity = 2 * self.d * SSA_list
         movement_propensity[0] = self.d * SSA_list[0]
         movement_propensity[-1] = self.d * SSA_list[-1]
 
-    
-        R1_propensity = self.production_rate* SSA_list
+
+        R1_propensity = self.production_rate* combined_list #Changed from SSA to Combined list
         R2_propensity = self.degradation_rate*(1/self.h) * SSA_list * (SSA_list - 1)
 
 
-        combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
+        
 
         R3_propensity = 2*self.degradation_rate *(1/self.h)*approximate_PDE_mass * SSA_list
 
