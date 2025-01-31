@@ -66,21 +66,35 @@ class Hybrid:
         PDE_grid[:, 0] = self.PDE_initial_conditions
         return PDE_grid, SSA_grid 
         
-    def RHS_derivative(self, old_vector, boolean_threshold):
+    def RHS_derivative(self, old_vector, boolean_threshold, SSA_fine_mass):
         dudt = np.zeros_like(old_vector)
         nabla = self.DX_NEW
         
         
         bool_production = self.production_rate*boolean_threshold 
-        dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + bool_production * old_vector
+        dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + bool_production*(old_vector+SSA_fine_mass)
         #dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2)
         return dudt
     
-    def RK4(self, old_vector, boolean_threshold):
-        k1 = self.RHS_derivative(old_vector, boolean_threshold)
-        k2 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k1, boolean_threshold)
-        k3 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k2, boolean_threshold)
-        k4 = self.RHS_derivative(old_vector + self.timestep * k3, boolean_threshold)
+
+    def fine_grid_SSA_mass(self, SSA_mass):
+        """Will convert the SSA_mass to the same fine resolution as the PDE"""
+
+        fine_SSA_mass = np.zeros_like(self.PDE_X)
+        for i in range(self.SSA_M):
+            start_index = i * self.PDE_multiple
+            end_index = (i + 1) * self.PDE_multiple
+            fine_SSA_mass[start_index:end_index] = SSA_mass[i]
+
+        return fine_SSA_mass
+
+
+
+    def RK4(self, old_vector, boolean_threshold, SSA_fine_mass):
+        k1 = self.RHS_derivative(old_vector, boolean_threshold, SSA_fine_mass)
+        k2 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k1, boolean_threshold, SSA_fine_mass)
+        k3 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k2, boolean_threshold, SSA_fine_mass)
+        k4 = self.RHS_derivative(old_vector + self.timestep * k3, boolean_threshold, SSA_fine_mass)
         return old_vector + self.timestep * (k1 + 2 * k2 + 2 * k3 + k4) / 6
     
     def ApproximateLeftHandPython(self, PDE_list: np.ndarray) -> np.ndarray:
@@ -196,6 +210,7 @@ class Hybrid:
         while t < self.total_time:
 
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
+            fine_SSA_mass = self.fine_grid_SSA_mass(SSA_list) #THis is the fine resolution SSA_mass
             combined_mass = self.calculate_total_mass(PDE_list, SSA_list)[0]
             #print(f"combined_mass in the sim is equal to {combined_mass}")
             SSA_boolean_threshold, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
@@ -203,7 +218,7 @@ class Hybrid:
         
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
-                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold)
+                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
@@ -305,7 +320,7 @@ class Hybrid:
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
                 old_time = t  
             else: #Else if the next timestep will be the PDE type, then we execute the PDE.
-                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold)
+                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
