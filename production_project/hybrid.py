@@ -66,18 +66,21 @@ class Hybrid:
         PDE_grid[:, 0] = self.PDE_initial_conditions
         return PDE_grid, SSA_grid 
         
-    def RHS_derivative(self, old_vector):
+    def RHS_derivative(self, old_vector, boolean_threshold):
         dudt = np.zeros_like(old_vector)
         nabla = self.DX_NEW
-        #dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + self.production_rate * old_vector
-        dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2)
+        
+        
+        bool_production = self.production_rate*boolean_threshold 
+        dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + bool_production * old_vector
+        #dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2)
         return dudt
     
-    def RK4(self, old_vector):
-        k1 = self.RHS_derivative(old_vector)
-        k2 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k1)
-        k3 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k2)
-        k4 = self.RHS_derivative(old_vector + self.timestep * k3)
+    def RK4(self, old_vector, boolean_threshold):
+        k1 = self.RHS_derivative(old_vector, boolean_threshold)
+        k2 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k1, boolean_threshold)
+        k3 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k2, boolean_threshold)
+        k4 = self.RHS_derivative(old_vector + self.timestep * k3, boolean_threshold)
         return old_vector + self.timestep * (k1 + 2 * k2 + 2 * k3 + k4) / 6
     
     def ApproximateLeftHandPython(self, PDE_list: np.ndarray) -> np.ndarray:
@@ -99,6 +102,21 @@ class Hybrid:
         combined_list = np.add(SSA_list, approximate_PDE_mass)
         return combined_list, approximate_PDE_mass
 
+    def threshold_boolean(self, combined_list: np.ndarray) -> np.ndarray:
+        """THis will generate a boolean list, if the combined list is above the threshold in that box then we will place a 1; else we place a 0."""
+
+        compartment_bool_list  = np.array([0 if i > self.threshold else 1 for i in combined_list]) #For the compartment list
+        PDE_bool_list = np.zeros(self.SSA_M*self.PDE_multiple) #For the the PDE list 
+        for i in range(self.SSA_M):
+            value = compartment_bool_list[i]
+            if value == 1:
+                new_value = 0
+            else: 
+                new_value = 1
+            start_index = i * self.PDE_multiple
+            PDE_bool_list[start_index:start_index + self.PDE_multiple] = new_value #The point is that we fill in the opposite way
+
+        return compartment_bool_list, PDE_bool_list
 
 
     """A fixed version of boolean_if_less_mass"""
@@ -126,17 +144,16 @@ class Hybrid:
         PDE_list = PDE_list.astype(float)
 
         combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
-        
+        boolean_SSA_threshold, boolean_PDE_threshold = self.threshold_boolean(combined_list)
+
         movement_propensity = 2 * self.d * SSA_list
         movement_propensity[0] = self.d * SSA_list[0]
         movement_propensity[-1] = self.d * SSA_list[-1]
 
 
-        R1_propensity = self.production_rate* combined_list #Changed from SSA to Combined list
+        R1_propensity = self.production_rate* combined_list*boolean_SSA_threshold#Changed from SSA to Combined list
         R2_propensity = self.degradation_rate*(1/self.h) * SSA_list * (SSA_list - 1)
 
-
-        
 
         R3_propensity = 2*self.degradation_rate *(1/self.h)*approximate_PDE_mass * SSA_list
 
@@ -179,9 +196,14 @@ class Hybrid:
         while t < self.total_time:
 
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
+            combined_mass = self.calculate_total_mass(PDE_list, SSA_list)[0]
+            #print(f"combined_mass in the sim is equal to {combined_mass}")
+            SSA_boolean_threshold, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
+            
+        
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
-                PDE_list = self.RK4(PDE_list)
+                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold)
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
@@ -283,7 +305,7 @@ class Hybrid:
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
                 old_time = t  
             else: #Else if the next timestep will be the PDE type, then we execute the PDE.
-                PDE_list = self.RK4(PDE_list)
+                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold)
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
