@@ -4,6 +4,13 @@ import os
 import json
 from copy import deepcopy
 
+import ctypes
+
+from production_project.clibrary_argtypes import set_clibrary_argtypes #Each data type for the c functions
+clibrary = ctypes.CDLL("c_class/clibrary.so") #import the c library
+
+set_clibrary_argtypes(clibrary) #Import the data types for each c function
+
 class Stochastic:
     def __init__(self, domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial):
         self.L = domain_length

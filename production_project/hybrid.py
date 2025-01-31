@@ -4,21 +4,27 @@ import os
 import json
 from copy import deepcopy, copy
 import ctypes
+from .base_function import UtilityFunctions
+from production_project.clibrary_argtypes import set_clibrary_argtypes #Each data type for the c functions
+clibrary = ctypes.CDLL("c_class/clibrary.so") #import the c library
 
-#np.random.seed(2)
-
-
-
+set_clibrary_argtypes(clibrary) #Import the data types for each c function
 
 class Hybrid:
     
-    def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial):
+    def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial,use_c_functions):
         self.L = domain_length
         self.SSA_M = compartment_number
         self.PDE_multiple = PDE_multiple
         self.production_rate = production_rate
         self.PDE_M = compartment_number * PDE_multiple
-        self.deltax = self.L / (self.PDE_M)
+        self.deltax = self.L / self.PDE_M
+
+        self.use_c_functions = use_c_functions #Whether use c_function or not 
+        if self.use_c_functions:
+            print("Using c functions")
+        else: 
+            print(f"Using python function")
         
         self.total_time = total_time
         self.timestep = timestep
@@ -27,7 +33,6 @@ class Hybrid:
         self.degradation_rate = degradation_rate
         self.h = self.L / compartment_number
         self.diffusion_rate = diffusion_rate
-        # self.d = diffusion_rate / (self.h ** 2)
         self.d = diffusion_rate / (self.h**2)
         self.threshold_conc = threshold / self.h
         self.SSA_X = np.linspace(0, self.L - self.h, self.SSA_M)
@@ -65,30 +70,35 @@ class Hybrid:
         PDE_grid = np.zeros((self.PDE_M, len(self.time_vector)), dtype=float)
         PDE_grid[:, 0] = self.PDE_initial_conditions
         return PDE_grid, SSA_grid 
+    
+    def calculate_total_mass(self, PDE_list: np.ndarray, SSA_list: np.ndarray) -> np.ndarray:
+        """This will calculate the total mass of discrete + continuous"""
+
+        return UtilityFunctions.calculate_total_mass(PDE_list, SSA_list, self.use_c_functions,self.PDE_multiple, self.deltax, self.SSA_M )
+      
+    def threshold_boolean(self, combined_list: np.ndarray) -> np.ndarray:
+        """Generate a boolean list based on the threshold"""
+
+        compartment_bool_list, PDE_bool_list =  UtilityFunctions.threshold_boolean(combined_list, self.threshold, self.PDE_multiple ,self.SSA_M)
+
+        return compartment_bool_list, PDE_bool_list
+
+    def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray: 
+
+        return UtilityFunctions.boolean_if_less_mass(PDE_list, self.h, self.PDE_multiple, self.SSA_M)
         
     def RHS_derivative(self, old_vector, boolean_threshold, SSA_fine_mass):
         dudt = np.zeros_like(old_vector)
         nabla = self.DX_NEW
         
-        
-        bool_production = self.production_rate*boolean_threshold 
-        dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + bool_production*(old_vector+SSA_fine_mass)
-        #dudt = self.diffusion_rate*(1/self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2)
+        bool_production = self.production_rate * boolean_threshold 
+        dudt = self.diffusion_rate * (1 / self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + bool_production * (old_vector + SSA_fine_mass)
         return dudt
-    
 
     def fine_grid_SSA_mass(self, SSA_mass):
-        """Will convert the SSA_mass to the same fine resolution as the PDE"""
-
-        fine_SSA_mass = np.zeros_like(self.PDE_X)
-        for i in range(self.SSA_M):
-            start_index = i * self.PDE_multiple
-            end_index = (i + 1) * self.PDE_multiple
-            fine_SSA_mass[start_index:end_index] = SSA_mass[i]
-
-        return fine_SSA_mass
-
-
+        """Convert the SSA_mass to the same fine resolution as the PDE"""
+        return UtilityFunctions.fine_grid_SSA_mass(SSA_mass, self.PDE_X, self.SSA_M, self.PDE_multiple)
+    
 
     def RK4(self, old_vector, boolean_threshold, SSA_fine_mass):
         k1 = self.RHS_derivative(old_vector, boolean_threshold, SSA_fine_mass)
@@ -97,62 +107,7 @@ class Hybrid:
         k4 = self.RHS_derivative(old_vector + self.timestep * k3, boolean_threshold, SSA_fine_mass)
         return old_vector + self.timestep * (k1 + 2 * k2 + 2 * k3 + k4) / 6
     
-    def ApproximateLeftHandPython(self, PDE_list: np.ndarray) -> np.ndarray:
-        PDE_list = PDE_list.astype(float)
-        approximation_number_cont = np.zeros(self.SSA_M)
-        for i in range(self.SSA_M):
-            start_index = self.PDE_multiple * i
-            end_index = self.PDE_multiple * (i + 1)
-            sum_value = np.sum(PDE_list[start_index:end_index]) * self.deltax
-            approximation_number_cont[i] = sum_value
-        return approximation_number_cont
-    
-
-    def calculate_total_mass(self, PDE_list: np.ndarray, SSA_list: np.ndarray) -> np.ndarray:
-        PDE_list = PDE_list.astype(float)
-        SSA_list = SSA_list.astype(int)
-        
-        approximate_PDE_mass = self.ApproximateLeftHandPython(PDE_list)
-        combined_list = np.add(SSA_list, approximate_PDE_mass)
-        return combined_list, approximate_PDE_mass
-
-    def threshold_boolean(self, combined_list: np.ndarray) -> np.ndarray:
-        """THis will generate a boolean list, if the combined list is above the threshold in that box then we will place a 1; else we place a 0."""
-
-        compartment_bool_list  = np.array([0 if i > self.threshold else 1 for i in combined_list]) #For the compartment list
-        PDE_bool_list = np.zeros(self.SSA_M*self.PDE_multiple) #For the the PDE list 
-        for i in range(self.SSA_M):
-            value = compartment_bool_list[i]
-            if value == 1:
-                new_value = 0
-            else: 
-                new_value = 1
-            start_index = i * self.PDE_multiple
-            PDE_bool_list[start_index:start_index + self.PDE_multiple] = new_value #The point is that we fill in the opposite way
-
-        return compartment_bool_list, PDE_bool_list
-
-
-    """A fixed version of boolean_if_less_mass"""
-    def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray: 
-        PDE_list = PDE_list.astype(float)
-        boolean_PDE_list = np.zeros_like(PDE_list)
-        boolean_PDE_list[PDE_list > 1 / self.h] = 1
-        boolean_threshold_SSA = np.zeros(self.SSA_M)
-        for i in range(self.SSA_M):
-            start_index = i * self.PDE_multiple
-            BOOL_VALUE = True
-            for j in range(self.PDE_multiple):
-                current_index = start_index + j
-                if boolean_PDE_list[current_index] == 0:
-                    BOOL_VALUE = False
-                    break  # Exit the loop early if any value is less than 1/h
-            if BOOL_VALUE:
-                boolean_threshold_SSA[i] = 1 
-            else:
-                boolean_threshold_SSA[i] = 0
-        return boolean_threshold_SSA
-
+ 
     def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
         SSA_list = SSA_list.astype(int)
         PDE_list = PDE_list.astype(float)
@@ -164,12 +119,9 @@ class Hybrid:
         movement_propensity[0] = self.d * SSA_list[0]
         movement_propensity[-1] = self.d * SSA_list[-1]
 
-
-        R1_propensity = self.production_rate* combined_list*boolean_SSA_threshold#Changed from SSA to Combined list
-        R2_propensity = self.degradation_rate*(1/self.h) * SSA_list * (SSA_list - 1)
-
-
-        R3_propensity = 2*self.degradation_rate *(1/self.h)*approximate_PDE_mass * SSA_list
+        R1_propensity = self.production_rate * combined_list * boolean_SSA_threshold
+        R2_propensity = self.degradation_rate * (1 / self.h) * SSA_list * (SSA_list - 1)
+        R3_propensity = 2 * self.degradation_rate * (1 / self.h) * approximate_PDE_mass * SSA_list
 
         conversion_to_discrete = np.zeros_like(SSA_list)
         conversion_to_cont = np.zeros_like(approximate_PDE_mass)
@@ -208,14 +160,11 @@ class Hybrid:
         PDE_list = PDE_grid[:, 0].astype(float)
         ind_after = 0
         while t < self.total_time:
-
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
-            fine_SSA_mass = self.fine_grid_SSA_mass(SSA_list) #THis is the fine resolution SSA_mass
+            fine_SSA_mass = self.fine_grid_SSA_mass(SSA_list)
             combined_mass = self.calculate_total_mass(PDE_list, SSA_list)[0]
-            #print(f"combined_mass in the sim is equal to {combined_mass}")
             SSA_boolean_threshold, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
             
-        
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
                 PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
@@ -228,7 +177,6 @@ class Hybrid:
                     SSA_grid[:, time_index] = SSA_list
                     self.check_negative_values(PDE_list, "PDE_list")
                     self.check_negative_values(SSA_grid, "SSA_list")
-
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
                 old_time = t 
                 continue 
@@ -239,77 +187,32 @@ class Hybrid:
             index = np.searchsorted(alpha_cum, r2 * alpha0)
             compartment_index = index % self.SSA_M
             if t + tau <= td:
-                """The first will be the diffusion reactions"""
                 if index <= self.SSA_M - 2 and index >= 1:
                     if r3 < 0.5:
-                        SSA_list[index] = SSA_list[index] - 1
+                        SSA_list[index] -= 1
                         SSA_list[index - 1] += 1
                     else:
-                        SSA_list[index] = SSA_list[index] - 1
+                        SSA_list[index] -= 1
                         SSA_list[index + 1] += 1
                 elif index == 0:
-                    SSA_list[index] = SSA_list[index] - 1
+                    SSA_list[index] -= 1
                     SSA_list[index + 1] += 1
                 elif index == self.SSA_M - 1:
-                    SSA_list[index] = SSA_list[index] - 1
+                    SSA_list[index] -= 1
                     SSA_list[index - 1] += 1
-                    
-                    """Now the reaction kinetics will occur"""
-                elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1: #D -> D+D
+                elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:
                     SSA_list[compartment_index] += 1
-
-                elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1: # D+D -> D
+                elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:
                     SSA_list[compartment_index] -= 1
-
-                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1: #D+C -> D, 
-
-                    """Actually this has been changed from D+C -> D, to D+C->C, so we are in fact destroying the continous particle."""
-
-                    #PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
+                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:
                     SSA_list[compartment_index] -= 1
-
-                    """The conversion reactions are next"""
-                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: # C -> D The conversion from continuous to discrete mass
-                    # Calculate total mass before transfer
-
-                    # print(f"Start of analysis")
-                    # print(f"The compartment is {compartment_index}")
-                    # total_mass_before, PDE_mass_before = self.calculate_total_mass(
-                    #     PDE_list, 
-                    #     SSA_list
-                    #  )
-                    # print(f"The PDE list before the transfer: {PDE_list}")
-                    # print(f"PDE list at that compartment: {PDE_list[compartment_index * self.PDE_multiple : (compartment_index + 1) * self.PDE_multiple]}")
-                    # print(f"Total propensity {total_propensity[compartment_index]}")
-                    # # Perform the mass transfer
+                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
-
-                    
-                    # # Calculate total mass after transfer
-                    # total_mass_after, PDE_mass_after = self.calculate_total_mass(
-                    #     PDE_list, 
-                    #     SSA_list
-                    # )
-
-                    # print(f"Cont -> Discrete: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
-                    # print(f"The PDE mass before: {PDE_mass_before}")
-                    # print(f"The PDE mass after: {PDE_mass_after}")
-                    # print(f"The discrete mass: {SSA_list[compartment_index] - 1}")
-                    # print(f"The PDE list after the transfer: {PDE_list}")
-                    # self.check_negative_values(PDE_list, "PDE_list") #This is where the PDE mass goes negative
-
-                 
-                else: #D-> C #From discrete to continious
-
-                    # total_mass_before, PDE_mass_before  = self.calculate_total_mass(PDE_list, SSA_list)
-
+                else:
                     SSA_list[compartment_index] -= 1 
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
-                    #total_mass_after, PDE_Mass_after = self.calculate_total_mass(PDE_list, SSA_list)
-
-                    # print(f"Discrete -> cont: Before: {np.sum(total_mass_before)}, After: {np.sum(total_mass_after)}")
-                t += tau #Update time
+                t += tau
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
@@ -319,7 +222,7 @@ class Hybrid:
                     self.check_negative_values(SSA_list, "SSA_list")
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
                 old_time = t  
-            else: #Else if the next timestep will be the PDE type, then we execute the PDE.
+            else:
                 PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
                 t = copy(td)
                 td += self.timestep
