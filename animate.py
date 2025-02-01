@@ -84,10 +84,10 @@ def main():
     )
 
     # Continuous plots
-    line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g', label='Hybrid PDE', linewidth=2)
+    line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g--', label='Hybrid PDE', linewidth=2)
     line_combined, = ax.plot(PDE_X, combined_grid[:, 0], 'k--', label='Combined', linewidth=2)
     # line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic', color='red', linewidth=2)
-    line_pure_PDE, = ax.plot(PDE_X, PDE_grid[:, 0], 'm', label='Pure PDE', linewidth=2)
+    line_pure_PDE, = ax.plot(PDE_X, PDE_grid[:, 0], 'g', label='Pure PDE', linewidth=2)
 
     # Threshold line
     threshold_line = ax.axhline(y=concentration_threshold, color='purple', linestyle='--', label='Threshold', linewidth=1.5)

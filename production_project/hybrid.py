@@ -119,9 +119,9 @@ class Hybrid:
         movement_propensity[0] = self.d * SSA_list[0]
         movement_propensity[-1] = self.d * SSA_list[-1]
 
-        R1_propensity = self.production_rate * combined_list * boolean_SSA_threshold
-        R2_propensity = self.degradation_rate * (1 / self.h) * SSA_list * (SSA_list - 1)
-        R3_propensity = 2 * self.degradation_rate * (1 / self.h) * approximate_PDE_mass * SSA_list
+        R1_propensity = self.production_rate * combined_list * boolean_SSA_threshold #D-> 2A
+        R2_propensity = self.degradation_rate * (1 / self.h) * SSA_list * (SSA_list - 1) #2D -> D
+        R3_propensity = 2 * self.degradation_rate * (1 / self.h) * approximate_PDE_mass * SSA_list # D+C -> C
 
         conversion_to_discrete = np.zeros_like(SSA_list)
         conversion_to_cont = np.zeros_like(approximate_PDE_mass)
@@ -163,7 +163,7 @@ class Hybrid:
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             fine_SSA_mass = self.fine_grid_SSA_mass(SSA_list)
             combined_mass = self.calculate_total_mass(PDE_list, SSA_list)[0]
-            SSA_boolean_threshold, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
+            _, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
             
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
@@ -187,7 +187,7 @@ class Hybrid:
             index = np.searchsorted(alpha_cum, r2 * alpha0)
             compartment_index = index % self.SSA_M
             if t + tau <= td:
-                if index <= self.SSA_M - 2 and index >= 1:
+                if index <= self.SSA_M - 2 and index >= 1: #Diffusion 
                     if r3 < 0.5:
                         SSA_list[index] -= 1
                         SSA_list[index - 1] += 1
@@ -200,17 +200,21 @@ class Hybrid:
                 elif index == self.SSA_M - 1:
                     SSA_list[index] -= 1
                     SSA_list[index - 1] += 1
+
+                    #first reaction is the 
                 elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:
-                    SSA_list[compartment_index] += 1
+                    SSA_list[compartment_index] += 1 #D -> 2D
                 elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:
-                    SSA_list[compartment_index] -= 1
+                    SSA_list[compartment_index] -= 1 #2D -> D
                 elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:
-                    SSA_list[compartment_index] -= 1
-                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:
-                    SSA_list[compartment_index] += 1
+                    SSA_list[compartment_index] -= 1 #D + C -> C
+
+                    #Conversion reactions:
+                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: #C -> D
+                    SSA_list[compartment_index] += 1 
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
                 else:
-                    SSA_list[compartment_index] -= 1 
+                    SSA_list[compartment_index] -= 1  #D -> C
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                 t += tau
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')

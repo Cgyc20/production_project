@@ -1,7 +1,5 @@
 import numpy as np
 from tqdm import tqdm
-import os
-import json
 from copy import deepcopy, copy
 import ctypes
 
