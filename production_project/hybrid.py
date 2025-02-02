@@ -15,6 +15,7 @@ class Hybrid:
     def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial,use_c_functions):
         self.L = domain_length
         self.SSA_M = compartment_number
+    
         self.PDE_multiple = PDE_multiple
         self.production_rate = production_rate
         self.PDE_M = compartment_number * PDE_multiple
@@ -151,6 +152,26 @@ class Hybrid:
             raise ValueError(f"The vector named '{vector_name}' has negative values.")
         return None
 
+    def test_boolean(self, combined_mass: np.ndarray, compartment_boolean_input: np.ndarray, PDE_boolean_input: np.ndarray):
+        """THis will test if the Boolean is doing as expected."""
+
+        compartment_boolean_internal = combined_mass[combined_mass<= self.threshold]
+        PDE_boolean_internal = np.zeros_like(PDE_boolean_input)
+        print(f"The compartment_boolean shape: {compartment_boolean_input.shape}")
+        for i in range(self.SSA_M):
+            value = compartment_boolean_internal[i]
+            new_value = 0 if value == 1 else 1
+            start_index = i*self.PDE_multiple
+            PDE_boolean_internal[start_index:start_index+self.PDE_multiple] = new_value
+            
+
+        if compartment_boolean_internal.any() != compartment_boolean_input.any():
+            raise ValueError("The compartment booleaan input does not match current combined_mass")
+        if PDE_boolean_input.any() != PDE_boolean_input.any():
+            raise ValueError("The PDE_boolean_threshold input does not match current combined mass")
+        
+        return None
+
     def hybrid_simulation(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, approx_mass: np.ndarray) -> np.ndarray:
         t = 0
         old_time = t
@@ -163,11 +184,17 @@ class Hybrid:
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             fine_SSA_mass = self.fine_grid_SSA_mass(SSA_list)
             combined_mass = self.calculate_total_mass(PDE_list, SSA_list)[0]
-            _, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
+            compartment_boolean_threshold, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
             
+            #Test this 
+            self.test_boolean(combined_mass, compartment_boolean_threshold,PDE_boolean_threshold) #THis will output error if not matching with the test function
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
                 PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
+                # I want to check at this point whether the boolean mass actualy does what expected
+                #Run some test at this point
+
+
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
