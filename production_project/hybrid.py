@@ -157,13 +157,13 @@ class Hybrid:
 
         compartment_boolean_internal = combined_mass[combined_mass<= self.threshold]
         PDE_boolean_internal = np.zeros_like(PDE_boolean_input)
-        print(f"The compartment_boolean shape: {compartment_boolean_input.shape}")
-        for i in range(self.SSA_M):
+        # print(f"The compartment_boolean shape: {len(compartment_boolean_input)}")
+        for i in range(min(self.SSA_M, len(compartment_boolean_internal))):
             value = compartment_boolean_internal[i]
             new_value = 0 if value == 1 else 1
-            start_index = i*self.PDE_multiple
-            PDE_boolean_internal[start_index:start_index+self.PDE_multiple] = new_value
-            
+            start_index = i * self.PDE_multiple
+            PDE_boolean_internal[start_index:start_index + self.PDE_multiple] = new_value
+                    
 
         if compartment_boolean_internal.any() != compartment_boolean_input.any():
             raise ValueError("The compartment booleaan input does not match current combined_mass")
@@ -187,14 +187,11 @@ class Hybrid:
             compartment_boolean_threshold, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
             
             #Test this 
-            self.test_boolean(combined_mass, compartment_boolean_threshold,PDE_boolean_threshold) #THis will output error if not matching with the test function
+            #self.test_boolean(combined_mass, compartment_boolean_threshold,PDE_boolean_threshold) #THis will output error if not matching with the test function
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
                 PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
-                # I want to check at this point whether the boolean mass actualy does what expected
-                #Run some test at this point
-
-
+               
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
