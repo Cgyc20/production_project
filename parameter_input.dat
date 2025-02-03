@@ -1,8 +1,8 @@
-domain_length 10 
+domain_length 10
 compartment_length 0.1
 PDE_multiple 8
-total_time 10
-timestep 0.005
+total_time 1
+timestep 0.008
 particles_per_compartment_thresh 50
 gamma 1
 production_rate 10

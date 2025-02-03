@@ -4,6 +4,7 @@ import os
 import json
 from copy import deepcopy, copy
 from scipy.integrate import solve_ivp
+from scipy.optimize import fsolve
 import ctypes
 from .base_function import UtilityFunctions
 from production_project.clibrary_argtypes import set_clibrary_argtypes #Each data type for the c functions
@@ -114,6 +115,14 @@ class Hybrid:
         )
         return sol.y[:, -1]  # Return the final state
 
+    def backward_euler(self, old_vector, boolean_threshold, SSA_fine_mass):
+    
+        def implicit_eq(new_vector):
+            return new_vector - old_vector - self.timestep * self.RHS_derivative(0, new_vector, boolean_threshold, SSA_fine_mass)
+        
+        new_vector = fsolve(implicit_eq, old_vector)  # Nonlinear solver
+        return new_vector
+
 
     def RK4(self, old_vector, boolean_threshold, SSA_fine_mass):
         k1 = self.RHS_derivative(old_vector, boolean_threshold, SSA_fine_mass)
@@ -121,6 +130,22 @@ class Hybrid:
         k3 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k2, boolean_threshold, SSA_fine_mass)
         k4 = self.RHS_derivative(old_vector + self.timestep * k3, boolean_threshold, SSA_fine_mass)
         return old_vector + self.timestep * (k1 + 2 * k2 + 2 * k3 + k4) / 6
+    
+    def IMEX_Euler(self, old_vector, boolean_threshold, SSA_fine_mass):
+        # Implicit part: diffusion (A is the diffusion matrix)
+        A = self.diffusion_rate * (1 / self.deltax)**2 * self.DX_NEW
+        I = np.eye(len(old_vector))
+        
+        # Explicit part: reaction and production
+        reaction = -self.degradation_rate * (old_vector ** 2) + 2*self.production_rate * boolean_threshold * (old_vector + SSA_fine_mass)
+        
+        # Solve the linear system: (I - dt*A) * new_vector = old_vector + dt * reaction
+        lhs = I - self.timestep * A
+        rhs = old_vector + self.timestep * reaction
+        
+        new_vector = np.linalg.solve(lhs, rhs)  # Use sparse solver if A is sparse
+        return new_vector
+
     
  
     def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
@@ -206,11 +231,12 @@ class Hybrid:
             if alpha0 == 0:
 
                 
-                t_span = (0, self.timestep)  # Integrate over one timestep
-                t_eval = [self.timestep]     # Only need the final state after the timestep
-                PDE_list = self.integrate_system(PDE_list, PDE_boolean_threshold, fine_SSA_mass, t_span, t_eval)
+                # t_span = (0, self.timestep)  # Integrate over one timestep
+                # t_eval = [self.timestep]     # Only need the final state after the timestep
+                # PDE_list = self.integrate_system(PDE_list, PDE_boolean_threshold, fine_SSA_mass, t_span, t_eval)
+                #PDE_list = self.backward_euler(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
 
-                # PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
+                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
                
                 t = copy(td)
                 td += self.timestep
