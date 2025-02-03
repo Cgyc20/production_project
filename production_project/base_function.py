@@ -67,12 +67,12 @@ class UtilityFunctions:
     @staticmethod
     def threshold_boolean(combined_list: np.ndarray, threshold: float, PDE_multiple: int, SSA_M: int) -> np.ndarray:
         """Generate a boolean list based on the threshold"""
-        compartment_bool_list = np.array([0 if i > threshold else 1 for i in combined_list])
+        compartment_bool_list = np.array([0 if total_mass > threshold else 1 for total_mass in combined_list])
         PDE_bool_list = np.zeros(SSA_M * PDE_multiple)
         for i in range(SSA_M):
             value = compartment_bool_list[i]
             new_value = 0 if value == 1 else 1
-            start_index = i * PDE_multiple
+            start_index = i * PDE_multiple 
             PDE_bool_list[start_index:start_index + PDE_multiple] = new_value
         return compartment_bool_list, PDE_bool_list
 

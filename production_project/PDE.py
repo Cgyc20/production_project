@@ -16,6 +16,7 @@ class PDE:
         self.degradation_rate = degradation_rate
         
         self.PDE_X = np.linspace(0, self.L,self.PDE_points)
+        print(f"Print number of PDE_points {self.PDE_X}")
         self.steady_state = production_rate / degradation_rate
         self.DX_NEW = self.create_finite_difference()
         self.time_vector = np.arange(0, total_time, timestep)

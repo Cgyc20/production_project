@@ -3,6 +3,7 @@ from tqdm import tqdm
 import os
 import json
 from copy import deepcopy, copy
+from scipy.integrate import solve_ivp
 import ctypes
 from .base_function import UtilityFunctions
 from production_project.clibrary_argtypes import set_clibrary_argtypes #Each data type for the c functions
@@ -101,6 +102,19 @@ class Hybrid:
         return UtilityFunctions.fine_grid_SSA_mass(SSA_mass, self.PDE_X, self.SSA_M, self.PDE_multiple)
     
 
+    def integrate_system(self, old_vector, boolean_threshold, SSA_fine_mass, t_span, t_eval):
+        sol = solve_ivp(
+            self.RHS_derivative,
+            t_span,
+            old_vector,
+            t_eval=t_eval,
+            args=(boolean_threshold, SSA_fine_mass),
+            method='BDF',  # Stiff solver
+            vectorized=True
+        )
+        return sol.y[:, -1]  # Return the final state
+
+
     def RK4(self, old_vector, boolean_threshold, SSA_fine_mass):
         k1 = self.RHS_derivative(old_vector, boolean_threshold, SSA_fine_mass)
         k2 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k1, boolean_threshold, SSA_fine_mass)
@@ -184,13 +198,19 @@ class Hybrid:
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             fine_SSA_mass = self.fine_grid_SSA_mass(SSA_list)
             combined_mass = self.calculate_total_mass(PDE_list, SSA_list)[0]
-            compartment_boolean_threshold, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
+            _, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
             
             #Test this 
             #self.test_boolean(combined_mass, compartment_boolean_threshold,PDE_boolean_threshold) #THis will output error if not matching with the test function
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
-                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
+
+                
+                t_span = (0, self.timestep)  # Integrate over one timestep
+                t_eval = [self.timestep]     # Only need the final state after the timestep
+                PDE_list = self.integrate_system(PDE_list, PDE_boolean_threshold, fine_SSA_mass, t_span, t_eval)
+
+                # PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
                
                 t = copy(td)
                 td += self.timestep
