@@ -78,12 +78,15 @@ class UtilityFunctions:
 
 
     @staticmethod
-    def fine_grid_SSA_mass(SSA_mass: np.ndarray, PDE_X: np.ndarray, SSA_M: int, PDE_multiple: int):
+    def fine_grid_SSA_mass(SSA_mass: np.ndarray, PDE_X: np.ndarray, SSA_M: int, PDE_multiple: int, h: float):
         """Convert the SSA_mass to the same fine resolution as the PDE"""
-        fine_SSA_mass = np.zeros_like(PDE_X)
+        
+        fine_SSA_mass = np.zeros_like(PDE_X, dtype=float)  # Ensure float type for PDE consistency
+        
         for i in range(SSA_M):
             start_index = i * PDE_multiple
             end_index = (i + 1) * PDE_multiple
-            fine_SSA_mass[start_index:end_index] = SSA_mass[i]
-        return fine_SSA_mass 
-    
+            fine_SSA_mass[start_index:end_index] = float(SSA_mass[i])/h
+
+        return fine_SSA_mass
+            

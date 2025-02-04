@@ -3,8 +3,6 @@ from tqdm import tqdm
 import os
 import json
 from copy import deepcopy, copy
-from scipy.integrate import solve_ivp
-from scipy.optimize import fsolve
 import ctypes
 from .base_function import UtilityFunctions
 from production_project.clibrary_argtypes import set_clibrary_argtypes #Each data type for the c functions
@@ -106,7 +104,7 @@ class Hybrid:
         # Precompute terms
         diffusion_term = diff_coeff * (nabla @ old_vector)
         degradation_term = self.degradation_rate * (old_vector ** 2)
-        production_term = self.production_rate * boolean_threshold * (old_vector + SSA_fine_mass/self.h)
+        production_term = self.production_rate * boolean_threshold * (old_vector + SSA_fine_mass)
 
         # Combine all terms
         dudt = diffusion_term - degradation_term + production_term
@@ -115,7 +113,7 @@ class Hybrid:
 
     def fine_grid_SSA_mass(self, SSA_mass):
         """Convert the SSA_mass to the same fine resolution as the PDE"""
-        return UtilityFunctions.fine_grid_SSA_mass(SSA_mass, self.PDE_X, self.SSA_M, self.PDE_multiple)
+        return UtilityFunctions.fine_grid_SSA_mass(SSA_mass, self.PDE_X, self.SSA_M, self.PDE_multiple, self.h)
     
 
 
@@ -279,7 +277,7 @@ class Hybrid:
                     reaction_type = "conversion_D_to_C"
 
                 SSA_events_log.append((t, compartment_index, reaction_type))
-                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass,tau)
+                # PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass,tau)
                 t += tau
                
                 # ind_before = np.searchsorted(self.time_vector, old_time, 'right')
@@ -304,7 +302,7 @@ class Hybrid:
 
                 old_time = t
             else:
-                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass,td-old_time)
+                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
                 PDE_update_times.append(t)
 
                 t = copy(td)
