@@ -270,15 +270,25 @@ class Hybrid:
                 SSA_events_log.append((t, compartment_index, reaction_type))
                 t += tau
 
-                ind_before = np.searchsorted(self.time_vector, old_time, 'right')
-                ind_after = np.searchsorted(self.time_vector, t, 'left')
-                # print(f"ind_before-ind_after = {ind_after-ind_before}")
-                for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
-                    SSA_grid[:, time_index] = SSA_list
-                    PDE_grid[:, time_index] = PDE_list
-                    self.check_negative_values(PDE_list, "PDE_list")
-                    self.check_negative_values(SSA_list, "SSA_list")
-                    approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
+                # ind_before = np.searchsorted(self.time_vector, old_time, 'right')
+                
+       
+                # ind_after = np.searchsorted(self.time_vector, t, 'left')
+                # # print(f"ind_before-ind_after = {ind_after-ind_before}")
+                # for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
+                #     print(time_index)
+                #     SSA_grid[:, time_index] = SSA_list
+                #     PDE_grid[:, time_index] = PDE_list
+                #     self.check_negative_values(PDE_list, "PDE_list")
+                #     self.check_negative_values(SSA_list, "SSA_list")
+                #     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
+
+                # SSA_grid[:,ind_before ] = SSA_list
+                # PDE_grid[:, ind_before] = PDE_list
+                # self.check_negative_values(PDE_list, "PDE_list")
+                # self.check_negative_values(SSA_list, "SSA_list")
+                # approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
+            
 
                 old_time = t
             else:
@@ -288,6 +298,7 @@ class Hybrid:
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
+                print(f"Ind before in PDE {ind_before}")
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
                 # print(f"ind_after - ind_after in PDE {ind_after-ind_before}")
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
