@@ -363,9 +363,12 @@ class Hybrid:
                 combined_grid=combined_grid,
                 time_vector=self.time_vector,
                 SSA_X=self.SSA_X,
-                PDE_X=self.PDE_X,
-                SSA_events_logs=all_SSA_events_logs,
-                PDE_update_times=all_PDE_update_times)
+                PDE_X=self.PDE_X)
+        
+        # Save the lists of SSA events and PDE update times separately
+        np.save(os.path.join(datadirectory, 'SSA_events_logs.npy'), all_SSA_events_logs)
+        np.save(os.path.join(datadirectory, 'PDE_update_times.npy'), all_PDE_update_times)
+        
         with open(os.path.join(datadirectory, "parameters.json"), 'w') as params_file:
             json.dump(params, params_file, indent=4)
         print("Data saved successfully")
