@@ -95,7 +95,8 @@ class Hybrid:
         nabla = self.DX_NEW
         
         bool_production = self.production_rate * boolean_threshold 
-        dudt = self.diffusion_rate * (1 / self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + bool_production * (old_vector + SSA_fine_mass)
+        dudt = self.diffusion_rate * (1 / self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + bool_production * (old_vector+SSA_fine_mass)
+        #dudt = self.diffusion_rate * (1 / self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + self.production_rate* (old_vector)
         return dudt
 
     def fine_grid_SSA_mass(self, SSA_mass):
@@ -131,22 +132,7 @@ class Hybrid:
         k4 = self.RHS_derivative(old_vector + self.timestep * k3, boolean_threshold, SSA_fine_mass)
         return old_vector + self.timestep * (k1 + 2 * k2 + 2 * k3 + k4) / 6
     
-    def IMEX_Euler(self, old_vector, boolean_threshold, SSA_fine_mass):
-        # Implicit part: diffusion (A is the diffusion matrix)
-        A = self.diffusion_rate * (1 / self.deltax)**2 * self.DX_NEW
-        I = np.eye(len(old_vector))
-        
-        # Explicit part: reaction and production
-        reaction = -self.degradation_rate * (old_vector ** 2) + 2*self.production_rate * boolean_threshold * (old_vector + SSA_fine_mass)
-        
-        # Solve the linear system: (I - dt*A) * new_vector = old_vector + dt * reaction
-        lhs = I - self.timestep * A
-        rhs = old_vector + self.timestep * reaction
-        
-        new_vector = np.linalg.solve(lhs, rhs)  # Use sparse solver if A is sparse
-        return new_vector
 
-    
  
     def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
         SSA_list = SSA_list.astype(int)
@@ -160,6 +146,7 @@ class Hybrid:
         movement_propensity[-1] = self.d * SSA_list[-1]
 
         R1_propensity = self.production_rate * combined_list * boolean_SSA_threshold #D-> 2A
+        #R1_propensity = self.production_rate * SSA_list #D-> 2A
         R2_propensity = self.degradation_rate * (1 / self.h) * SSA_list * (SSA_list - 1) #2D -> D
         R3_propensity = 2 * self.degradation_rate * (1 / self.h) * approximate_PDE_mass * SSA_list # D+C -> C
 
@@ -222,6 +209,7 @@ class Hybrid:
         while t < self.total_time:
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             fine_SSA_mass = self.fine_grid_SSA_mass(SSA_list)
+            # print(f"fine SSA_mass : {fine_SSA_mass}")
             combined_mass = self.calculate_total_mass(PDE_list, SSA_list)[0]
             _, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
             

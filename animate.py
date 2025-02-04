@@ -71,7 +71,7 @@ def main():
     relative_error_SSA = np.abs((SSA_total_mass - analytic_total_mass) / analytic_total_mass)
 
     # Plotting and Animation
-    fig, ax = plt.subplots(figsize=(8, 6)) 
+    fig, ax = plt.subplots(figsize=(12, 8)) 
 
     # Initial SSA bar plot
     bar_SSA = ax.bar(
@@ -207,35 +207,49 @@ def main():
     max_y = max(wavespeed_PDE.max(), wavespeed_SSA.max(), wavespeed_hybrid.max(),
                 wavespeed_PDE_smooth.max(), wavespeed_SSA_smooth.max(), wavespeed_hybrid_smooth.max())
 
-    # Plot 1: Original Wave Speeds
-    plt.subplot(1, 2, 1)
-    plt.plot(time_vector, wavespeed_PDE, 'g', label='PDE', linewidth=2)
-    plt.plot(time_vector, wavespeed_SSA, 'b', label='SSA', linewidth=2)
-    plt.plot(time_vector, wavespeed_hybrid, 'r', label='Hybrid', linewidth=2)
-    plt.xlabel('Time', fontsize=12)
-    plt.ylabel('Wave Speed', fontsize=12)
-    plt.title('Original Wave Speeds', fontsize=14)
-    plt.legend(fontsize=10)
-    plt.grid(True, linestyle='--', alpha=0.6)
-    plt.ylim(min_y, max_y)  # Set the same y-axis limits
 
-    # Plot 2: Smoothed Wave Speeds
-    
-    plt.subplot(1, 2, 2)
-    plt.plot(time_vector_smooth, wavespeed_PDE_smooth, 'g', label='PDE (Smoothed)', linewidth=2)
-    plt.plot(time_vector_smooth, wavespeed_SSA_smooth, 'b', label='SSA (Smoothed)', linewidth=2)
-    plt.plot(time_vector_smooth, wavespeed_hybrid_smooth, 'r', label='Hybrid (Smoothed)', linewidth=2)
-    plt.plot(time_vector_smooth,max_wave_speed,'k--', label = 'Max theoretical wavespeed')
-    plt.xlabel('Time', fontsize=12)
-    plt.ylabel('Wave Speed', fontsize=12)
-    plt.title('Smoothed Wave Speeds', fontsize=14)
-    plt.legend(fontsize=10)
-    plt.grid(True, linestyle='--', alpha=0.6)
-    plt.ylim(min_y, max_y)  # Set the same y-axis limits
+    #plot 0
+    print(f"the shape of the D -grid is {D_grid.shape}")
+    print(f"The shape of the timevector is {time_vector.shape}")
 
-    # Adjust layout and display the plots
-    plt.tight_layout()
+    plt.plot(time_vector,D_grid[0,:],'b--',label = 'Hybrid SSA')
+    plt.plot(time_vector,SSA_grid[0,:],'g',label = 'Pure SSA')
+    #Now plotting the per compartment threshold
+    plt.plot(time_vector, np.ones_like(time_vector)*concentration_threshold*h, label = 'Compartment Threshold')
+    plt.plot(time_vector,combined_grid[0,:]*h,'k--',label = 'Hybrid Combined')
+    plt.legend()
     plt.show()
+    # plt.figure()
+
+    # # Plot 1: Original Wave Speeds
+    # plt.subplot(1, 2, 1)
+    # plt.plot(time_vector, wavespeed_PDE, 'g', label='PDE', linewidth=2)
+    # plt.plot(time_vector, wavespeed_SSA, 'b', label='SSA', linewidth=2)
+    # plt.plot(time_vector, wavespeed_hybrid, 'r', label='Hybrid', linewidth=2)
+    # plt.xlabel('Time', fontsize=12)
+    # plt.ylabel('Wave Speed', fontsize=12)
+    # plt.title('Original Wave Speeds', fontsize=14)
+    # plt.legend(fontsize=10)
+    # plt.grid(True, linestyle='--', alpha=0.6)
+    # plt.ylim(min_y, max_y)  # Set the same y-axis limits
+
+    # # Plot 2: Smoothed Wave Speeds
+    
+    # plt.subplot(1, 2, 2)
+    # plt.plot(time_vector_smooth, wavespeed_PDE_smooth, 'g', label='PDE (Smoothed)', linewidth=2)
+    # plt.plot(time_vector_smooth, wavespeed_SSA_smooth, 'b', label='SSA (Smoothed)', linewidth=2)
+    # plt.plot(time_vector_smooth, wavespeed_hybrid_smooth, 'r', label='Hybrid (Smoothed)', linewidth=2)
+    # plt.plot(time_vector_smooth,max_wave_speed,'k--', label = 'Max theoretical wavespeed')
+    # plt.xlabel('Time', fontsize=12)
+    # plt.ylabel('Wave Speed', fontsize=12)
+    # plt.title('Smoothed Wave Speeds', fontsize=14)
+    # plt.legend(fontsize=10)
+    # plt.grid(True, linestyle='--', alpha=0.6)
+    # plt.ylim(min_y, max_y)  # Set the same y-axis limits
+
+    # # Adjust layout and display the plots
+    # plt.tight_layout()
+    # plt.show()
 
     print(f"The wavespeed PDE_smooth: {wavespeed_PDE_smooth}")
 
