@@ -342,7 +342,7 @@ def main():
         plt.show()
     # Call the function for 'diffusion'
     
-    plot_heatmap_of_event('J degredation')
+    plot_heatmap_of_event('D duplication')
     # plot_PDE_dist(PDE_update_times)
 
 if __name__ == "__main__":

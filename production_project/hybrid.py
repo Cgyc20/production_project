@@ -338,6 +338,7 @@ class Hybrid:
 
         return SSA_average, PDE_average, combined_grid, all_SSA_events_logs, all_PDE_update_times
 
+     
     def save_simulation_data(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, combined_grid: np.ndarray, all_SSA_events_logs: list, all_PDE_update_times: list, datadirectory='data'):
         if not os.path.exists(datadirectory):
             os.makedirs(datadirectory)
@@ -366,8 +367,8 @@ class Hybrid:
                 PDE_X=self.PDE_X)
         
         # Save the lists of SSA events and PDE update times separately
-        np.save(os.path.join(datadirectory, 'SSA_events_logs.npy'), all_SSA_events_logs)
-        np.save(os.path.join(datadirectory, 'PDE_update_times.npy'), all_PDE_update_times)
+        np.save(os.path.join(datadirectory, 'SSA_events_logs.npy'), np.array(all_SSA_events_logs, dtype=object))
+        np.save(os.path.join(datadirectory, 'PDE_update_times.npy'), np.array(all_PDE_update_times, dtype=object))
         
         with open(os.path.join(datadirectory, "parameters.json"), 'w') as params_file:
             json.dump(params, params_file, indent=4)
