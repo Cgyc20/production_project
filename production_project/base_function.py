@@ -5,7 +5,6 @@ import ctypes
 
 from production_project.clibrary_argtypes import set_clibrary_argtypes # Each data type for the c functions
 clibrary = ctypes.CDLL("c_class/clibrary.so") # Import the C library
-
 set_clibrary_argtypes(clibrary) # Import the data types for each C function
 
 class UtilityFunctions:
