@@ -104,18 +104,6 @@ class Hybrid:
         return UtilityFunctions.fine_grid_SSA_mass(SSA_mass, self.PDE_X, self.SSA_M, self.PDE_multiple)
     
 
-    def integrate_system(self, old_vector, boolean_threshold, SSA_fine_mass, t_span, t_eval):
-        sol = solve_ivp(
-            self.RHS_derivative,
-            t_span,
-            old_vector,
-            t_eval=t_eval,
-            args=(boolean_threshold, SSA_fine_mass),
-            method='BDF',  # Stiff solver
-            vectorized=True
-        )
-        return sol.y[:, -1]  # Return the final state
-
     def backward_euler(self, old_vector, boolean_threshold, SSA_fine_mass):
     
         def implicit_eq(new_vector):
@@ -206,26 +194,22 @@ class Hybrid:
         SSA_list = SSA_grid[:, 0].astype(int)
         PDE_list = PDE_grid[:, 0].astype(float)
         ind_after = 0
+
+        # Arrays to track SSA events and PDE updates
+        SSA_events_log = []  # Format: (time, compartment_index, reaction_type)
+        PDE_update_times = []  # List of times when PDE is updated
+
         while t < self.total_time:
             total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             fine_SSA_mass = self.fine_grid_SSA_mass(SSA_list)
-            # print(f"fine SSA_mass : {fine_SSA_mass}")
             combined_mass = self.calculate_total_mass(PDE_list, SSA_list)[0]
             _, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
-            
-            #Test this 
-            #self.test_boolean(combined_mass, compartment_boolean_threshold,PDE_boolean_threshold) #THis will output error if not matching with the test function
+
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
-
-                
-                # t_span = (0, self.timestep)  # Integrate over one timestep
-                # t_eval = [self.timestep]     # Only need the final state after the timestep
-                # PDE_list = self.integrate_system(PDE_list, PDE_boolean_threshold, fine_SSA_mass, t_span, t_eval)
-                #PDE_list = self.backward_euler(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
-
                 PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
-               
+                PDE_update_times.append(t)
+
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
@@ -234,47 +218,58 @@ class Hybrid:
                     PDE_grid[:, time_index] = PDE_list
                     SSA_grid[:, time_index] = SSA_list
                     self.check_negative_values(PDE_list, "PDE_list")
-                    self.check_negative_values(SSA_grid, "SSA_list")
+                    self.check_negative_values(SSA_list, "SSA_list")
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
-                old_time = t 
-                continue 
+
+                old_time = t
+                continue
 
             r1, r2, r3 = np.random.rand(3)
             tau = (1 / alpha0) * np.log(1 / r1)
             alpha_cum = np.cumsum(total_propensity)
             index = np.searchsorted(alpha_cum, r2 * alpha0)
             compartment_index = index % self.SSA_M
+
             if t + tau <= td:
-                if index <= self.SSA_M - 2 and index >= 1: #Diffusion 
+                reaction_type = ""
+                if index <= self.SSA_M - 2 and index >= 1:  # Diffusion
                     if r3 < 0.5:
                         SSA_list[index] -= 1
                         SSA_list[index - 1] += 1
+                        reaction_type = "diffusion"
                     else:
                         SSA_list[index] -= 1
                         SSA_list[index + 1] += 1
+                        reaction_type = "diffusion"
                 elif index == 0:
                     SSA_list[index] -= 1
                     SSA_list[index + 1] += 1
+                    reaction_type = "diffusion"
                 elif index == self.SSA_M - 1:
                     SSA_list[index] -= 1
                     SSA_list[index - 1] += 1
-
-                    #first reaction is the 
+                    reaction_type = "diffusion"
                 elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:
-                    SSA_list[compartment_index] += 1 #D -> 2D
+                    SSA_list[compartment_index] += 1  # D -> 2D
+                    reaction_type = "D duplication"
                 elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:
-                    SSA_list[compartment_index] -= 1 #2D -> D
+                    SSA_list[compartment_index] -= 1  # 2D -> D
+                    reaction_type = "D degradation"
                 elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:
-                    SSA_list[compartment_index] -= 1 #D + C -> C
-
-                    #Conversion reactions:
-                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1: #C -> D
-                    SSA_list[compartment_index] += 1 
-                    PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
+                    SSA_list[compartment_index] -= 1  # D + C -> C
+                    reaction_type = "J degredation"
+                elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # C -> D
+                    SSA_list[compartment_index] += 1
+                    PDE_list[self.PDE_multiple * compartment_index: self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
+                    reaction_type = "conversion_C_to_D"
                 else:
-                    SSA_list[compartment_index] -= 1  #D -> C
-                    PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
+                    SSA_list[compartment_index] -= 1  # D -> C
+                    PDE_list[self.PDE_multiple * compartment_index: self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
+                    reaction_type = "conversion_D_to_C"
+
+                SSA_events_log.append((t, compartment_index, reaction_type))
                 t += tau
+
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
@@ -283,9 +278,12 @@ class Hybrid:
                     self.check_negative_values(PDE_list, "PDE_list")
                     self.check_negative_values(SSA_list, "SSA_list")
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
-                old_time = t  
+
+                old_time = t
             else:
                 PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
+                PDE_update_times.append(t)
+
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
@@ -296,8 +294,10 @@ class Hybrid:
                     self.check_negative_values(PDE_list, "PDE_list")
                     self.check_negative_values(SSA_list, "SSA_list")
                     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
-                old_time = t 
-        return SSA_grid, PDE_grid, approx_mass
+
+                old_time = t
+
+        return SSA_grid, PDE_grid, approx_mass, SSA_events_log, PDE_update_times
 
     def run_simulation(self, number_of_repeats: int) -> np.ndarray:
         PDE_initial, SSA_initial = self.create_initial_dataframe()
@@ -306,14 +306,24 @@ class Hybrid:
         SSA_sum = np.zeros_like(SSA_initial)
         PDE_sum = np.zeros_like(PDE_initial)
         approx_mass_sum = np.zeros_like(approx_mass_initial)
+
+        # Arrays to track all SSA events and PDE update times across repeats
+        all_SSA_events_logs = []
+        all_PDE_update_times = []
+
         for _ in tqdm(range(number_of_repeats), desc="Running the Hybrid simulations"):
-            SSA_current, PDE_current, approx_mass_current = self.hybrid_simulation(deepcopy(SSA_initial), deepcopy(PDE_initial), deepcopy(approx_mass_initial))
+            SSA_current, PDE_current, approx_mass_current, SSA_events_log, PDE_update_times = self.hybrid_simulation(
+                deepcopy(SSA_initial), deepcopy(PDE_initial), deepcopy(approx_mass_initial))
             SSA_sum += SSA_current
             PDE_sum += PDE_current
             approx_mass_sum += approx_mass_current
+
+            all_SSA_events_logs.append(SSA_events_log)
+            all_PDE_update_times.append(PDE_update_times)
+
         SSA_average = SSA_sum / number_of_repeats
         PDE_average = PDE_sum / number_of_repeats
-        approx_sum_average = approx_mass_sum / number_of_repeats
+
         combined_grid = np.zeros_like(PDE_average)
         for i in range(SSA_average.shape[1]):
             for j in range(SSA_average.shape[0]):
@@ -321,10 +331,14 @@ class Hybrid:
                 end_index = (j + 1) * self.PDE_multiple
                 combined_grid[start_index:end_index, i] = PDE_average[start_index:end_index, i] + (1 / self.h) * SSA_average[j, i]
         combined_grid[-1, :] = combined_grid[-2, :]
-        print("Simulation completed")
-        return SSA_average, PDE_average, combined_grid
 
-    def save_simulation_data(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, combined_grid: np.ndarray, datadirectory='data'):
+        print("Simulation completed")
+
+        # Save simulation data including SSA events and PDE update times
+
+        return SSA_average, PDE_average, combined_grid, all_SSA_events_logs, all_PDE_update_times
+
+    def save_simulation_data(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, combined_grid: np.ndarray, all_SSA_events_logs: list, all_PDE_update_times: list, datadirectory='data'):
         if not os.path.exists(datadirectory):
             os.makedirs(datadirectory)
         params = {
@@ -344,12 +358,14 @@ class Hybrid:
             'h': self.h,
         }
         np.savez(os.path.join(datadirectory, 'Hybrid_data'),
-                 SSA_grid=SSA_grid,
-                 PDE_grid=PDE_grid,
-                 combined_grid=combined_grid,
-                 time_vector=self.time_vector,
-                 SSA_X=self.SSA_X,
-                 PDE_X=self.PDE_X)
+                SSA_grid=SSA_grid,
+                PDE_grid=PDE_grid,
+                combined_grid=combined_grid,
+                time_vector=self.time_vector,
+                SSA_X=self.SSA_X,
+                PDE_X=self.PDE_X,
+                SSA_events_logs=all_SSA_events_logs,
+                PDE_update_times=all_PDE_update_times)
         with open(os.path.join(datadirectory, "parameters.json"), 'w') as params_file:
             json.dump(params, params_file, indent=4)
         print("Data saved successfully")
