@@ -90,13 +90,27 @@ class Hybrid:
 
         return UtilityFunctions.boolean_if_less_mass(PDE_list, self.h, self.PDE_multiple, self.SSA_M)
         
-    def RHS_derivative(self, old_vector, boolean_threshold, SSA_fine_mass):
-        dudt = np.zeros_like(old_vector)
-        nabla = self.DX_NEW
+    # def RHS_derivative(self, old_vector, boolean_threshold, SSA_fine_mass):
+    #     dudt = np.zeros_like(old_vector)
+    #     nabla = self.DX_NEW
         
-        bool_production = self.production_rate * boolean_threshold 
-        dudt = self.diffusion_rate * (1 / self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + bool_production * (old_vector+SSA_fine_mass)
-        #dudt = self.diffusion_rate * (1 / self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + self.production_rate* (old_vector)
+    #     bool_production = self.production_rate * boolean_threshold 
+    #     dudt = self.diffusion_rate * (1 / self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + bool_production * (old_vector+SSA_fine_mass)
+    #     #dudt = self.diffusion_rate * (1 / self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + self.production_rate* (old_vector)
+    #     return dudt
+
+    def RHS_derivative(self, old_vector, boolean_threshold, SSA_fine_mass):
+        nabla = self.DX_NEW
+        diff_coeff = self.diffusion_rate * (1 / self.deltax) ** 2
+
+        # Precompute terms
+        diffusion_term = diff_coeff * (nabla @ old_vector)
+        degradation_term = self.degradation_rate * (old_vector ** 2)
+        production_term = self.production_rate * boolean_threshold * (old_vector + SSA_fine_mass/self.h)
+
+        # Combine all terms
+        dudt = diffusion_term - degradation_term + production_term
+
         return dudt
 
     def fine_grid_SSA_mass(self, SSA_mass):
@@ -104,21 +118,18 @@ class Hybrid:
         return UtilityFunctions.fine_grid_SSA_mass(SSA_mass, self.PDE_X, self.SSA_M, self.PDE_multiple)
     
 
-    def backward_euler(self, old_vector, boolean_threshold, SSA_fine_mass):
-    
-        def implicit_eq(new_vector):
-            return new_vector - old_vector - self.timestep * self.RHS_derivative(0, new_vector, boolean_threshold, SSA_fine_mass)
+
+
+    def RK4(self, old_vector, boolean_threshold, SSA_fine_mass, dt=None):
+
+        if dt == None:
+            dt = self.timestep
         
-        new_vector = fsolve(implicit_eq, old_vector)  # Nonlinear solver
-        return new_vector
-
-
-    def RK4(self, old_vector, boolean_threshold, SSA_fine_mass):
         k1 = self.RHS_derivative(old_vector, boolean_threshold, SSA_fine_mass)
-        k2 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k1, boolean_threshold, SSA_fine_mass)
-        k3 = self.RHS_derivative(old_vector + 0.5 * self.timestep * k2, boolean_threshold, SSA_fine_mass)
-        k4 = self.RHS_derivative(old_vector + self.timestep * k3, boolean_threshold, SSA_fine_mass)
-        return old_vector + self.timestep * (k1 + 2 * k2 + 2 * k3 + k4) / 6
+        k2 = self.RHS_derivative(old_vector + 0.5 * dt * k1, boolean_threshold, SSA_fine_mass)
+        k3 = self.RHS_derivative(old_vector + 0.5 * dt * k2, boolean_threshold, SSA_fine_mass)
+        k4 = self.RHS_derivative(old_vector + dt * k3, boolean_threshold, SSA_fine_mass)
+        return old_vector + dt * (k1 + 2 * k2 + 2 * k3 + k4) / 6
     
 
  
@@ -268,8 +279,9 @@ class Hybrid:
                     reaction_type = "conversion_D_to_C"
 
                 SSA_events_log.append((t, compartment_index, reaction_type))
+                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass,tau)
                 t += tau
-
+               
                 # ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 
        
@@ -292,13 +304,13 @@ class Hybrid:
 
                 old_time = t
             else:
-                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
+                PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass,td-old_time)
                 PDE_update_times.append(t)
 
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
-                print(f"Ind before in PDE {ind_before}")
+                # print(f"Ind before in PDE {ind_before}")
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
                 # print(f"ind_after - ind_after in PDE {ind_after-ind_before}")
                 for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
