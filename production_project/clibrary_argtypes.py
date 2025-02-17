@@ -20,17 +20,19 @@ def set_clibrary_argtypes(clibrary):
         ctypes.c_float                 # h
     ]
 
+    # CalculatePropensity Function
     clibrary.CalculatePropensity.argtypes = [
-        ctypes.c_int,  # SSA_M (int)
-        ctypes.POINTER(ctypes.c_float),  # PDE_list (pointer to float)
-        ctypes.POINTER(ctypes.c_int),  # SSA_list (pointer to int)
-        ctypes.POINTER(ctypes.c_float),  # propensity_list (pointer to float)
-        ctypes.POINTER(ctypes.c_float),  # combined_mass_list (pointer to float)
-        ctypes.POINTER(ctypes.c_float),  # Approximate_PDE_Mass (pointer to float)
-        ctypes.POINTER(ctypes.c_int),  # boolean_mass_list (pointer to int)
-        ctypes.c_float,  # degradation_rate (float)
-        ctypes.c_float,  # threshold 
-        ctypes.c_float,  # Production_rate_PC (float)
-        ctypes.c_float,  # gamma (float)
-        ctypes.c_float  # jump_rate (float)
+        ctypes.c_int,
+        ctypes.POINTER(ctypes.c_float),
+        ctypes.POINTER(ctypes.c_int),
+        ctypes.POINTER(ctypes.c_float),
+        ctypes.POINTER(ctypes.c_int),
+        ctypes.POINTER(ctypes.c_float),
+        ctypes.POINTER(ctypes.c_float),
+        ctypes.POINTER(ctypes.c_int),
+        ctypes.c_float,
+        ctypes.c_float,
+        ctypes.c_float,
+        ctypes.c_float,
+        ctypes.c_float
     ]

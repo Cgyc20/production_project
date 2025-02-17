@@ -39,6 +39,8 @@ def main():
     # Initialize analytical solution array
     analytic_sol = np.zeros_like(C_grid)
 
+    print(f"The shape of the SSA_grid is {SSA_grid.shape}")
+    print(f"The shape of the D grid is {D_grid.shape}")
 
     # Retrieve parameters for analytical solution
     production_rate = parameters["production_rate"]
@@ -70,6 +72,7 @@ def main():
 
     # Calculate total mass for pure SSA and pure PDE
     SSA_total_mass = calculate_mass_discrete(SSA_grid)
+    print(f"The SSA_total_mass shape is {SSA_total_mass.shape}")
     Hybrid_SSA_mass = calculate_mass_discrete(D_grid)
 
     # Calculate relative error for combined solution
@@ -142,7 +145,7 @@ def main():
         return (*bar_SSA, *bar_pure_SSA, line_combined, line_PDE, line_pure_PDE, time_text, threshold_line, steady_state_line)
 
     # Create animation
-    ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=10)
+    ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=40)
 
     # Set legend position fixed
     # Adjust the figure layout to make space for the legend
@@ -194,7 +197,7 @@ def main():
 
 
     # Apply moving average to smooth the wave speeds
-    window_size = 10  # Adjust window size for desired smoothing
+    window_size = 50  # Adjust window size for desired smoothing
     wavespeed_PDE_smooth = moving_average(wavespeed_PDE, window_size)
     wavespeed_SSA_smooth = moving_average(wavespeed_SSA, window_size)
     wavespeed_hybrid_smooth = moving_average(wavespeed_hybrid, window_size)

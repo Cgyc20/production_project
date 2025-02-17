@@ -136,13 +136,13 @@ class Hybrid:
         PDE_list = PDE_list.astype(float)
 
         combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
-        boolean_SSA_threshold, boolean_PDE_threshold = self.threshold_boolean(combined_list)
+        boolean_SSA_threshold, _ = self.threshold_boolean(combined_list)
 
         movement_propensity = 2 * self.d * SSA_list
         movement_propensity[0] = self.d * SSA_list[0]
         movement_propensity[-1] = self.d * SSA_list[-1]
 
-        R1_propensity = self.production_rate * combined_list * boolean_SSA_threshold #D-> 2A
+        R1_propensity = self.production_rate * combined_list * boolean_SSA_threshold #D-> 2D
         #R1_propensity = self.production_rate * SSA_list #D-> 2A
         R2_propensity = self.degradation_rate * (1 / self.h) * SSA_list * (SSA_list - 1) #2D -> D
         R3_propensity = 2 * self.degradation_rate * (1 / self.h) * approximate_PDE_mass * SSA_list # D+C -> C
@@ -155,6 +155,62 @@ class Hybrid:
         conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity, R3_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
+    
+
+    
+    def propensity_calculationC(self, SSA_list, PDE_list, combined_mass_list, Approximate_PDE_Mass, boolean_SSA_list):
+
+        # Convert inputs to appropriate data types
+        SSA_list = np.ascontiguousarray(SSA_list, dtype=np.int32)
+        PDE_list = np.ascontiguousarray(PDE_list, dtype=np.float32)
+        combined_mass_list = np.ascontiguousarray(combined_mass_list, dtype=np.float32)
+        Approximate_PDE_Mass = np.ascontiguousarray(Approximate_PDE_Mass, dtype=np.float32)
+        boolean_SSA_list = np.ascontiguousarray(boolean_SSA_list, dtype=np.int32)
+        boolean_if_less_mass = self.boolean_if_less_mass(PDE_list).astype(int)
+        boolean_if_less_mass = np.ascontiguousarray(boolean_if_less_mass, dtype=np.int32)
+                # Constants
+
+       
+
+        SSA_M = ctypes.c_int(len(SSA_list))
+        degradation_rate_h = ctypes.c_float(self.degradation_rate)
+        threshold = ctypes.c_float(self.threshold_conc)
+        production_rate = ctypes.c_float(self.production_rate)
+        gamma = ctypes.c_float(self.gamma)
+        jump_rate = ctypes.c_float(self.d)
+
+
+        # Output array for propensities
+        propensity_list = np.zeros(6 * SSA_M.value, dtype=np.float32)
+
+        # Convert NumPy arrays to ctypes pointers
+        PDE_list_ptr = PDE_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+        SSA_list_ptr = SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+        propensity_list_ptr = propensity_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+        boolean_SSA_list_ptr = boolean_SSA_list.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+        combined_mass_list_ptr = combined_mass_list.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+        Approximate_PDE_Mass_ptr = Approximate_PDE_Mass.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
+        boolean_if_less_mass_ptr = boolean_if_less_mass.ctypes.data_as(ctypes.POINTER(ctypes.c_int))
+        
+        # Call the C function
+        clibrary.CalculatePropensity(
+            SSA_M,
+            PDE_list_ptr,
+            SSA_list_ptr,
+            propensity_list_ptr,
+            boolean_SSA_list_ptr,
+            combined_mass_list_ptr,
+            Approximate_PDE_Mass_ptr,
+            boolean_if_less_mass_ptr,
+            degradation_rate_h,
+            threshold,
+            production_rate,
+            gamma,
+            jump_rate
+        )
+        return propensity_list
+
+
 
     def check_negative_values(self, vector: np.ndarray, vector_name: str):
         """
@@ -209,11 +265,13 @@ class Hybrid:
         PDE_update_times = []  # List of times when PDE is updated
 
         while t < self.total_time:
-            total_propensity = self.propensity_calculation(SSA_list, PDE_list)
+            #total_propensity = self.propensity_calculation(SSA_list, PDE_list)
+            
             fine_SSA_mass = self.fine_grid_SSA_mass(SSA_list)
-            combined_mass = self.calculate_total_mass(PDE_list, SSA_list)[0]
-            _, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
-
+            combined_mass, approx_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
+            SSA_boolean_list, PDE_boolean_threshold = self.threshold_boolean(combined_mass)
+            total_propensity = self.propensity_calculation(SSA_list, PDE_list)
+            #total_propensity = self.propensity_calculationC(SSA_list, PDE_list, combined_mass, approx_PDE_mass,SSA_boolean_list)
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
                 PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
@@ -279,27 +337,6 @@ class Hybrid:
                 SSA_events_log.append((t, compartment_index, reaction_type))
                 # PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass,tau)
                 t += tau
-               
-                # ind_before = np.searchsorted(self.time_vector, old_time, 'right')
-                
-       
-                # ind_after = np.searchsorted(self.time_vector, t, 'left')
-                # # print(f"ind_before-ind_after = {ind_after-ind_before}")
-                # for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
-                #     print(time_index)
-                #     SSA_grid[:, time_index] = SSA_list
-                #     PDE_grid[:, time_index] = PDE_list
-                #     self.check_negative_values(PDE_list, "PDE_list")
-                #     self.check_negative_values(SSA_list, "SSA_list")
-                #     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
-
-                # SSA_grid[:,ind_before ] = SSA_list
-                # PDE_grid[:, ind_before] = PDE_list
-                # self.check_negative_values(PDE_list, "PDE_list")
-                # self.check_negative_values(SSA_list, "SSA_list")
-                # approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list)
-            
-
                 old_time = t
             else:
                 PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
