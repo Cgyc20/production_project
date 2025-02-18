@@ -1,4 +1,5 @@
 domain_length 1
+compartment_length 0.05
 compartment_number 20
 PDE_multiple 8
 total_time 200
@@ -8,4 +9,4 @@ gamma 0.5
 production_rate 2
 degradation_rate 0.05
 number_particles_per_cell 40
-repeats 100
+repeats 10

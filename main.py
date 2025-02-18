@@ -11,9 +11,20 @@ def main():
     # Convert values to the appropriate types, with error handling
     try:
         domain_length = float(parameters_dict.get('domain_length', 0))
-        compartment_number = int(parameters_dict.get('compartment_number', 0))
+        h = float(parameters_dict.get('compartment_length', 0))
+
+        compartment_number = domain_length/h
+
+        if compartment_number % 1 != 0:
+            raise ValueError("The domain length must be divisible by h.")
+        compartment_number = int(compartment_number)
         if compartment_number == 0:
             raise ValueError("compartment_number cannot be zero.")
+        
+        
+        #compartment_number = int(parameters_dict.get('compartment_number', 0))
+        # if compartment_number == 0:
+        #     raise ValueError("compartment_number cannot be zero.")
         
         PDE_multiple = int(parameters_dict.get('PDE_multiple', 0))
         total_time = int(parameters_dict.get('total_time', 0))
