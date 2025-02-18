@@ -77,14 +77,18 @@ def update(frame, bar_SSA, D_grid, h, line_combined, combined_grid, line_PDE, C_
     time_text.set_text(f'Time: {time_vector[frame]:.2f}')
     return (*bar_SSA, line_combined, line_PDE, line_analytic, time_text)
 
-def plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pure_PDE_total_mass, Hybrid_SSA_mass, SSA_total_mass, production_rate, degradation_rate, concentration_threshold):
-    """Plot total mass over time."""
+def plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pure_PDE_total_mass, 
+                    Hybrid_SSA_mass, SSA_total_mass, analytic_total_mass, production_rate, 
+                    degradation_rate, concentration_threshold):
+    """Plot total mass over time, including the analytic total mass."""
     plt.figure(figsize=(12, 6))
     plt.plot(time_vector, combined_total_mass, 'k--', label='Combined (Dashed)', linewidth=2)
     plt.plot(time_vector, Hybrid_PDE_total_mass, 'g--', label='Hybrid PDE', linewidth=2)
     plt.plot(time_vector, Hybrid_SSA_mass, 'b--', label='Hybrid SSA', linewidth=2)
     plt.plot(time_vector, pure_PDE_total_mass, 'g', label='Pure PDE', linewidth=2)
     plt.plot(time_vector, SSA_total_mass, 'b', label='Pure SSA', linewidth=2)
+    plt.plot(time_vector, analytic_total_mass, 'r--', label='Analytic', linewidth=2)  # New line for analytic mass
+    
     plt.axhline(y=production_rate / degradation_rate, color='gray', linestyle='--', label='Steady State', linewidth=1.5)
     plt.axhline(y=concentration_threshold, color='purple', linestyle='--', label='Threshold', linewidth=1.5)
     plt.xlabel('Time', fontsize=12)
@@ -167,7 +171,7 @@ def main():
     plt.legend(fontsize=8)
     plt.show()
     
-    plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pure_PDE_total_mass, Hybrid_SSA_mass, SSA_total_mass, production_rate, degradation_rate, concentration_threshold)
+    plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pure_PDE_total_mass, Hybrid_SSA_mass, SSA_total_mass,analytic_total_mass, production_rate, degradation_rate, concentration_threshold)
     relative_error = calculate_relative_error(analytic_sol, combined_grid)
     plot_relative_error(time_vector, relative_error)
 
