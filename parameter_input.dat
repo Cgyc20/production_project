@@ -2,7 +2,7 @@ domain_length 1
 compartment_length 0.05
 compartment_number 20
 PDE_multiple 8
-total_time 200
+total_time 20
 timestep 0.05
 particles_per_compartment_thresh 6
 gamma 1
