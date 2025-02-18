@@ -27,9 +27,10 @@ class PDE:
         print("Successfully initialized the hybrid model")
 
     def create_crank_nicholson(self):
-        H = self.create_finite_difference()
-        M1 = np.identity(H.shape[0]) * (1 + 0.5 * self.timestep * self.degradation_rate) - 0.5 * (self.timestep * self.diffusion_rate / self.deltax**2) * H
-        M2 = np.identity(H.shape[0]) * (1 - 0.5 * self.timestep * self.degradation_rate) + 0.5 * (self.timestep * self.diffusion_rate / self.deltax**2) * H
+        H = self.create_finite_difference()/(self.deltax**2)
+
+        M1  = np.identity(H.shape[0])-(0.5*self.timestep*self.diffusion_rate)*H
+        M2 = np.identity(H.shape[0])+(0.5*self.timestep*self.diffusion_rate)*H
         M1_inverse = np.linalg.inv(M1)
         Crank_matrix = M1_inverse @ M2
         return Crank_matrix, M1_inverse
@@ -45,7 +46,7 @@ class PDE:
         return self.DX
 
     def crank_nicholson(self, old_vector):
-        return self.Crank_matrix @ old_vector + self.M1_inverse@ (self.production_rate * self.timestep*np.ones(self.PDE_points))
+        return self.Crank_matrix @ old_vector 
 
     def run_simulation(self):
         for i in range(len(self.time_vector) - 1):
