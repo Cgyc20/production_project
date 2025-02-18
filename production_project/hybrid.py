@@ -322,7 +322,7 @@ class Hybrid:
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:  # If no reactions can occur, execute PDE step
                 PDE_list = self.crank_nicholson(PDE_list)
-                PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
+                # PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
@@ -344,16 +344,20 @@ class Hybrid:
                 """The diffusion reactions are executed here"""
                 if index <= self.SSA_M - 2 and index >= 1:
                     if r3 < 0.5:  # Move left
-                        SSA_list[index] = max(SSA_list[index] - 1, 0)
+                        # SSA_list[index] = max(SSA_list[index] - 1, 0)
+                        SSA_list[index] = SSA_list[index] - 1
                         SSA_list[index - 1] += 1
                     else:  # Move right
-                        SSA_list[index] = max(SSA_list[index] - 1, 0)
+                        #SSA_list[index] = max(SSA_list[index] - 1, 0)
+                        SSA_list[index] = SSA_list[index] - 1
                         SSA_list[index + 1] += 1
                 elif index == 0:  # Left boundary (can only move right)
-                    SSA_list[index] = max(SSA_list[index] - 1, 0)
+                    #SSA_list[index] = max(SSA_list[index] - 1, 0)
+                    SSA_list[index] = SSA_list[index] - 1
                     SSA_list[index + 1] += 1
                 elif index == self.SSA_M - 1:  # Right boundary (can only move left)
-                    SSA_list[index] = max(SSA_list[index] - 1, 0)
+                    #SSA_list[index] = max(SSA_list[index] - 1, 0)
+                    SSA_list[index] = SSA_list[index] - 1
                     SSA_list[index - 1] += 1
     
                 
@@ -361,7 +365,7 @@ class Hybrid:
                 elif index >=  self.SSA_M and index <= 2 * self.SSA_M - 1:  # Conversion from continuous to discrete
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
-                    PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
+                    # PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
                 
                 #elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
                     # print(f"*"*30)
@@ -375,7 +379,8 @@ class Hybrid:
     
                 elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Conversion from discrete to continuous
     
-                    SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
+                    #SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
+                    SSA_list[compartment_index] = SSA_list[compartment_index] - 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                     
                 t += tau 
@@ -426,7 +431,7 @@ class Hybrid:
     
             else:  # Else we run the ODE step
                 PDE_list = self.crank_nicholson(PDE_list)
-                PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
+                # PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
