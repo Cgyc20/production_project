@@ -10,4 +10,4 @@ production_rate 2
 degradation_rate 0.05
 number_particles_per_cell 40
 diffusion_rate 1e-3
-repeats 10
+repeats 1

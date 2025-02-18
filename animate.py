@@ -57,29 +57,29 @@ def calculate_mass_discrete(data_grid):
     """Calculate total mass for discrete data."""
     return np.sum(data_grid, axis=0)
 
-def plot_initial_setup(ax, bar_positions, D_grid, h, PDE_X, C_grid, combined_grid, analytic_sol, concentration_threshold, domain_length):
+def plot_initial_setup(ax, bar_positions, D_grid, h, PDE_X, C_grid, combined_grid, PDE_grid, analytic_sol, concentration_threshold, domain_length):
     """Setup the initial plot and return plot elements."""
     bar_SSA = ax.bar(bar_positions, D_grid[:, 0] / h, width=h, color='blue', align='edge', label='SSA (Bar Chart)', alpha=0.7)
     line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g', label='PDE', linewidth=2)
     line_combined, = ax.plot(PDE_X, combined_grid[:, 0], 'k--', label='Combined', linewidth=2)
     line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic', color='red', linewidth=2)
+    line_pure_PDE, = ax.plot(PDE_X, PDE_grid[:, 0], 'g--', label='Pure PDE', linewidth=2)
     threshold_line = ax.axhline(y=concentration_threshold, color='purple', linestyle='--', label='Threshold', linewidth=1.5)
     time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes, fontsize=12, verticalalignment='top')
-    return bar_SSA, line_PDE, line_combined, line_analytic, threshold_line, time_text
+    return bar_SSA, line_PDE, line_combined, line_analytic, line_pure_PDE, threshold_line, time_text
 
-def update(frame, bar_SSA, D_grid, h, line_combined, combined_grid, line_PDE, C_grid, line_analytic, analytic_sol, time_text, time_vector):
+def update(frame, bar_SSA, D_grid, h, line_combined, combined_grid, line_PDE, C_grid, line_analytic, analytic_sol, line_pure_PDE, PDE_grid, time_text, time_vector):
     """Update function for animation."""
     for bar, height in zip(bar_SSA, D_grid[:, frame] / h):
         bar.set_height(height)
     line_combined.set_ydata(combined_grid[:, frame])
     line_PDE.set_ydata(C_grid[:, frame])
     line_analytic.set_ydata(analytic_sol[:, frame])
+    line_pure_PDE.set_ydata(PDE_grid[:, frame])
     time_text.set_text(f'Time: {time_vector[frame]:.2f}')
-    return (*bar_SSA, line_combined, line_PDE, line_analytic, time_text)
+    return (*bar_SSA, line_combined, line_PDE, line_analytic, line_pure_PDE, time_text)
 
-def plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pure_PDE_total_mass, 
-                    Hybrid_SSA_mass, SSA_total_mass, analytic_total_mass, production_rate, 
-                    degradation_rate, concentration_threshold):
+def plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pure_PDE_total_mass, Hybrid_SSA_mass, SSA_total_mass, analytic_total_mass, production_rate, degradation_rate, concentration_threshold):
     """Plot total mass over time, including the analytic total mass."""
     plt.figure(figsize=(12, 6))
     plt.plot(time_vector, combined_total_mass, 'k--', label='Combined (Dashed)', linewidth=2)
@@ -100,7 +100,7 @@ def plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pur
 
 def calculate_relative_error(analytic_sol, combined_grid):
     """Calculate the relative error between the analytic solution and the combined grid."""
-    return (combined_grid - analytic_sol)/ analytic_sol
+    return (combined_grid - analytic_sol) / analytic_sol
 
 def plot_relative_error(time_vector, relative_error):
     """Plot the relative error over time."""
@@ -142,7 +142,7 @@ def main():
     a0 = initial_conc * (b - a) / domain_length
     
     # Calculate and save coefficients
-    coefficients = determine_coefficients(50, a, b, domain_length, initial_conc)
+    coefficients = determine_coefficients(5, a, b, domain_length, initial_conc)
     
     # Calculate the analytical solution
     analytic_sol = calculate_analytic_solution(analytic_sol, coefficients, a0, PDE_X, domain_length, diffusion_rate, time_vector)
@@ -155,8 +155,8 @@ def main():
     Hybrid_SSA_mass = calculate_mass_discrete(D_grid)
     
     fig, ax = plt.subplots(figsize=(10, 6))
-    bar_SSA, line_PDE, line_combined, line_analytic, threshold_line, time_text = plot_initial_setup(
-        ax, bar_positions, D_grid, h, PDE_X, C_grid, combined_grid, analytic_sol, concentration_threshold, domain_length
+    bar_SSA, line_PDE, line_combined, line_analytic, line_pure_PDE, threshold_line, time_text = plot_initial_setup(
+        ax, bar_positions, D_grid, h, PDE_X, C_grid, combined_grid, PDE_grid, analytic_sol, concentration_threshold, domain_length
     )
     
     steady_state_concentration = production_rate / degradation_rate
@@ -164,14 +164,14 @@ def main():
     ax.set_ylim(0, y_max)
     steady_state_line = ax.axhline(y=steady_state_concentration, color='gray', linestyle='--', label='Steady State', linewidth=1.5)
     
-    ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=40, fargs=(bar_SSA, D_grid, h, line_combined, combined_grid, line_PDE, C_grid, line_analytic, analytic_sol, time_text, time_vector))
+    ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=40, fargs=(bar_SSA, D_grid, h, line_combined, combined_grid, line_PDE, C_grid, line_analytic, analytic_sol, line_pure_PDE, PDE_grid, time_text, time_vector))
     plt.xlabel("Position")
     plt.ylabel("Concentration")
     plt.title("Diffusion Process Over Time")
     plt.legend(fontsize=8)
     plt.show()
     
-    plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pure_PDE_total_mass, Hybrid_SSA_mass, SSA_total_mass,analytic_total_mass, production_rate, degradation_rate, concentration_threshold)
+    plot_total_mass(time_vector, combined_total_mass, Hybrid_PDE_total_mass, pure_PDE_total_mass, Hybrid_SSA_mass, SSA_total_mass, analytic_total_mass, production_rate, degradation_rate, concentration_threshold)
     relative_error = calculate_relative_error(analytic_sol, combined_grid)
     plot_relative_error(time_vector, relative_error)
 
