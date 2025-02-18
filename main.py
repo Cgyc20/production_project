@@ -21,7 +21,7 @@ def main():
         if compartment_number == 0:
             raise ValueError("compartment_number cannot be zero.")
         
-        
+
         #compartment_number = int(parameters_dict.get('compartment_number', 0))
         # if compartment_number == 0:
         #     raise ValueError("compartment_number cannot be zero.")
@@ -34,13 +34,14 @@ def main():
         production_rate = float(parameters_dict.get('production_rate', 0))
         degradation_rate = float(parameters_dict.get('degradation_rate', 0))
         repeats = int(parameters_dict.get('repeats', 0))
+        diffusion_rate = float(parameters_dict.get('diffusion_rate', 0))
         # Ensure number_particles_per_cell is defined and not zero
         number_particles_per_cell = int(parameters_dict.get('number_particles_per_cell', 0))
         if number_particles_per_cell == 0:
             raise ValueError("number_particles_per_cell cannot be zero.")
         
         # Calculate diffusion_rate using domain_length
-        diffusion_rate = (domain_length ** 2) * (10e-3)
+        # diffusion_rate = (domain_length ** 2) * (10e-3)
 
         # Print the values to confirm
         print(f"domain_length: {domain_length}")
