@@ -132,17 +132,18 @@ def main():
     production_rate = parameters["production_rate"]
     degradation_rate = parameters["degradation_rate"]
     concentration_threshold = parameters["threshold_conc"]
+    print(f"The concentration threshold is: {concentration_threshold}")
     domain_length = parameters["domain_length"]
     diffusion_rate = parameters["diffusion_rate"]
     
     analytic_sol = initialize_analytic_solution(C_grid)
     initial_conc = 40 / h
-    b = 0.55
-    a = 0.45
+    b = 0.5+h
+    a = 0.5-h
     a0 = initial_conc * (b - a) / domain_length
     
     # Calculate and save coefficients
-    coefficients = determine_coefficients(5, a, b, domain_length, initial_conc)
+    coefficients = determine_coefficients(50, a, b, domain_length, initial_conc)
     
     # Calculate the analytical solution
     analytic_sol = calculate_analytic_solution(analytic_sol, coefficients, a0, PDE_X, domain_length, diffusion_rate, time_vector)
