@@ -65,10 +65,10 @@ class Stochastic:
         movement_propensity[-1] = self.d * SSA_list[-1]  # Right boundary condition (only move left)
         movement_propensity = np.maximum(movement_propensity, 0)
 
-        R1_propensity = self.production_rate_per_compartment * np.ones_like(SSA_list)  
-        R2_propensity = self.degradation_rate * SSA_list
+        # R1_propensity = self.production_rate_per_compartment * np.ones_like(SSA_list)  
+        # R2_propensity = self.degradation_rate * SSA_list
 
-        combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity))
+        combined_propensity = movement_propensity
 
         return combined_propensity
     
@@ -140,10 +140,10 @@ class Stochastic:
             elif index == self.SSA_M - 1:  # Right boundary (can only move left)
                 SSA_list[index] = max(SSA_list[index] - 1, 0)
                 SSA_list[index - 1] += 1
-            elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Production reaction
-                SSA_list[compartment_index] += 1
-            elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Degradation reaction
-                SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
+            # elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Production reaction
+            #     SSA_list[compartment_index] += 1
+            # elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Degradation reaction
+            #     SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
 
                 
             ind_before = np.searchsorted(self.time_vector, old_time, 'right')
