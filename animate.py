@@ -57,10 +57,11 @@ def calculate_mass_discrete(data_grid):
     """Calculate total mass for discrete data."""
     return np.sum(data_grid, axis=0)
 
-def plot_initial_setup(ax, bar_positions, D_grid, h, PDE_X, C_grid, combined_grid, PDE_grid, analytic_sol, concentration_threshold, domain_length):
+def plot_initial_setup(ax, bar_positions, D_grid, h, PDE_X,pure_SSA, C_grid, combined_grid, PDE_grid, analytic_sol, concentration_threshold, domain_length):
     """Setup the initial plot and return plot elements."""
     bar_SSA = ax.bar(bar_positions, D_grid[:, 0] / h, width=h, color='blue', align='edge', label='SSA (Bar Chart)', alpha=0.7)
     line_PDE, = ax.plot(PDE_X, C_grid[:, 0], 'g', label='PDE', linewidth=2)
+    bar_pure_SSA = ax.bar(bar_positions, pure_SSA[:, 0] / h, width=h, color='blue', align='edge', label='SSA (Bar Chart)', alpha=0.7)
     line_combined, = ax.plot(PDE_X, combined_grid[:, 0], 'k--', label='Combined', linewidth=2)
     line_analytic, = ax.plot(PDE_X, analytic_sol[:, 0], label='Analytic', color='red', linewidth=2)
     line_pure_PDE, = ax.plot(PDE_X, PDE_grid[:, 0], 'g--', label='Pure PDE', linewidth=2)
@@ -72,8 +73,10 @@ def update(frame, bar_SSA, D_grid, h, line_combined, combined_grid, line_PDE, C_
     """Update function for animation."""
     for bar, height in zip(bar_SSA, D_grid[:, frame] / h):
         bar.set_height(height)
+    
     line_combined.set_ydata(combined_grid[:, frame])
     line_PDE.set_ydata(C_grid[:, frame])
+
     line_analytic.set_ydata(analytic_sol[:, frame])
     line_pure_PDE.set_ydata(PDE_grid[:, frame])
     time_text.set_text(f'Time: {time_vector[frame]:.2f}')

@@ -161,6 +161,8 @@ class Hybrid:
         boolean_SSA_list = np.ctypeslib.as_array(boolean_SSA_list_Ctypes, shape=boolean_SSA_list.shape)
         return boolean_SSA_list
 
+
+
     def booleanMassPython(self, PDE_list: np.ndarray) -> np.ndarray:
         """Calculate mass using python function"""
         PDE_list = PDE_list.astype(float)
@@ -195,18 +197,28 @@ class Hybrid:
         else:
             return self.booleanMassPython(PDE_list)
         
-            
+    def boolean_if_less_mass(self,PDE_list: np.ndarray) -> np.ndarray: 
+        PDE_list = PDE_list.astype(float)
+        boolean_PDE_list = np.zeros_like(PDE_list)
+        boolean_PDE_list[PDE_list > 1 / self.h] = 1
+        boolean_threshold_SSA = np.zeros(self.SSA_M)
+        for i in range(self.SSA_M):
+            start_index = i * self.PDE_multiple
+            BOOL_VALUE = True
+            for j in range(self.PDE_multiple):
+                current_index = start_index + j
+                if boolean_PDE_list[current_index] == 0:
+                    BOOL_VALUE = False
+                    break
+            boolean_threshold_SSA[i] = 1 if BOOL_VALUE else 0
+        return boolean_threshold_SSA
+    
+    
+
 
     def propensity_calculationPython(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
         """
         Calculates the propensity functions for each reaction.
-
-        Args:
-            SSA_list (np.ndarray): Discrete molecules list.
-            PDE_list (np.ndarray): Continuous mass list.
-
-        Returns:
-            np.ndarray: Combined propensity list.
         """
         SSA_list = SSA_list.astype(int)
         PDE_list = PDE_list.astype(float)
@@ -218,20 +230,26 @@ class Hybrid:
         approximate_PDE_mass = np.zeros_like(SSA_list)
         combined_list = np.zeros_like(SSA_list)
 
-        #approximate_PDE_mass = self.ApproximateLeftHandC(PDE_list)
         combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
         
+        # Debugging: Print combined mass and approximate PDE mass
+        print(f"Combined mass: {combined_list}")
+        print(f"Approximate PDE mass: {approximate_PDE_mass}")
+
         conversion_to_discrete = np.zeros_like(SSA_list)  # length of SSA_m
         conversion_to_cont = np.zeros_like(approximate_PDE_mass)  # length as SSA_m 
 
-        # Ensure the boolean index matches the array size
-        if combined_list.shape != SSA_list.shape:
-            raise ValueError("Shape mismatch between combined_list and SSA_list")
-
         boolean_SSA_threshold = self.boolean_if_less_mass(PDE_list).astype(int)
+
+        # Debugging: Print boolean threshold
+        print(f"Boolean SSA threshold: {boolean_SSA_threshold}")
 
         conversion_to_discrete[combined_list < self.threshold] = approximate_PDE_mass[combined_list < self.threshold] * self.gamma
         conversion_to_discrete *= boolean_SSA_threshold
+
+        # Debugging: Print conversion to discrete propensity
+        print(f"Conversion to discrete propensity: {conversion_to_discrete}")
+
         conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
         
         combined_propensity = np.concatenate((movement_propensity, conversion_to_discrete, conversion_to_cont))
@@ -367,16 +385,7 @@ class Hybrid:
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
                     # PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
                 
-                #elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
-                    # print(f"*"*30)
-                    # print(f"Checking conversion to PDE, given this occurs")
-                    # print(f"  {SSA_list}")
-                    # print(f"Continuous mass at time {t:.1f}:")
-                    # print(f"  {PDE_list.round(1)}")
-                    # print(f"Number of particles continuous")
-                    # print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
-                    # print(f"*"*30)
-    
+       
                 elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Conversion from discrete to continuous
     
                     #SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
@@ -384,12 +393,12 @@ class Hybrid:
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                     
                 t += tau 
-                ind_before = np.searchsorted(self.time_vector, old_time, 'right')
-                ind_after = np.searchsorted(self.time_vector, t, 'left')
-                for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
-                    SSA_grid[:, time_index] = SSA_list
-                    PDE_grid[:, time_index] = PDE_list
-                    approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list,)
+                # ind_before = np.searchsorted(self.time_vector, old_time, 'right')
+                # ind_after = np.searchsorted(self.time_vector, t, 'left')
+                # for time_index in range(ind_before, min(ind_after + 1, len(self.time_vector))):
+                #     SSA_grid[:, time_index] = SSA_list
+                #     PDE_grid[:, time_index] = PDE_list
+                #     approx_mass[:, time_index], PDE_particles[:, time_index] = self.calculate_total_mass(PDE_list, SSA_list,)
     
                 old_time = t  # Update old_time
                     # Update time by the time step
@@ -440,7 +449,7 @@ class Hybrid:
                     PDE_grid[:, time_index] = PDE_list
                     SSA_grid[:, time_index] = SSA_list
                     approx_mass[:, time_index], PDE_particles[:, time_index]= self.calculate_total_mass(PDE_list, SSA_list)
-            
+                old_time = t
         return SSA_grid, PDE_grid, approx_mass
     
 
