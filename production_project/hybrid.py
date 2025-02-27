@@ -115,9 +115,6 @@ class Hybrid:
         """Convert the SSA_mass to the same fine resolution as the PDE"""
         return UtilityFunctions.fine_grid_SSA_mass(SSA_mass, self.PDE_X, self.SSA_M, self.PDE_multiple, self.h)
     
-
-
-
     def RK4(self, old_vector, boolean_threshold, SSA_fine_mass, dt=None):
 
         if dt == None:
