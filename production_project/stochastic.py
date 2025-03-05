@@ -58,15 +58,15 @@ class Stochastic:
         SSA_matrix[:, 0] = self.SSA_initial
         return SSA_matrix
 
-    def propensity_calculationPython(self,SSA_list):
+    def propensity_calculationPython(self,SSA_list, production_rate,Degradation_rate):
         """Calculate the propensity functions for each reaction"""
         movement_propensity = 2 * self.d * SSA_list
         movement_propensity[0] = self.d * SSA_list[0]  # Left boundary condition (only move right)
         movement_propensity[-1] = self.d * SSA_list[-1]  # Right boundary condition (only move left)
         movement_propensity = np.maximum(movement_propensity, 0)
 
-        R1_propensity = self.production_rate_per_compartment * np.ones_like(SSA_list)  
-        R2_propensity = self.degradation_rate * SSA_list
+        R1_propensity = production_rate*self.h* np.ones_like(SSA_list)  
+        R2_propensity = Degradation_rate * SSA_list
 
         combined_propensity = np.concatenate((movement_propensity, R1_propensity, R2_propensity))
 
@@ -116,7 +116,16 @@ class Stochastic:
         SSA_list = deepcopy(SSA_grid[:, 0])  # Starting SSA_list
         # print(f"SSA list = {SSA_list}")
         while t < self.total_time:
-            total_propensity = self.propensity_calculation(SSA_list)
+
+            if t>=4:
+                production_rate = self.production_rate
+                degradation_rate = 0
+            else:
+                production_rate = 0
+                degradation_rate = self.degradation_rate
+
+
+            total_propensity = self.propensity_calculationPython(SSA_list, production_rate, degradation_rate)
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:  # Stop if no reactions can occur
                 break

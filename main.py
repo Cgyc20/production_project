@@ -50,7 +50,7 @@ def main():
         print(f"diffusion_rate: {diffusion_rate}")
         print(f"number_particles_per_cell: {number_particles_per_cell}")
         print(f"The steady state is: {production_rate/degradation_rate}")
-
+        print(f"h is {h}")
     except ValueError as e:
         print("Error:", e)
         return
@@ -59,6 +59,7 @@ def main():
     # np.random.seed(0)
     SSA_initial = np.ones((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
 
+    print(SSA_initial)
     # multiply_vector = np.arange(0, compartment_number)%2
     
     # SSA_initial = SSA_initial* multiply_vector
@@ -68,14 +69,14 @@ def main():
 
     Hybrid_SSA, Hybrid_PDE, Hybrid_combined = Model.run_simulation(number_of_repeats=repeats)
     Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data')
-
-    SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=True)
+    SSA_initial = np.ones((compartment_number), np.int64) * 100 # Initial conditions (within each cell)
+    SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False)
     SSA_grid = SSA_model.run_simulation(number_of_repeats=repeats)
     SSA_model.save_simulation_data(SSA_grid, datadirectory='data') # ignore
 
 
     PDE_points = Model.PDE_M
-    PDE_initial = np.ones_like(PDE_points) * number_particles_per_cell / Model.h 
+    PDE_initial = np.ones_like(PDE_points) * 1000
     print(PDE_initial)
     PDE_Model = PDE(domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial)
     PDE_grid = PDE_Model.run_simulation()
