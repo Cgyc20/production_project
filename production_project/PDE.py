@@ -48,9 +48,23 @@ class PDE:
         return self.Crank_matrix @ old_vector + self.M1_inverse@ (self.production_rate * self.timestep*np.ones(self.PDE_points))
 
     def run_simulation(self):
-        for i in range(len(self.time_vector) - 1):
-            self.PDE_grid[:, i + 1] = self.crank_nicholson(self.PDE_grid[:, i])
-        print("Simulation completed")
+        for i, t in enumerate(self.time_vector[:-1]):
+            if t < 4:
+                production_rate = 0
+                degradation_rate = self.degradation_rate  # Keep degradation active
+            else:
+                production_rate = self.production_rate
+                degradation_rate = 0  # Turn off degradation
+            
+            # Adjust matrices for Crank-Nicholson with new degradation rate
+            M1 = np.identity(self.PDE_points) * (1 + 0.5 * self.timestep * degradation_rate) - 0.5 * (self.timestep * self.diffusion_rate / self.deltax**2) * self.DX_NEW
+            M2 = np.identity(self.PDE_points) * (1 - 0.5 * self.timestep * degradation_rate) + 0.5 * (self.timestep * self.diffusion_rate / self.deltax**2) * self.DX_NEW
+            M1_inverse = np.linalg.inv(M1)
+            Crank_matrix = M1_inverse @ M2
+            
+            self.PDE_grid[:, i + 1] = Crank_matrix @ self.PDE_grid[:, i] + M1_inverse @ (production_rate * self.timestep * np.ones(self.PDE_points))
+        
+        print("Simulation completed with time-dependent switching")
         return self.PDE_grid
 
     def save_simulation_data(self, PDE_grid, datadirectory='data'):
