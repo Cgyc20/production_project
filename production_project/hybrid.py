@@ -74,7 +74,7 @@ class Hybrid:
     
     def calculate_total_mass(self, PDE_list: np.ndarray, SSA_list: np.ndarray) -> np.ndarray:
         """This will calculate the total mass of discrete + continuous"""
-
+        
         return UtilityFunctions.calculate_total_mass(PDE_list, SSA_list, self.use_c_functions,self.PDE_multiple, self.deltax, self.SSA_M )
       
     def threshold_boolean(self, combined_list: np.ndarray) -> np.ndarray:
@@ -300,7 +300,9 @@ class Hybrid:
                     if r3 < 0.5:
                         SSA_list[index] -= 1
                         SSA_list[index - 1] += 1
+                    
                         reaction_type = "diffusion"
+
                     else:
                         SSA_list[index] -= 1
                         SSA_list[index + 1] += 1
@@ -330,11 +332,15 @@ class Hybrid:
                     SSA_list[compartment_index] -= 1  # D -> C
                     PDE_list[self.PDE_multiple * compartment_index: self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                     reaction_type = "conversion_D_to_C"
-
+                   
+                breakpoint()
                 SSA_events_log.append((t, compartment_index, reaction_type))
+
                 # PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass,tau)
                 t += tau
                 old_time = t
+
+
             else:
                 PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
                 PDE_update_times.append(t)
