@@ -103,7 +103,7 @@ class Hybrid:
 
         # Precompute terms
         diffusion_term = diff_coeff * (nabla @ old_vector)
-        degradation_term = self.degradation_rate * (old_vector ** 2)
+        degradation_term = self.degradation_rate * boolean_threshold*((old_vector+SSA_fine_mass) ** 2)
         production_term = self.production_rate * boolean_threshold * (old_vector + SSA_fine_mass)
 
         # Combine all terms
