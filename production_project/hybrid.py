@@ -105,7 +105,7 @@ class Hybrid:
         diffusion_term = diff_coeff * (nabla @ old_vector)
         degradation_term = self.degradation_rate * boolean_threshold*((old_vector+SSA_fine_mass) ** 2)
         production_term = self.production_rate * boolean_threshold * (old_vector + SSA_fine_mass)
-
+        degradation_term = self.degradation_rate * (old_vector) ** 2
         # Combine all terms
         dudt = diffusion_term - degradation_term + production_term
 
@@ -332,8 +332,7 @@ class Hybrid:
                     SSA_list[compartment_index] -= 1  # D -> C
                     PDE_list[self.PDE_multiple * compartment_index: self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                     reaction_type = "conversion_D_to_C"
-                   
-                breakpoint()
+                
                 SSA_events_log.append((t, compartment_index, reaction_type))
 
                 # PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass,tau)
