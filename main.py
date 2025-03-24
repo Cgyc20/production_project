@@ -80,8 +80,8 @@ def main():
     Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data')
 
     SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False)
-    SSA_grid = SSA_model.run_simulation(number_of_repeats=repeats)
-    SSA_model.save_simulation_data(SSA_grid, datadirectory='data') # ignore
+    #SSA_grid = SSA_model.run_simulation(number_of_repeats=repeats)
+    #SSA_model.save_simulation_data(SSA_grid, datadirectory='data') # ignore
 
 
     PDE_points = Model.PDE_M
@@ -94,8 +94,8 @@ def main():
     PDE_Model.save_simulation_data(PDE_grid, datadirectory='data')
 
     print(f"PDE grid at timestep one: {PDE_grid[:,0]}")
-    print(f"Stochastic grid at timestep 1: {SSA_grid[:,0]}")
-    print(f"SSA in hybrid model at timestep 1: {Hybrid_SSA[:,0]}")
+    #print(f"Stochastic grid at timestep 1: {SSA_grid[:,0]}")
+    #print(f"SSA in hybrid model at timestep 1: {Hybrid_SSA[:,0]}")
 
 def plot():
     subprocess.run(['python', 'animate.py'])

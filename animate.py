@@ -158,6 +158,7 @@ def main():
     SSA_total_mass = calculate_mass_discrete(SSA_grid)
     Hybrid_SSA_mass = calculate_mass_discrete(D_grid)
     
+    print(domain_length)
     fig, ax = plt.subplots(figsize=(10, 6))
     bar_SSA, line_PDE, line_combined, line_analytic, line_pure_PDE, threshold_line, time_text = plot_initial_setup(
         ax, bar_positions, D_grid, h, PDE_X, C_grid, combined_grid, PDE_grid, analytic_sol, concentration_threshold, domain_length
