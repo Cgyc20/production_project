@@ -233,8 +233,8 @@ class Hybrid:
         combined_list, approximate_PDE_mass = self.calculate_total_mass(PDE_list, SSA_list)
         
         # Debugging: Print combined mass and approximate PDE mass
-        print(f"Combined mass: {combined_list}")
-        print(f"Approximate PDE mass: {approximate_PDE_mass}")
+        #print(f"Combined mass: {combined_list}")
+        #print(f"Approximate PDE mass: {approximate_PDE_mass}")
 
         conversion_to_discrete = np.zeros_like(SSA_list)  # length of SSA_m
         conversion_to_cont = np.zeros_like(approximate_PDE_mass)  # length as SSA_m 
@@ -242,13 +242,13 @@ class Hybrid:
         boolean_SSA_threshold = self.boolean_if_less_mass(PDE_list).astype(int)
 
         # Debugging: Print boolean threshold
-        print(f"Boolean SSA threshold: {boolean_SSA_threshold}")
+        #print(f"Boolean SSA threshold: {boolean_SSA_threshold}")
 
         conversion_to_discrete[combined_list < self.threshold] = approximate_PDE_mass[combined_list < self.threshold] * self.gamma
         conversion_to_discrete *= boolean_SSA_threshold
 
         # Debugging: Print conversion to discrete propensity
-        print(f"Conversion to discrete propensity: {conversion_to_discrete}")
+        #print(f"Conversion to discrete propensity: {conversion_to_discrete}")
 
         conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
         
