@@ -9,5 +9,5 @@ gamma 2
 production_rate 200
 degradation_rate 1
 number_particles_per_cell 0
-repeats 500
+repeats 1000
 diffusion_rate 1e-3
