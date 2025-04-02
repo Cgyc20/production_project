@@ -93,7 +93,7 @@ def main():
 
     print(f"PDE grid at timestep one: {PDE_grid[:,0]}")
     # print(f"Stochastic grid at timestep 1: {SSA_grid[:,0]}")
-    print(f"SSA in hybrid model at timestep 1: {Hybrid_SSA[:,0]}")
+    #print(f"SSA in hybrid model at timestep 1: {Hybrid_SSA[:,0]}")
 
 def plot():
     subprocess.run(['python', 'animate.py'])
