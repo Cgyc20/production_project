@@ -7,7 +7,7 @@ class PDE:
     def __init__(self, domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial):
         self.L = domain_length
         self.PDE_points = PDE_points
-        self.production_rate = production_rate*20
+        self.production_rate = production_rate*20 #This is h/Diffusion (multiplied by)
         self.deltax = self.L / self.PDE_points
         self.total_time = total_time
         self.PDE_initial_conditions = PDE_initial
