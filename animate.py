@@ -19,8 +19,8 @@ def main():
     time_vector = Hybrid_data["time_vector"]
 
     # Load SSA events and PDE update times separately
-    SSA_events = np.load("Data/SSA_events_logs.npy", allow_pickle=True)
-    PDE_update_times = np.load("Data/PDE_update_times.npy", allow_pickle=True)
+    # SSA_events = np.load("Data/SSA_events_logs.npy", allow_pickle=True)
+    # PDE_update_times = np.load("Data/PDE_update_times.npy", allow_pickle=True)
 
     SSA_data = np.load("Data/Pure_SSA_data.npz")
     SSA_grid = SSA_data["SSA_grid"]
