@@ -70,7 +70,9 @@ def main():
 
 
     PDE_points = Model.PDE_M
-    PDE_initial = np.ones_like(PDE_points) * number_particles_per_cell / Model.h 
+    print(f"THe number of PDE points: {PDE_points}")
+    PDE_initial = np.ones(PDE_points) * number_particles_per_cell / Model.h 
+    print(type(PDE_initial))
     print(PDE_initial)
     PDE_Model = PDE(domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial)
     PDE_grid = PDE_Model.run_simulation()
