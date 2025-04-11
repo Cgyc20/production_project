@@ -177,7 +177,7 @@ class Stochastic:
         return filled_SSA_grid
     
 
-    def save_simulation_data(self, filled_SSA_grid, datadirectory='data'):
+    def save_simulation_data(self, filled_SSA_grid,filename, datadirectory='data'):
 
         if not os.path.exists(datadirectory):
             os.makedirs(datadirectory)
@@ -194,7 +194,7 @@ class Stochastic:
             'h': self.h,
         }
 
-        np.savez(os.path.join(datadirectory, 'Pure_SSA_data'),
+        np.savez(os.path.join(datadirectory, 'filename'),
                 SSA_grid=filled_SSA_grid,
                 time_vector=self.time_vector,
                 SSA_X=self.SSA_X
