@@ -52,6 +52,7 @@ class Hybrid:
         self.PDE_initial_conditions = np.zeros_like(self.PDE_X, dtype=np.float64) #Initially zero states for PDE
         self.steady_state = production_rate / degradation_rate #Steady state of the system
         self.DX_NEW = self.create_finite_difference()  # Ensure DX_NEW is initialized here
+        self.Nabla = self.diffusion_rate*self.DX_NEW / (self.deltax ** 2)  # The nabla operator
         self.time_vector = np.arange(0, total_time, timestep)  # The time vector
         self.Crank_matrix, self.M1_inverse = self.create_crank_nicholson() #The crank method respective matrices
 
@@ -59,6 +60,22 @@ class Hybrid:
         print("Successfully initialized the hybrid model")
 
         print(f"The threshold concentration is: {self.threshold_conc}")
+
+
+    def RHS_deriv(self,PDE_vector):
+        """The RHS deriv of the system"""
+        
+        return self.Nabla@PDE_vector-self.degradation_rate*PDE_vector
+    def Runge_kutta(self, PDE_vector):
+
+        """The Runge kutta method for the PDE"""
+        k1 = self.RHS_deriv(PDE_vector)
+        k2 = self.RHS_deriv(PDE_vector + 0.5 * self.timestep * k1)
+        k3 = self.RHS_deriv(PDE_vector + 0.5 * self.timestep * k2)
+        k4 = self.RHS_deriv(PDE_vector + self.timestep * k3)
+
+        return PDE_vector + (self.timestep / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
+    
 
     def create_crank_nicholson(self) -> np.ndarray:
         """Creates the matrix used for crank nicholson method """
@@ -315,7 +332,7 @@ class Hybrid:
                 
 
             else:  # Else we run the ODE step
-                PDE_list = self.crank_nicholson(PDE_list)
+                PDE_list = self.Runge_kutta(PDE_list)
                 PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
                 t = copy(td)
                 td += self.timestep
