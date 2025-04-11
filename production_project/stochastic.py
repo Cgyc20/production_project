@@ -194,7 +194,7 @@ class Stochastic:
             'h': self.h,
         }
 
-        np.savez(os.path.join(datadirectory, 'filename'),
+        np.savez(os.path.join(datadirectory, filename),
                 SSA_grid=filled_SSA_grid,
                 time_vector=self.time_vector,
                 SSA_X=self.SSA_X
