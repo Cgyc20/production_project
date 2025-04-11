@@ -64,11 +64,18 @@ def main():
     Hybrid_SSA, Hybrid_PDE, Hybrid_combined = Model.run_simulation(number_of_repeats=repeats)
     Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data')
 
-    SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False)
-    SSA_grid = SSA_model.run_simulation(number_of_repeats=repeats)
-    SSA_model.save_simulation_data(SSA_grid, datadirectory='data') # ignore
+    # Run the first SSA simulation
+    SSA_model_1 = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False)
+    SSA_grid_1 = SSA_model_1.run_simulation(number_of_repeats=repeats)
+    SSA_model_1.save_simulation_data(SSA_grid_1, 'SSA_data_1', datadirectory='data')
 
+    # Run the second SSA simulation
+    SSA_model_2 = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=False)
+    SSA_grid_2 = SSA_model_2.run_simulation(number_of_repeats=repeats)
+    SSA_model_2.save_simulation_data(SSA_grid_2, 'SSA_data_2', datadirectory='data')
 
+    # Print confirmation
+    print("SSA simulations completed and saved as SSA_data_1 and SSA_data_2.")
     PDE_points = Model.PDE_M
     print(f"THe number of PDE points: {PDE_points}")
     PDE_initial = np.ones(PDE_points) * number_particles_per_cell / Model.h 
