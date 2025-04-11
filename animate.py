@@ -22,7 +22,7 @@ def main():
     # SSA_events = np.load("Data/SSA_events_logs.npy", allow_pickle=True)
     # PDE_update_times = np.load("Data/PDE_update_times.npy", allow_pickle=True)
 
-    SSA_data = np.load("Data/Pure_SSA_data.npz")
+    SSA_data = np.load("Data/SSA_data_1.npz")
     SSA_grid = SSA_data["SSA_grid"]
 
     PDE_data = np.load("Data/PDE_data.npz")
