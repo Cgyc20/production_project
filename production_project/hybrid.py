@@ -200,9 +200,12 @@ class Hybrid:
         movement_propensity[0] = self.d * SSA_list[0]
         movement_propensity[-1] = self.d * SSA_list[-1]
     
-        
-        R2_propensity = self.degradation_rate * SSA_list  # degredation propensity
         R1_propensity = np.array([self.production_rate_per_compartment])  # The production propensity
+
+        R1_propensity = self.production_rate_per_compartment*SSA_list
+        R1_propensity[1:] = 0
+        R2_propensity = self.degradation_rate * SSA_list  # degredation propensity
+
 
         approximate_PDE_mass = np.zeros_like(SSA_list)
         combined_list = np.zeros_like(SSA_list)
@@ -223,7 +226,7 @@ class Hybrid:
         conversion_to_discrete *= boolean_SSA_threshold
         conversion_to_cont[combined_list >= self.threshold] = SSA_list[combined_list >= self.threshold] * self.gamma
         
-        combined_propensity = np.concatenate((movement_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont, R1_propensity))
+        combined_propensity = np.concatenate((movement_propensity,R1_propensity, R2_propensity, conversion_to_discrete, conversion_to_cont))
         return combined_propensity
     
 
