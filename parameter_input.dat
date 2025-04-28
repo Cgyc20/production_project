@@ -1,12 +1,12 @@
 domain_length 1
-compartment_number 20
+compartment_number 40
 PDE_multiple 8
 total_time 60
 timestep 0.005
-particles_per_compartment_thresh 20
-gamma 5
+particles_per_compartment_thresh 5
+gamma 4
 production_rate 200
 degradation_rate 0.05
-number_particles_per_cell 5
-repeats 10
+number_particles_per_cell 1
+repeats 50
 diffusion_rate 1e-3
