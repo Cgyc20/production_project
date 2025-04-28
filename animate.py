@@ -145,7 +145,7 @@ def main():
         return (*bar_SSA, *bar_pure_SSA, line_combined, line_PDE, line_pure_PDE, time_text, threshold_line, steady_state_line)
 
     # Create animation
-    ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=40)
+    ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=1)
 
     # Set legend position fixed
     # Adjust the figure layout to make space for the legend
