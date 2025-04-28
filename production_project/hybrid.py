@@ -202,8 +202,9 @@ class Hybrid:
     
         R1_propensity = np.array([self.production_rate_per_compartment])  # The production propensity
 
-        R1_propensity = self.production_rate_per_compartment*SSA_list
-        R1_propensity[1:] = 0
+        R1_propensity = np.zeros_like(SSA_list)
+        R1_propensity[0] = self.production_rate_per_compartment  # production propensity 
+        
         R2_propensity = self.degradation_rate * SSA_list  # degredation propensity
 
 
@@ -294,35 +295,30 @@ class Hybrid:
                     SSA_list[index - 1] += 1
 
                     """Now the reaction kinetics"""
-                elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Production reaction
+
+                
+                elif index >= self.SSA_M and index <= 2 * self.SSA_M - 1:  # Production_reaction
                     
-                    SSA_list[compartment_index] -= 1  
+                    SSA_list[compartment_index] += 1
+
+                elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Degradation_reaction
+
+                    SSA_list[compartment_index] -= 1
 
                     """Finally the conversion reactions here"""
-                elif index >= 2 * self.SSA_M and index <= 3 * self.SSA_M - 1:  # Conversion from continuous to discrete
+                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:  # Conversion from continuous to discrete
                     SSA_list[compartment_index] += 1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] -= 1 / self.h
                     #PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity for continuous list (probably don't need)
                     
-                #elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M-1:  # Conversion from discrete to continuous
-                    # print(f"*"*30)
-                    # print(f"Checking conversion to PDE, given this occurs")
-                    # print(f"  {SSA_list}")
-                    # print(f"Continuous mass at time {t:.1f}:")
-                    # print(f"  {PDE_list.round(1)}")
-                    # print(f"Number of particles continuous")
-                    # print(f" {PDE_particles[:,min(ind_after+1, len(self.time_vector))-1]}")
-                    # print(f"*"*30)
-
-                elif index >= 3 * self.SSA_M and index <= 4 * self.SSA_M - 1:  # Conversion from discrete to continuous
-
+           
+                # elif index >= 4 * self.SSA_M and index <= 5 * self.SSA_M - 1:  # Conversion from discrete to continuous
+                else:
                     #SSA_list[compartment_index] = max(SSA_list[compartment_index] - 1, 0)
                     SSA_list[compartment_index] = SSA_list[compartment_index]-1
                     PDE_list[self.PDE_multiple * compartment_index : self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                  
-                else:
-                    SSA_list[0] += 1
-
+                
                 t += tau 
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
                 ind_after = np.searchsorted(self.time_vector, t, 'left')
