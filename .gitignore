@@ -1,6 +1,7 @@
 data/*
 !data/.gitkeep
 
+*.pyc
 profiling_directory/*
 
 debug.md
