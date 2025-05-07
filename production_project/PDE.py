@@ -45,6 +45,30 @@ class PDE:
             self.DX[i, (i - 1)] = 1
         return self.DX
 
+
+    def RHS_spatial_deriv(self,old_vector):
+        """The RHS of the equation"""
+
+        H = self.create_finite_difference()
+        production_vector = np.zeros_like(old_vector)
+        production_vector[0] = self.production_rate/self.deltax
+        degradation_vector = np.ones_like(old_vector)*self.degradation_rate 
+        spatial_part = self.diffusion_rate/(self.deltax**2)*H@old_vector
+        spatial_part += production_vector-degradation_vector
+
+        return spatial_part
+    
+    def runge_kutta_4(self, old_vector):
+
+        k1 = self.RHS_spatial_deriv(old_vector)
+        k2 = self.RHS_spatial_deriv(old_vector + (self.timestep/2)*k1)
+        k3 = self.RHS_spatial_deriv(old_vector + (self.timestep/2)*k2)
+        k4 = self.RHS_spatial_deriv(old_vector + self.timestep*k3)
+
+        new_vector = old_vector + (self.timestep/6)*(k1 + 2*k2 + 2*k3 + k4)
+        return new_vector
+    
+
     def crank_nicholson(self, old_vector):
         e1= np.zeros(self.PDE_points)
         e1[0] = 1
@@ -53,7 +77,8 @@ class PDE:
 
     def run_simulation(self):
         for i in range(len(self.time_vector) - 1):
-            self.PDE_grid[:, i + 1] = self.crank_nicholson(self.PDE_grid[:, i])
+            #self.PDE_grid[:, i + 1] = self.crank_nicholson(self.PDE_grid[:, i])
+            self.PDE_grid[:, i + 1] = self.runge_kutta_4(self.PDE_grid[:, i])
         print("Simulation completed")
         return self.PDE_grid
 
