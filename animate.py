@@ -27,6 +27,7 @@ def main():
 
     PDE_data = np.load("Data/PDE_data.npz")
     PDE_grid = PDE_data["PDE_grid"]
+    PDE_grid = PDE_data["PDE_grid"][:, :-1] 
 
     # Load simulation parameters from JSON file
     parameters = json.load(open("data/parameters.json"))
@@ -65,6 +66,13 @@ def main():
         return np.sum(data_grid,axis=0)
 
     # Calculate total mass for all solutions
+
+    
+    print("analytic_sol shape:", analytic_sol.shape)
+    print("C_grid shape:", C_grid.shape)
+    print("PDE_grid shape:", PDE_grid.shape)
+    print("combined_grid shape:", combined_grid.shape)
+
     analytic_total_mass = calculate_mass_continuous(analytic_sol, deltax)
     Hybrid_PDE_total_mass = calculate_mass_continuous(C_grid, deltax)
     pure_PDE_total_mass = calculate_mass_continuous(PDE_grid, deltax)
@@ -106,6 +114,7 @@ def main():
     ax.set_ylabel('Species Concentration', fontsize=12)
     ax.set_title('Hybrid simulation', fontsize=14)
     ax.set_xlim(0, domain_length)
+    
     ax.set_ylim(0, max(np.max(combined_grid) * 1.1, concentration_threshold * 1.1))
     ax.grid(True, linestyle='--', alpha=0.6)
 
@@ -117,6 +126,7 @@ def main():
 
     # Adjust y-axis limit to ensure steady state is included
     y_max = max(np.max(combined_grid) * 1.1, steady_state_concentration * 1.1, concentration_threshold * 1.1)
+    y_max = 10000
     ax.set_ylim(-20, y_max)
 
     # Add a steady-state line

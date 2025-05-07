@@ -31,7 +31,7 @@ class Hybrid:
         
         self.h = self.L / compartment_number #The size of each compartment
         self.diffusion_rate = diffusion_rate #Rate of diffusion
-        self.production_rate_per_compartment = production_rate*self.h #THe 
+        self.production_rate_per_compartment = production_rate #I removed times h in may 2025
         self.d = diffusion_rate / (self.h ** 2)  # The jump rate
 
         self.threshold_conc = threshold/self.h #The threshold concentration per cell

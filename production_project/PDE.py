@@ -1,88 +1,59 @@
 import numpy as np
-from tqdm import tqdm
 import os
-import json
 
 class PDE:
-    def __init__(self, domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial):
+    def __init__(self, domain_length, PDE_points, total_time, timestep,
+                 production_rate, degradation_rate, diffusion_rate, PDE_initial):
+        
         self.L = domain_length
         self.PDE_points = PDE_points
-        self.production_rate = production_rate*20 #This is h/Diffusion (multiplied by)
         self.deltax = self.L / self.PDE_points
         self.total_time = total_time
-        self.PDE_initial_conditions = PDE_initial
         self.timestep = timestep
-        self.diffusion_rate = diffusion_rate
+        self.production_rate = production_rate
         self.degradation_rate = degradation_rate
-        self.PDE_X = np.linspace(0, self.L,self.PDE_points)
-        self.steady_state = production_rate / degradation_rate
-        self.DX_NEW = self.create_finite_difference()
-        self.time_vector = np.arange(0, total_time, timestep)
-        self.Crank_matrix, self.M1_inverse = self.create_crank_nicholson()
+        self.diffusion_rate = diffusion_rate
 
+        self.PDE_X = np.linspace(0, self.L, self.PDE_points)
+        self.time_vector = np.arange(0, total_time + timestep, timestep)
         self.PDE_grid = np.zeros((self.PDE_points, len(self.time_vector)))
-        self.PDE_grid[:, 0] = self.PDE_initial_conditions
+        self.PDE_grid[:, 0] = PDE_initial
 
-        print("Successfully initialized the hybrid model")
+        self.H = self.create_finite_difference()
 
-    def create_crank_nicholson(self):
-        H = self.create_finite_difference()
-        nu = self.diffusion_rate*self.timestep/(self.deltax**2)
-
-        M1 = (np.identity(self.PDE_points)*((2+self.degradation_rate*self.timestep)/2) - nu*H/2)
-        M2 = (np.identity(self.PDE_points)*((2-self.degradation_rate*self.timestep)/2) + nu*H/2)
-        M1_inverse = np.linalg.inv(M1)
-        Crank_matrix = M1_inverse @ M2
-        return Crank_matrix, M1_inverse
+        print("Successfully initialized the PDE model using RK4")
 
     def create_finite_difference(self):
-        self.DX = np.zeros((self.PDE_points, self.PDE_points), dtype=int)
-        self.DX[0, 0], self.DX[-1, -1] = -1, -1
-        self.DX[0, 1], self.DX[-1, -2] = 1, 1
-        for i in range(1, self.DX.shape[0] - 1):
-            self.DX[i, i] = -2
-            self.DX[i, (i + 1)] = 1
-            self.DX[i, (i - 1)] = 1
-        return self.DX
+        H = np.zeros((self.PDE_points, self.PDE_points))
+        H[0, 0], H[-1, -1] = -1, -1
+        H[0, 1], H[-1, -2] = 1, 1
+        for i in range(1, self.PDE_points - 1):
+            H[i, i - 1] = 1
+            H[i, i] = -2
+            H[i, i + 1] = 1
+        return H
 
+    def RHS_spatial_deriv(self, u):
+        production_vector = np.zeros_like(u)
+        production_vector[0] = self.production_rate / self.deltax  # Neumann BC
+        degradation_term = self.degradation_rate * u
+        diffusion_term = (self.diffusion_rate / self.deltax**2) * self.H @ u
+        return diffusion_term + production_vector - degradation_term
 
-    def RHS_spatial_deriv(self,old_vector):
-        """The RHS of the equation"""
-
-        H = self.create_finite_difference()
-        production_vector = np.zeros_like(old_vector)
-        production_vector[0] = self.production_rate/self.deltax
-        degradation_vector = np.ones_like(old_vector)*self.degradation_rate 
-        spatial_part = self.diffusion_rate/(self.deltax**2)*H@old_vector
-        spatial_part += production_vector-degradation_vector
-
-        return spatial_part
-    
-    def runge_kutta_4(self, old_vector):
-
-        k1 = self.RHS_spatial_deriv(old_vector)
-        k2 = self.RHS_spatial_deriv(old_vector + (self.timestep/2)*k1)
-        k3 = self.RHS_spatial_deriv(old_vector + (self.timestep/2)*k2)
-        k4 = self.RHS_spatial_deriv(old_vector + self.timestep*k3)
-
-        new_vector = old_vector + (self.timestep/6)*(k1 + 2*k2 + 2*k3 + k4)
-        return new_vector
-    
-
-    def crank_nicholson(self, old_vector):
-        e1= np.zeros(self.PDE_points)
-        e1[0] = 1
-
-        return self.Crank_matrix @ old_vector + self.M1_inverse@ ((self.diffusion_rate*self.timestep*self.production_rate/self.deltax)*e1)
+    def runge_kutta_4(self, u):
+        k1 = self.RHS_spatial_deriv(u)
+        k2 = self.RHS_spatial_deriv(u + 0.5 * self.timestep * k1)
+        k3 = self.RHS_spatial_deriv(u + 0.5 * self.timestep * k2)
+        k4 = self.RHS_spatial_deriv(u + self.timestep * k3)
+        return u + (self.timestep / 6.0) * (k1 + 2*k2 + 2*k3 + k4)
 
     def run_simulation(self):
         for i in range(len(self.time_vector) - 1):
-            #self.PDE_grid[:, i + 1] = self.crank_nicholson(self.PDE_grid[:, i])
             self.PDE_grid[:, i + 1] = self.runge_kutta_4(self.PDE_grid[:, i])
         print("Simulation completed")
         return self.PDE_grid
 
-    def save_simulation_data(self, PDE_grid, datadirectory='data'):
+    def save_simulation_data(self,PDE_grid,datadirectory='data'):
         if not os.path.exists(datadirectory):
             os.makedirs(datadirectory)
         params = {
@@ -94,6 +65,10 @@ class PDE:
             'degradation_rate': self.degradation_rate,
             'diffusion_rate': self.diffusion_rate,
         }
-        np.savez(os.path.join(datadirectory, "PDE_data.npz"), PDE_grid=PDE_grid, PDE_X=self.PDE_X, time_vector=self.time_vector, parameters=params)
+        np.savez(os.path.join(datadirectory, "PDE_data.npz"),
+                 PDE_grid=PDE_grid,
+                 PDE_X=self.PDE_X,
+                 time_vector=self.time_vector,
+                 parameters=params)
         print("Data saved successfully")
 

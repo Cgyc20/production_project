@@ -30,7 +30,7 @@ class Stochastic:
         
         self.h = self.L / compartment_number
         self.diffusion_rate = diffusion_rate*self.h
-        self.production_rate_per_compartment = production_rate*self.h
+        self.production_rate_per_compartment = production_rate
         self.d = diffusion_rate / (self.h ** 2)  # Jump rate in SSA
 
         self.SSA_X = np.linspace(0, self.L - self.h, self.SSA_M)

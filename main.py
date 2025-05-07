@@ -77,10 +77,10 @@ def main():
     # Print confirmation
     print("SSA simulations completed and saved as SSA_data_1 and SSA_data_2.")
     PDE_points = Model.PDE_M
-    print(f"THe number of PDE points: {PDE_points}")
+    # print(f"THe number of PDE points: {PDE_points}")
     PDE_initial = np.ones(PDE_points) * number_particles_per_cell / Model.h 
-    print(type(PDE_initial))
-    print(PDE_initial)
+    # print(type(PDE_initial))
+    # print(PDE_initial)
     PDE_Model = PDE(domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial)
     PDE_grid = PDE_Model.run_simulation()
     PDE_Model.save_simulation_data(PDE_grid, datadirectory='data')
