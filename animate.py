@@ -47,6 +47,7 @@ def main():
             + (initial_conc - production_rate / degradation_rate) * np.exp(-degradation_rate * time_vector[i])
         )
 
+    print(deltax)
     # Function to calculate total mass for continuous data
     def calculate_mass_continuous(data_grid, deltax):
         return np.sum(data_grid, axis=0) * deltax

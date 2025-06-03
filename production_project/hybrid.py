@@ -405,7 +405,7 @@ class Hybrid:
                     production_rate = 0
                     degradation_rate = self.degradation_rate
                 PDE_list = self.crank_nicholson(PDE_list, degradation_rate)
-                PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
+                # PDE_list = np.maximum(PDE_list, 0)  # Ensure non-negativity after RK4 step
                 t = copy(td)
                 td += self.timestep
                 ind_before = np.searchsorted(self.time_vector, old_time, 'right')
