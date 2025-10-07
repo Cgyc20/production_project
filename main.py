@@ -53,7 +53,7 @@ def main():
         print("Error:", e)
         return
 
-    """Initialise the hybrid model"""
+    # Initialise the hybrid model
     # np.random.seed(0)
     SSA_initial = np.zeros((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
 
@@ -68,9 +68,10 @@ def main():
 
     Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=True) # Define the hybrid model
 
-    Hybrid_SSA, Hybrid_PDE, Hybrid_combined, SSA_usage, PDE_usage = Model.run_simulation(number_of_repeats=repeats)
-    print(SSA_usage)
-    Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, SSA_usage, PDE_usage, datadirectory='data')
+    # run_simulation now returns (SSA_avg, PDE_avg, combined_grid)
+    Hybrid_SSA, Hybrid_PDE, Hybrid_combined = Model.run_simulation(number_of_repeats=repeats)
+    # save_simulation_data signature updated: (SSA_grid, PDE_grid, combined_grid, datadirectory='data', filename='Hybrid_data')
+    Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data', filename='Hybrid_data')
 
     print(f"Production rate: {production_rate}")
     print(f"Degradation rate: {degradation_rate}")
