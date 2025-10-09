@@ -73,10 +73,7 @@ def main():
     # Quick Summary Printout
     # --------------------------
     print("Simulation complete!")
-    print(f"Steady-state estimate (production/degradation): {production_rate / degradation_rate}")
-    print(f"Initial SSA: {SSA_initial}")
-    print(f"Hybrid SSA final mean: {Hybrid_SSA[:, -1].mean():.2f}")
-    print(f"PDE final mean: {PDE_grid[:, -1].mean():.2f}")
+   
 
 if __name__ == "__main__":
     main()

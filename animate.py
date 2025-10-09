@@ -18,18 +18,13 @@ def main():
     PDE_X = Hybrid_data["PDE_X"]
     time_vector = Hybrid_data["time_vector"]
 
-    # Load SSA events and PDE update times separately
-    SSA_events = np.load("Data/SSA_events_logs.npy", allow_pickle=True)
-    PDE_update_times = np.load("Data/PDE_update_times.npy", allow_pickle=True)
-
-    SSA_data = np.load("Data/Pure_SSA_data.npz")
     SSA_grid = SSA_data["SSA_grid"]
 
     PDE_data = np.load("Data/PDE_data.npz")
     PDE_grid = PDE_data["PDE_grid"]
 
     # Load simulation parameters from JSON file
-    parameters = json.load(open("data/parameters.json"))
+    parameters = json.load(open("data/Hybrid_data_parameters.json"))
     h = parameters["h"]
     print(f"the h value in animation: {h}")
     deltax = parameters["deltax"]
@@ -259,94 +254,6 @@ def main():
     # Adjust layout and display the plots
     plt.tight_layout()
     plt.show()
-
-    # print(f"The wavespeed PDE_smooth: {wavespeed_PDE_smooth}")
-    # # Plotting
-    # fig, axs = plt.subplots(2, 1, figsize=(15, 8), sharex=True)
-
-    # # PDE Usage Heatmap
-    # im1 = axs[0].imshow(PDE_usage, aspect='auto', cmap='Blues', extent=[time_vector[0], time_vector[-1], 0, compartments])
-    # axs[0].set_title('PDE Usage Over Time')
-    # axs[0].set_ylabel('Compartments')
-    # plt.colorbar(im1, ax=axs[0], label='PDE Activation (1=Active)')
-
-    # # SSA Usage Heatmap
-    # im2 = axs[1].imshow(SSA_usage, aspect='auto', cmap='Reds', extent=[time_vector[0], time_vector[-1], 0, compartments])
-    # axs[1].set_title('SSA Usage Over Time')
-    # axs[1].set_xlabel('Time')
-    # axs[1].set_ylabel('Compartments')
-    # plt.colorbar(im2, ax=axs[1], label='SSA Activation (1=Active)')
-
-    # plt.tight_layout()
-    # plt.show()
-
-    all_events = [event for run in SSA_events for event in run]
-    
-    df = pd.DataFrame(all_events, columns=['Time', 'Compartment', 'Event Type'])
-
-    print(df.dtypes)
-    print(df.head())
-    df['Time'] = pd.to_numeric(df['Time'], errors='coerce')
-    df['Compartment'] = pd.to_numeric(df['Compartment'], errors='coerce')
-
-    # Ensure 'Event Type' is a string
-    df['Event Type'] = df['Event Type'].astype(str)
-
-    # Ensure Event Type is string
-    df['Event Type'] = df['Event Type'].astype(str)
-    dictionary_of_events = df['Event Type'].unique()
-    print(dictionary_of_events)
-
-    print(f"The PDE update times are {PDE_update_times}")
-
-    def plot_heatmap_of_event(event_type):
-        """Plots a heatmap of the specified event type with PDE update density."""
-        
-        df_filtered = df[df['Event Type'] == event_type]
-        # Create    bins for time and compartments
-        time_bins = np.linspace(df_filtered['Time'].min(), df_filtered['Time'].max(), 128)
-        compartment_bins = np.arange(df_filtered['Compartment'].min(), df_filtered['Compartment'].max() + 1)
-    
-        # Create a pivot table for event counts
-        heatmap_data = pd.crosstab(
-            pd.cut(df_filtered['Time'], bins=time_bins),
-            pd.cut(df_filtered['Compartment'], bins=compartment_bins)
-        )
-    
-        # Plotting the heatmap
-        fig, ax1 = plt.subplots(figsize=(14, 8))
-        sns.heatmap(heatmap_data.T, cmap='YlGnBu', cbar_kws={'label': 'Event Count'}, ax=ax1, linewidths=0.1)
-    
-        # Plot PDE update times on a secondary axis
-      
-        # Legends and labels
-        ax1.set_title(f'Event Density Heatmap for: {event_type}')
-        ax1.set_xlabel('Time')
-        ax1.set_ylabel('Compartment')
- 
-    
-        plt.tight_layout()
-        plt.show()
-
-    def plot_PDE_dist(PDE_update_times):
-        """Here we plot the distribution of the PDE_distribution"""
-    
-        # Ensure PDE_update_times is a 1D array or list
-        if isinstance(PDE_update_times, np.ndarray):
-            PDE_update_times = PDE_update_times.flatten()
-        elif not isinstance(PDE_update_times, list):
-            raise ValueError("PDE_update_times must be a list or a 1D numpy array")
-    
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.hist(PDE_update_times, bins=128, color='green', alpha=0.7)
-        ax.set_title('PDE Update Time Distribution')
-        ax.set_xlabel('Time')
-        ax.set_ylabel('Frequency')
-        plt.show()
-    # Call the function for 'diffusion'
-    
-    plot_heatmap_of_event('D duplication')
-    # plot_PDE_dist(PDE_update_times)
 
 if __name__ == "__main__":
     main()

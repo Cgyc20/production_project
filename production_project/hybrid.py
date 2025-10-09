@@ -257,10 +257,6 @@ class Hybrid:
         PDE_list = PDE_grid[:, 0].astype(float)
         ind_after = 0
 
-        # Arrays to track SSA events and PDE updates
-        SSA_events_log = []  # Format: (time, compartment_index, reaction_type)
-        PDE_update_times = []  # List of times when PDE is updated
-
         while t < self.total_time:
             #total_propensity = self.propensity_calculation(SSA_list, PDE_list)
             
@@ -272,7 +268,6 @@ class Hybrid:
             alpha0 = np.sum(total_propensity)
             if alpha0 == 0:
                 PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
-                PDE_update_times.append(t)
 
                 t = copy(td)
                 td += self.timestep
@@ -333,8 +328,6 @@ class Hybrid:
                     PDE_list[self.PDE_multiple * compartment_index: self.PDE_multiple * (compartment_index + 1)] += 1 / self.h
                     reaction_type = "conversion_D_to_C"
                 
-                SSA_events_log.append((t, compartment_index, reaction_type))
-
                 # PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass,tau)
                 t += tau
                 old_time = t
@@ -342,7 +335,6 @@ class Hybrid:
 
             else:
                 PDE_list = self.RK4(PDE_list, PDE_boolean_threshold, fine_SSA_mass)
-                PDE_update_times.append(t)
 
                 t = copy(td)
                 td += self.timestep
@@ -359,7 +351,7 @@ class Hybrid:
 
                 old_time = t
 
-        return SSA_grid, PDE_grid, approx_mass, SSA_events_log, PDE_update_times
+        return SSA_grid, PDE_grid, approx_mass
 
     def run_simulation(self, number_of_repeats: int) -> np.ndarray:
         PDE_initial, SSA_initial = self.create_initial_dataframe()
@@ -369,19 +361,12 @@ class Hybrid:
         PDE_sum = np.zeros_like(PDE_initial)
         approx_mass_sum = np.zeros_like(approx_mass_initial)
 
-        # Arrays to track all SSA events and PDE update times across repeats
-        all_SSA_events_logs = []
-        all_PDE_update_times = []
-
         for _ in tqdm(range(number_of_repeats), desc="Running the Hybrid simulations"):
-            SSA_current, PDE_current, approx_mass_current, SSA_events_log, PDE_update_times = self.hybrid_simulation(
+            SSA_current, PDE_current, approx_mass_current = self.hybrid_simulation(
                 deepcopy(SSA_initial), deepcopy(PDE_initial), deepcopy(approx_mass_initial))
             SSA_sum += SSA_current
             PDE_sum += PDE_current
             approx_mass_sum += approx_mass_current
-
-            all_SSA_events_logs.append(SSA_events_log)
-            all_PDE_update_times.append(PDE_update_times)
 
         SSA_average = SSA_sum / number_of_repeats
         PDE_average = PDE_sum / number_of_repeats
@@ -396,12 +381,11 @@ class Hybrid:
 
         print("Simulation completed")
 
-        # Save simulation data including SSA events and PDE update times
+        return SSA_average, PDE_average, combined_grid
 
-        return SSA_average, PDE_average, combined_grid, all_SSA_events_logs, all_PDE_update_times
-
-     
-    def save_simulation_data(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, combined_grid: np.ndarray, all_SSA_events_logs: list, all_PDE_update_times: list, datadirectory='data'):
+    def save_simulation_data(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, combined_grid: np.ndarray,
+                             datadirectory='data', filename='Hybrid_data'):
+        """Save simulation grids and parameters. `filename` selects the base filename."""
         if not os.path.exists(datadirectory):
             os.makedirs(datadirectory)
         params = {
@@ -420,18 +404,13 @@ class Hybrid:
             'initial_SSA': self.SSA_initial.tolist(),
             'h': self.h,
         }
-        np.savez(os.path.join(datadirectory, 'Hybrid_data'),
+        np.savez(os.path.join(datadirectory, f'{filename}.npz'),
                 SSA_grid=SSA_grid,
                 PDE_grid=PDE_grid,
                 combined_grid=combined_grid,
                 time_vector=self.time_vector,
                 SSA_X=self.SSA_X,
                 PDE_X=self.PDE_X)
-        
-        # Save the lists of SSA events and PDE update times separately
-        np.save(os.path.join(datadirectory, 'SSA_events_logs.npy'), np.array(all_SSA_events_logs, dtype=object))
-        np.save(os.path.join(datadirectory, 'PDE_update_times.npy'), np.array(all_PDE_update_times, dtype=object))
-        
-        with open(os.path.join(datadirectory, "parameters.json"), 'w') as params_file:
+        with open(os.path.join(datadirectory, f"{filename}_parameters.json"), 'w') as params_file:
             json.dump(params, params_file, indent=4)
-        print("Data saved successfully")
+        print(f"Data saved successfully as '{filename}' in '{datadirectory}'")
