@@ -1,114 +1,82 @@
 import numpy as np
 from production_project import Hybrid, Stochastic, PDE
-import subprocess
-import sys
 
 def main():
-    # Open file and read parameters into a dictionary
-    with open("parameter_input.dat", "r") as f:
-        parameters_dict = {line.split()[0]: line.split()[1] for line in f}
+    """
+    Self-contained demonstration of Hybrid, Stochastic, and PDE simulations
+    using hardcoded parameters.
+    """
 
-    # Convert values to the appropriate types, with error handling
-    try:
-        domain_length = float(parameters_dict.get('domain_length', 0))
-        h = float(parameters_dict.get('compartment_length', 0))
+    # --------------------------
+    # Simulation Parameters
+    # --------------------------
+    domain_length = 5.0
+    h = 0.1
+    compartment_number = int(domain_length / h)
 
-        compartment_number = domain_length/h
-        if compartment_number % 1 != 0:
-            raise ValueError("The domain length must be divisible by h.")
-        compartment_number = int(compartment_number)
-        if compartment_number == 0:
-            raise ValueError("compartment_number cannot be zero.")
-        
-        PDE_multiple = int(parameters_dict.get('PDE_multiple', 0))
-        total_time = int(parameters_dict.get('total_time', 0))
-        timestep = float(parameters_dict.get('timestep', 0))
-        particles_per_compartment_thresh = int(parameters_dict.get('particles_per_compartment_thresh', 0))
-        gamma = float(parameters_dict.get('gamma', 0))
-        production_rate = float(parameters_dict.get('production_rate', 0))
-        degradation_rate = float(parameters_dict.get('degradation_rate', 0))
-        repeats = int(parameters_dict.get('repeats', 0))
-        # Ensure number_particles_per_cell is defined and not zero
-        number_particles_per_cell = int(parameters_dict.get('number_particles_per_cell', 0))
-        diffusion_rate = float(parameters_dict.get('diffusion_rate', 0))
-        if number_particles_per_cell == 0:
-            raise ValueError("number_particles_per_cell cannot be zero.")
-        
-       
-        # Print the values to confirm
-        print(f"domain_length: {domain_length}")
-        print(f"compartment_number: {compartment_number}")
-        print(f"PDE_multiple: {PDE_multiple}")
-        print(f"total_time: {total_time}")
-        print(f"timestep: {timestep}")
-        print(f"particles_per_compartment_thresh: {particles_per_compartment_thresh}")
-        print(f"gamma: {gamma}")
-        print(f"production_rate: {production_rate}")
-        print(f"degradation_rate: {degradation_rate}")
-        print(f"diffusion_rate: {diffusion_rate}")
-        print(f"number_particles_per_cell: {number_particles_per_cell}")
-        print(f"The steady state is: {production_rate/degradation_rate}")
+    PDE_multiple = 8
+    total_time = 10
+    timestep = 0.008
+    particles_per_compartment_thresh = 50
+    gamma = 1.0
+    production_rate = 10.0
+    degradation_rate = 0.01
+    diffusion_rate = 1e-2
+    repeats = 10
+    number_particles_per_cell = 1 #This will be plugged into the initial conditions
 
-    except ValueError as e:
-        print("Error:", e)
-        return
+    # --------------------------
+    # Initial Conditions
+    # --------------------------
+    SSA_initial = np.zeros(compartment_number, dtype=np.int64)
+    SSA_initial[0] = number_particles_per_cell  # start with one particle in the first compartment
 
-    # Initialise the hybrid model
-    # np.random.seed(0)
-    SSA_initial = np.zeros((compartment_number), np.int64) * number_particles_per_cell # Initial conditions (within each cell)
+    # --------------------------
+    # Hybrid Model Simulation
+    # --------------------------
+    hybrid_model = Hybrid(
+        domain_length, compartment_number, PDE_multiple, total_time, timestep,
+        particles_per_compartment_thresh, gamma, production_rate, degradation_rate,
+        diffusion_rate, SSA_initial, use_c_functions=True
+    )
 
-    # SSA_initial[compartment_number//2:] = 0
-    start_index = 0
-    end_index = 1
-    SSA_initial[start_index:end_index] = number_particles_per_cell
-    # multiply_vector = np.arange(0, compartment_number)%2
-    
-    # SSA_initial = SSA_initial* multiply_vector
+    Hybrid_SSA, Hybrid_PDE, Hybrid_combined = hybrid_model.run_simulation(number_of_repeats=repeats)
+    hybrid_model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data', filename='Hybrid_data')
 
+    # --------------------------
+    # Pure Stochastic Simulation
+    # --------------------------
+    stochastic_model = Stochastic(
+        domain_length, compartment_number, total_time, timestep,
+        production_rate, degradation_rate, diffusion_rate, SSA_initial
+    )
 
-    Model = Hybrid(domain_length, compartment_number, PDE_multiple, total_time, timestep, particles_per_compartment_thresh, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial, use_c_functions=True) # Define the hybrid model
+    SSA_grid = stochastic_model.run_simulation(number_of_repeats=repeats)
+    stochastic_model.save_simulation_data(SSA_grid, datadirectory='data')
 
-    # run_simulation now returns (SSA_avg, PDE_avg, combined_grid)
-    Hybrid_SSA, Hybrid_PDE, Hybrid_combined = Model.run_simulation(number_of_repeats=repeats)
-    # save_simulation_data signature updated: (SSA_grid, PDE_grid, combined_grid, datadirectory='data', filename='Hybrid_data')
-    Model.save_simulation_data(Hybrid_SSA, Hybrid_PDE, Hybrid_combined, datadirectory='data', filename='Hybrid_data')
+    # --------------------------
+    # PDE Simulation
+    # --------------------------
+    PDE_points = hybrid_model.PDE_M
+    PDE_initial = np.zeros(PDE_points)
+    PDE_initial[0:PDE_multiple] = number_particles_per_cell / hybrid_model.h
 
-    print(f"Production rate: {production_rate}")
-    print(f"Degradation rate: {degradation_rate}")
-    SSA_model = Stochastic(domain_length, compartment_number, total_time, timestep, production_rate, degradation_rate, diffusion_rate, SSA_initial)
-    SSA_grid = SSA_model.run_simulation(number_of_repeats=repeats)
-    SSA_model.save_simulation_data(SSA_grid, datadirectory='data') # ignore
+    pde_model = PDE(
+        domain_length, PDE_points, total_time, timestep,
+        production_rate, degradation_rate, diffusion_rate, PDE_initial
+    )
 
+    PDE_grid = pde_model.run_simulation()
+    pde_model.save_simulation_data(PDE_grid, datadirectory='data')
 
-    PDE_points = Model.PDE_M
-    PDE_initial = np.zeros(PDE_points) 
-
-    PDE_initial[start_index*PDE_multiple:end_index*PDE_multiple] = number_particles_per_cell / Model.h
-
-    
-
-    print(PDE_initial)
-    PDE_Model = PDE(domain_length, PDE_points, total_time, timestep, production_rate, degradation_rate, diffusion_rate, PDE_initial)
-    PDE_grid = PDE_Model.run_simulation()
-    PDE_Model.save_simulation_data(PDE_grid, datadirectory='data')
-
-    print(f"PDE grid at timestep one: {PDE_grid[:,0]}")
-    # print(f"Stochastic grid at timestep 1: {SSA_grid[:,0]}")
-    #print(f"SSA in hybrid model at timestep 1: {Hybrid_SSA[:,0]}")
-
-def plot():
-    subprocess.run(['python', 'animate.py'])
+    # --------------------------
+    # Quick Summary Printout
+    # --------------------------
+    print("Simulation complete!")
+    print(f"Steady-state estimate (production/degradation): {production_rate / degradation_rate}")
+    print(f"Initial SSA: {SSA_initial}")
+    print(f"Hybrid SSA final mean: {Hybrid_SSA[:, -1].mean():.2f}")
+    print(f"PDE final mean: {PDE_grid[:, -1].mean():.2f}")
 
 if __name__ == "__main__":
-    if len(sys.argv) >= 2:
-        if sys.argv[1] == 'plot':
-            plot()
-        elif sys.argv[1] == 'run':
-            main()
-        elif sys.argv[1] == 'run_and_plot':
-            main()
-            plot()
-        else:
-            print("Invalid argument. Use 'run', 'plot', or 'run_and_plot'.")
-    else:
-        print("No argument provided. Use 'run', 'plot', or 'run_and_plot'.")
+    main()
