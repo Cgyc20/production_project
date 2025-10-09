@@ -1,3 +1,7 @@
+"""The SRCM for the fisher-KPP system with adaptive switching (test case 4 in the 'spatial regime conversion method')
+Author: Charles Cameron
+"""
+
 import numpy as np
 from tqdm import tqdm
 import os
@@ -5,28 +9,68 @@ import json
 from copy import deepcopy, copy
 import ctypes
 from .base_function import UtilityFunctions
-from production_project.clibrary_argtypes import set_clibrary_argtypes #Each data type for the c functions
-clibrary = ctypes.CDLL("c_class/clibrary.so") #import the c library
+from production_project.clibrary_argtypes import set_clibrary_argtypes
 
-set_clibrary_argtypes(clibrary) #Import the data types for each c function
+clibrary = ctypes.CDLL("c_class/clibrary.so")  # Import the C library
+set_clibrary_argtypes(clibrary)  # Set argument types for C functions
+
 
 class Hybrid:
-    
-    def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep, threshold, gamma, production_rate, degradation_rate, diffusion_rate, SSA_initial,use_c_functions):
+    """
+    Implements a hybrid stochastic-deterministic (SSA-PDE) Fisher-KPP model, called the SRCM (Cameron, Yates, Smith)
+
+    Combines a discrete stochastic SSA model for low particle counts with a continuous PDE
+    model for high concentrations. Can optionally use C functions for faster propensity calculations.
+
+    Attributes:
+        L (float): Total spatial domain length.
+        SSA_M (int): Number of compartments for the SSA model.
+        PDE_multiple (int): Number of PDE points per SSA compartment.
+        PDE_M (int): Total number of PDE grid points.
+        production_rate (float): Production rate of molecules.
+        degradation_rate (float): Degradation rate of molecules.
+        diffusion_rate (float): Diffusion coefficient.
+        gamma (float): Conversion factor between discrete and continuous mass.
+        threshold (float): Concentration threshold for switching between SSA and PDE.
+        threshold_conc (float): Threshold scaled by compartment size (threshold / h).
+        h (float): SSA compartment length.
+        deltax (float): PDE spatial step size.
+        SSA_X (np.ndarray): SSA compartment positions.
+        PDE_X (np.ndarray): PDE spatial grid positions.
+        SSA_initial (np.ndarray): Initial discrete particle counts (integers).
+        PDE_initial_conditions (np.ndarray): Initial continuous concentrations.
+        DX_NEW (np.ndarray): Finite difference Laplacian matrix for PDE.
+        time_vector (np.ndarray): Time points for simulation.
+        use_c_functions (bool): Whether to use C implementations for performance.
+    """
+
+    def __init__(self, domain_length, compartment_number, PDE_multiple, total_time, timestep,
+                 threshold, gamma, production_rate, degradation_rate, diffusion_rate,
+                 SSA_initial, use_c_functions):
+        """
+        Initialize the hybrid SSA-PDE model.
+
+        Args:
+            domain_length (float): Total spatial length.
+            compartment_number (int): Number of SSA compartments.
+            PDE_multiple (int): Number of PDE grid points per SSA compartment.
+            total_time (float): Total simulation time.
+            timestep (float): Time increment for recording states.
+            threshold (float): Concentration threshold for switching between SSA and PDE.
+            gamma (float): Conversion factor between discrete and continuous mass.
+            production_rate (float): Molecule production rate.
+            degradation_rate (float): Molecule degradation rate.
+            diffusion_rate (float): Diffusion coefficient for SSA and PDE.
+            SSA_initial (np.ndarray): Initial discrete particle counts.
+            use_c_functions (bool): Use C functions for faster computations if True.
+        """
         self.L = domain_length
         self.SSA_M = compartment_number
-    
         self.PDE_multiple = PDE_multiple
         self.production_rate = production_rate
         self.PDE_M = compartment_number * PDE_multiple
         self.deltax = self.L / self.PDE_M
-
-        self.use_c_functions = use_c_functions #Whether use c_function or not 
-        if self.use_c_functions:
-            print("Using c functions")
-        else: 
-            print(f"Using python function")
-        
+        self.use_c_functions = use_c_functions
         self.total_time = total_time
         self.timestep = timestep
         self.threshold = threshold
@@ -34,17 +78,17 @@ class Hybrid:
         self.degradation_rate = degradation_rate
         self.h = self.L / compartment_number
         self.diffusion_rate = diffusion_rate
-        self.d = diffusion_rate / (self.h**2)
+        self.d = diffusion_rate / (self.h ** 2)
         self.threshold_conc = threshold / self.h
         self.SSA_X = np.linspace(0, self.L - self.h, self.SSA_M)
         self.PDE_X = np.linspace(0, self.L, self.PDE_M)
 
         if not isinstance(SSA_initial, np.ndarray):
-            raise ValueError("SSA initial is not a np array")
-        elif not len(SSA_initial) == compartment_number:
-            raise ValueError("The length of the SSA initial is not the same as compartment number")
+            raise ValueError("SSA_initial must be a numpy array")
+        elif len(SSA_initial) != compartment_number:
+            raise ValueError("Length of SSA_initial must match compartment_number")
         elif not np.issubdtype(SSA_initial.dtype, np.integer):
-            raise ValueError("The SSA initial is not an integer")
+            raise ValueError("SSA_initial must contain integers")
         else:
             self.SSA_initial = SSA_initial.astype(int)
 
@@ -56,76 +100,137 @@ class Hybrid:
         print(f"The threshold concentration is: {self.threshold_conc}")
 
     def create_finite_difference(self) -> np.ndarray:
+        """
+        Create a finite difference matrix for PDE diffusion.
+
+        Returns:
+            np.ndarray: Laplacian matrix with boundary conditions applied.
+        """
         self.DX = np.zeros((self.PDE_M, self.PDE_M), dtype=int)
         self.DX[0, 0], self.DX[-1, -1] = -1, -1
         self.DX[0, 1], self.DX[-1, -2] = 1, 1
         for i in range(1, self.DX.shape[0] - 1):
             self.DX[i, i] = -2
-            self.DX[i, (i + 1)] = 1
-            self.DX[i, (i - 1)] = 1
+            self.DX[i, i + 1] = 1
+            self.DX[i, i - 1] = 1
         return self.DX
-    
-    def create_initial_dataframe(self) -> np.ndarray:
+
+    def create_initial_dataframe(self) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Create initial SSA and PDE grids for the simulation.
+
+        Returns:
+            tuple: (PDE_grid, SSA_grid)
+                - PDE_grid: Continuous concentration grid initialized to zero.
+                - SSA_grid: Discrete SSA particle grid initialized to SSA_initial.
+        """
         SSA_grid = np.zeros((self.SSA_M, len(self.time_vector)), dtype=int)
         SSA_grid[:, 0] = self.SSA_initial
         PDE_grid = np.zeros((self.PDE_M, len(self.time_vector)), dtype=float)
         PDE_grid[:, 0] = self.PDE_initial_conditions
-        return PDE_grid, SSA_grid 
-    
+        return PDE_grid, SSA_grid
+
     def calculate_total_mass(self, PDE_list: np.ndarray, SSA_list: np.ndarray) -> np.ndarray:
-        """This will calculate the total mass of discrete + continuous"""
-        
-        return UtilityFunctions.calculate_total_mass(PDE_list, SSA_list, self.use_c_functions,self.PDE_multiple, self.deltax, self.SSA_M )
-      
-    def threshold_boolean(self, combined_list: np.ndarray) -> np.ndarray:
-        """Generate a boolean list based on the threshold"""
+        """
+        Compute total mass combining SSA and PDE contributions.
 
-        compartment_bool_list, PDE_bool_list =  UtilityFunctions.threshold_boolean(combined_list, self.threshold, self.PDE_multiple ,self.SSA_M)
+        Args:
+            PDE_list (np.ndarray): Continuous concentrations.
+            SSA_list (np.ndarray): Discrete particle counts.
 
-        return compartment_bool_list, PDE_bool_list
+        Returns:
+            np.ndarray: Combined total mass (continuous + discrete).
+        """
+        return UtilityFunctions.calculate_total_mass(PDE_list, SSA_list,
+                                                     self.use_c_functions,
+                                                     self.PDE_multiple,
+                                                     self.deltax,
+                                                     self.SSA_M)
 
-    def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray: 
+    def threshold_boolean(self, combined_list: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Generate boolean masks based on threshold.
 
-        return UtilityFunctions.boolean_if_less_mass(PDE_list, self.h, self.PDE_multiple, self.SSA_M)
-        
-    # def RHS_derivative(self, old_vector, boolean_threshold, SSA_fine_mass):
-    #     dudt = np.zeros_like(old_vector)
-    #     nabla = self.DX_NEW
-        
-    #     bool_production = self.production_rate * boolean_threshold 
-    #     dudt = self.diffusion_rate * (1 / self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + bool_production * (old_vector+SSA_fine_mass)
-    #     #dudt = self.diffusion_rate * (1 / self.deltax)**2 * nabla @ old_vector - self.degradation_rate * (old_vector ** 2) + self.production_rate* (old_vector)
-    #     return dudt
+        Args:
+            combined_list (np.ndarray): Combined mass array.
 
-    def RHS_derivative(self, old_vector, boolean_threshold, SSA_fine_mass):
+        Returns:
+            tuple: (SSA_boolean, PDE_boolean) masks indicating where mass is below threshold.
+        """
+        return UtilityFunctions.threshold_boolean(combined_list, self.threshold,
+                                                  self.PDE_multiple, self.SSA_M)
+
+    def boolean_if_less_mass(self, PDE_list: np.ndarray) -> np.ndarray:
+        """
+        Boolean mask indicating PDE compartments with mass below threshold.
+
+        Args:
+            PDE_list (np.ndarray): PDE concentration array.
+
+        Returns:
+            np.ndarray: Boolean array where 1 indicates mass is below threshold.
+        """
+        return UtilityFunctions.boolean_if_less_mass(PDE_list, self.h,
+                                                     self.PDE_multiple, self.SSA_M)
+
+    def RHS_derivative(self, old_vector: np.ndarray, boolean_threshold: np.ndarray,
+                       SSA_fine_mass: np.ndarray) -> np.ndarray:
+        """
+        Compute the right-hand side of the PDE for RK4 integration.
+
+        Args:
+            old_vector (np.ndarray): Current PDE concentration vector.
+            boolean_threshold (np.ndarray): Boolean mask for production terms.
+            SSA_fine_mass (np.ndarray): SSA mass interpolated to PDE grid.
+
+        Returns:
+            np.ndarray: Time derivative of PDE concentrations.
+        """
         nabla = self.DX_NEW
         diff_coeff = self.diffusion_rate * (1 / self.deltax) ** 2
 
-        # Precompute terms
         diffusion_term = diff_coeff * (nabla @ old_vector)
-        degradation_term = self.degradation_rate * boolean_threshold*((old_vector+SSA_fine_mass) ** 2)
-        production_term = self.production_rate * boolean_threshold * (old_vector + SSA_fine_mass)
         degradation_term = self.degradation_rate * (old_vector) ** 2
-        # Combine all terms
-        dudt = diffusion_term - degradation_term + production_term
+        production_term = self.production_rate * boolean_threshold * (old_vector + SSA_fine_mass)
 
+        dudt = diffusion_term - degradation_term + production_term
         return dudt
 
-    def fine_grid_SSA_mass(self, SSA_mass):
-        """Convert the SSA_mass to the same fine resolution as the PDE"""
-        return UtilityFunctions.fine_grid_SSA_mass(SSA_mass, self.PDE_X, self.SSA_M, self.PDE_multiple, self.h)
-    
-    def RK4(self, old_vector, boolean_threshold, SSA_fine_mass, dt=None):
+    def fine_grid_SSA_mass(self, SSA_mass: np.ndarray) -> np.ndarray:
+        """
+        Interpolate SSA discrete mass to the fine PDE grid.
 
-        if dt == None:
+        Args:
+            SSA_mass (np.ndarray): SSA compartment mass.
+
+        Returns:
+            np.ndarray: SSA mass mapped to PDE grid resolution.
+        """
+        return UtilityFunctions.fine_grid_SSA_mass(SSA_mass, self.PDE_X,
+                                                   self.SSA_M, self.PDE_multiple, self.h)
+
+    def RK4(self, old_vector: np.ndarray, boolean_threshold: np.ndarray,
+            SSA_fine_mass: np.ndarray, dt: float = None) -> np.ndarray:
+        """
+        Perform a single Runge-Kutta 4th order (RK4) step for PDE integration.
+
+        Args:
+            old_vector (np.ndarray): Current PDE concentration vector.
+            boolean_threshold (np.ndarray): Boolean mask for production terms.
+            SSA_fine_mass (np.ndarray): SSA mass interpolated to PDE grid.
+            dt (float, optional): Time step. Defaults to self.timestep.
+
+        Returns:
+            np.ndarray: Updated PDE concentration vector after RK4 step.
+        """
+        if dt is None:
             dt = self.timestep
-        
         k1 = self.RHS_derivative(old_vector, boolean_threshold, SSA_fine_mass)
         k2 = self.RHS_derivative(old_vector + 0.5 * dt * k1, boolean_threshold, SSA_fine_mass)
         k3 = self.RHS_derivative(old_vector + 0.5 * dt * k2, boolean_threshold, SSA_fine_mass)
         k4 = self.RHS_derivative(old_vector + dt * k3, boolean_threshold, SSA_fine_mass)
         return old_vector + dt * (k1 + 2 * k2 + 2 * k3 + k4) / 6
-    
+
 
  
     def propensity_calculation(self, SSA_list: np.ndarray, PDE_list: np.ndarray) -> np.ndarray:
@@ -249,6 +354,20 @@ class Hybrid:
         return None
 
     def hybrid_simulation(self, SSA_grid: np.ndarray, PDE_grid: np.ndarray, approx_mass: np.ndarray) -> np.ndarray:
+        """
+            The Hybrid simulation.
+
+            Args:
+                SSA_grid (np.ndarray): The initial SSA conditions.
+                PDE_grid (np.ndarray): The initial PDE conditions.
+                approx_mass (np.ndarray): The initial approximate mass conditions (discrete plus continuous)
+
+            Returns:
+                SSA_grid (np.ndarray): The filled SSA grid after simulation.
+                PDE_grid (np.ndarray): The filled PDE grid after simulation.
+                approx_mass (np.ndarray): The filled approximate mass grid after simulation.
+
+        """
         t = 0
         old_time = t
         td = self.timestep
@@ -354,6 +473,17 @@ class Hybrid:
         return SSA_grid, PDE_grid, approx_mass
 
     def run_simulation(self, number_of_repeats: int) -> np.ndarray:
+        """
+            This runs the simulation of the Hybrid N times.
+
+            Args:
+                number_of_repeats (int): The number of times to repeat the simulation.
+
+            Returns:
+                SSA_average (np.ndarray): The averaged SSA grid over all simulations.
+                PDE_average (np.ndarray): The averaged PDE grid over all simulations.
+                combined_grid (np.ndarray): The combined grid of SSA and PDE averages.
+        """
         PDE_initial, SSA_initial = self.create_initial_dataframe()
         approx_mass_initial = np.zeros_like(SSA_initial)
         approx_mass_initial[:, 0] = self.calculate_total_mass(PDE_initial[:, 0], SSA_initial[:, 0])[0]

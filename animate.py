@@ -5,12 +5,18 @@ import json
 import seaborn as sns
 import pandas as pd
 
-def main():
-    # Set seaborn style
+
+hybrid_path = "Data/Hybrid_data.npz"      # <-- Edit this if needed
+ssa_path = "Data/Pure_SSA_data.npz"       # <-- Edit this if needed
+pde_path = "Data/PDE_data.npz"            # <-- Edit this if needed
+params_path = "data/Hybrid_data_parameters.json"  # <-- Edit this if needed
+
+
+def main(hybrid_path, ssa_path, pde_path, params_path):
     sns.set_theme(style="whitegrid")
 
-    # Load data from .npz files
-    Hybrid_data = np.load("Data/Hybrid_data.npz")
+    # Load data
+    Hybrid_data = np.load(hybrid_path)
     C_grid = Hybrid_data["PDE_grid"]
     D_grid = Hybrid_data["SSA_grid"]
     combined_grid = Hybrid_data["combined_grid"]
@@ -18,39 +24,23 @@ def main():
     PDE_X = Hybrid_data["PDE_X"]
     time_vector = Hybrid_data["time_vector"]
 
+    SSA_data = np.load(ssa_path)
     SSA_grid = SSA_data["SSA_grid"]
 
-    PDE_data = np.load("Data/PDE_data.npz")
+    PDE_data = np.load(pde_path)
     PDE_grid = PDE_data["PDE_grid"]
 
-    # Load simulation parameters from JSON file
-    parameters = json.load(open("data/Hybrid_data_parameters.json"))
-    h = parameters["h"]
-    print(f"the h value in animation: {h}")
-    deltax = parameters["deltax"]
-    diffusion_rate = parameters["diffusion_rate"]
+    params = json.load(open(params_path))
+    h = params["h"]
+    deltax = params["deltax"]
+    diffusion_rate = params["diffusion_rate"]
     bar_positions = SSA_X
+    production_rate = params["production_rate"]
+    degradation_rate = params["degradation_rate"]
+    initial_SSA = params["initial_SSA"]
+    concentration_threshold = params["threshold_conc"]
+    domain_length = params["domain_length"]
 
-    # Initialize analytical solution array
-    analytic_sol = np.zeros_like(C_grid)
-
-    print(f"The shape of the SSA_grid is {SSA_grid.shape}")
-    print(f"The shape of the D grid is {D_grid.shape}")
-
-    # Retrieve parameters for analytical solution
-    production_rate = parameters["production_rate"]
-    degradation_rate = parameters["degradation_rate"]
-    initial_SSA = parameters["initial_SSA"]
-    concentration_threshold = parameters["threshold_conc"]
-    domain_length = parameters["domain_length"]
-
-    # Calculate analytical solution
-    initial_conc = initial_SSA[0] / h
-    for i in range(analytic_sol.shape[1]):
-        analytic_sol[:, i] = (
-            production_rate / degradation_rate
-            + (initial_conc - production_rate / degradation_rate) * np.exp(-degradation_rate * time_vector[i])
-        )
 
     # Function to calculate total mass for continuous data
     def calculate_mass_continuous(data_grid, deltax):
@@ -60,19 +50,17 @@ def main():
         return np.sum(data_grid,axis=0)
 
     # Calculate total mass for all solutions
-    analytic_total_mass = calculate_mass_continuous(analytic_sol, deltax)
+
     Hybrid_PDE_total_mass = calculate_mass_continuous(C_grid, deltax)
     pure_PDE_total_mass = calculate_mass_continuous(PDE_grid, deltax)
     combined_total_mass = calculate_mass_continuous(combined_grid, deltax)
 
     # Calculate total mass for pure SSA and pure PDE
     SSA_total_mass = calculate_mass_discrete(SSA_grid)
-    print(f"The SSA_total_mass shape is {SSA_total_mass.shape}")
+
     Hybrid_SSA_mass = calculate_mass_discrete(D_grid)
 
-    # Calculate relative error for combined solution
-    relative_error_combined = np.abs((combined_total_mass - analytic_total_mass) / analytic_total_mass)
-    relative_error_SSA = np.abs((SSA_total_mass - analytic_total_mass) / analytic_total_mass)
+   
 
     # Plotting and Animation
     fig, ax = plt.subplots(figsize=(12, 8)) 
@@ -141,6 +129,9 @@ def main():
 
     # Create animation
     ani = FuncAnimation(fig, update, frames=range(0, len(time_vector), 1), interval=40)
+
+    # Add a clear figure-level title for the animation
+    fig.suptitle("Hybrid simulation (animation)", fontsize=16)
 
     # Set legend position fixed
     # Adjust the figure layout to make space for the legend
@@ -212,8 +203,7 @@ def main():
                 wavespeed_PDE_smooth.max(), wavespeed_SSA_smooth.max(), wavespeed_hybrid_smooth.max())
 
 
-    #plot 0
-    print(f"the shape of the D -grid is {D_grid.shape}")
+  
     print(f"The shape of the timevector is {time_vector.shape}")
 
     plt.plot(time_vector,D_grid[0,:],'b--',label = 'Hybrid SSA')
@@ -221,6 +211,7 @@ def main():
     #Now plotting the per compartment threshold
     plt.plot(time_vector, np.ones_like(time_vector)*concentration_threshold*h, label = 'Compartment Threshold')
     plt.plot(time_vector,combined_grid[0,:]*h,'k--',label = 'Hybrid Combined')
+    plt.title("Mass in first compartment over time")
     plt.legend()
     plt.show()
     plt.figure()
@@ -256,4 +247,4 @@ def main():
     plt.show()
 
 if __name__ == "__main__":
-    main()
+    main(hybrid_path, ssa_path, pde_path, params_path)

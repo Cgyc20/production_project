@@ -61,7 +61,7 @@ class PDE:
         print("Simulation completed")
         return self.PDE_grid
 
-    def save_simulation_data(self, PDE_grid, datadirectory='data'):
+    def save_simulation_data(self, PDE_grid, datadirectory='data', filename='PDE_data'):
         if not os.path.exists(datadirectory):
             os.makedirs(datadirectory)
         params = {
@@ -73,6 +73,6 @@ class PDE:
             'degradation_rate': self.degradation_rate,
             'diffusion_rate': self.diffusion_rate,
         }
-        np.savez(os.path.join(datadirectory, "PDE_data.npz"), PDE_grid=PDE_grid, PDE_X=self.PDE_X, time_vector=self.time_vector, parameters=params)
+        np.savez(os.path.join(datadirectory, f"{filename}.npz"), PDE_grid=PDE_grid, PDE_X=self.PDE_X, time_vector=self.time_vector, parameters=params)
         print("Data saved successfully")
 

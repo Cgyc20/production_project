@@ -10,19 +10,18 @@ def main():
     # --------------------------
     # Simulation Parameters
     # --------------------------
-    domain_length = 5.0
-    h = 0.1
-    compartment_number = int(domain_length / h)
-
-    PDE_multiple = 8
-    total_time = 10
-    timestep = 0.008
-    particles_per_compartment_thresh = 50
-    gamma = 1.0
-    production_rate = 10.0
-    degradation_rate = 0.01
-    diffusion_rate = 1e-2
-    repeats = 10
+    domain_length = 5.0 #THe domain length
+    h = 0.1 #The size of each compartment
+    compartment_number = int(domain_length / h) #The compartment number
+    PDE_multiple = 8 # The number of PDE points per each compartment
+    total_time = 10 # The total time of the simulation
+    timestep = 0.008 # The timestep for the simulation
+    particles_per_compartment_thresh = 50 # Threshold for switching between SSA and PDE (as particle number not concentration, concentration is this value over h)
+    gamma = 1.0 # The conversion rate
+    production_rate = 10.0 # The production rate
+    degradation_rate = 0.01 # The degradation rate
+    diffusion_rate = 1e-2 # The diffusion rate
+    repeats = 10 # The number of repeats we average over.
     number_particles_per_cell = 1 #This will be plugged into the initial conditions
 
     # --------------------------
@@ -52,7 +51,7 @@ def main():
     )
 
     SSA_grid = stochastic_model.run_simulation(number_of_repeats=repeats)
-    stochastic_model.save_simulation_data(SSA_grid, datadirectory='data')
+    stochastic_model.save_simulation_data(SSA_grid, datadirectory='data', filename='Pure_SSA_data')
 
     # --------------------------
     # PDE Simulation
@@ -67,7 +66,7 @@ def main():
     )
 
     PDE_grid = pde_model.run_simulation()
-    pde_model.save_simulation_data(PDE_grid, datadirectory='data')
+    pde_model.save_simulation_data(PDE_grid, datadirectory='data', filename='PDE_data')
 
     # --------------------------
     # Quick Summary Printout
